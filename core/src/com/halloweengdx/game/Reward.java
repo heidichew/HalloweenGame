@@ -1,4 +1,6 @@
 package com.halloweengdx.game;
 
-public class Reward {
+public abstract class Reward {
+
+    public enum RewardType {LIVE, SCORE}
 }

@@ -4,7 +4,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public interface Actor
 {
-    public void render(SpriteBatch batch);
+    public void create();
+
+    public void draw(SpriteBatch batch);
 
     public void update();
 }
