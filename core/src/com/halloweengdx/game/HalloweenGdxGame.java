@@ -9,14 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class HalloweenGdxGame extends Game {
-//	SpriteBatch batch;
-//	Texture img;
-//
-//	float x;
-//
-//	private OrthographicCamera camera;
-//	private float targetScreenHeight = 2160;
-//	private float targetScreenWidth; // don't set since different phone may have different width.
+
 
 	// The class with the menu
 	public static MenuScreen menuScreen;

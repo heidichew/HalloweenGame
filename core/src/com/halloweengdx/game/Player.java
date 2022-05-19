@@ -8,13 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 public class Player implements Actor
 {
 
-    // Adrian Version
-    public enum PLAYER_STATE{ IDLE, MOVING, ATTACKING, JUMPING };
-    public enum PLAYER_DIRECTION {LEFT, RIGHT};
-
-    private float x;
-    private float y;
-
     // Heidi Version
     public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, MOVEUP, MOVEDOWN, DYING, DEAD}
 
@@ -44,21 +37,11 @@ public class Player implements Actor
         velocity = new Vector2(0,0);
 
         this.state = PlayerState.ALIVE;
-
-        create();
     }
 
-    // Adrian version
-    public Player(float x, float y)
+    public void reset()
     {
-        GameAssetsDB player_assets = GameAssetsDB.getInstance();
 
-        //loading texture from db
-
-    }
-
-    public void create(){
-        // texture and collider
     }
 
     public void draw (SpriteBatch batch){
@@ -69,27 +52,27 @@ public class Player implements Actor
     }
 
 
-    public void update()
+    public void update(float delta)
     {
         //update stuff
-    }
-
-    public void reset(){
-
     }
 
     public void dispose(){
 
     }
 
-    // Getters and Setters
-    public PlayerState getState() { return state; }
 
-    public void setState(PlayerState state) { this.state = state; }
+    // Getters and Setters
+
+    public Vector2 getStartPosition() { return this.start_position; }
 
     public Vector2 getPosition() { return position; }
 
     public void setPosition(Vector2 position) { this.position = position; }
+
+    public PlayerState getState() { return state; }
+
+    public void setState(PlayerState state) { this.state = state; }
 
     //public Rectangle getCollider() { return collider; }
 

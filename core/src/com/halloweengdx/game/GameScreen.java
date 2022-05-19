@@ -1,5 +1,6 @@
 package com.halloweengdx.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,6 +14,9 @@ public abstract class GameScreen implements Screen {
 
     protected OrthographicCamera camera;
     protected Viewport viewport;
+
+    protected float targetScreenHeight = 2140;
+    protected float targetScreenWidth;
 
     protected SpriteBatch batch;            // batch to draw the enemy instances, NPC and player
     protected SpriteBatch levelBatch;       // batch to draw instances in a level (e.g., Tilemap)
@@ -34,6 +38,13 @@ public abstract class GameScreen implements Screen {
 
         this.game = game;
         gameScore = 0;
+
+        //screen
+        float screenRatio = (float)Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
+        this.targetScreenWidth = targetScreenHeight * screenRatio;
+
+        this.camera = new OrthographicCamera(this.targetScreenWidth, this.targetScreenHeight);
+        //setting camera position;
     }
 
     abstract public void update(float delta);

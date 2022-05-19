@@ -21,13 +21,16 @@ public class BatEnemy extends Enemy{
      * @param start_xy The stating position to place the enemy instance
      */
     public BatEnemy(Player player, Vector2 start_xy) {
-        super(player, start_xy);
-        score = 50;
-        position = new Vector2(start_xy.x, start_xy.y);
-        create();
+        super(player, start_xy, start_xy, 50);
+//        super.score = 50;
+//        super.position = new Vector2(start_xy.x, start_xy.y);
+
+        GameAssetsDB player_assets = GameAssetsDB.getInstance();
+        //loading texture from db
     }
 
-    private void create() {
+    @Override
+    public void reset() {
 
     }
 

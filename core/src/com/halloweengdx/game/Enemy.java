@@ -3,40 +3,50 @@ package com.halloweengdx.game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
-public abstract class Enemy
+public abstract class Enemy implements Actor
 {
 
     public enum EnemyState {IDLE, ALIVE, ATTACK, DYING, DEAD}
 
-    public enum ENEMY_STATE{ IDLE, MOVING, ATTACKING, JUMPING };
     public enum ENEMY_DIRECTION {LEFT, RIGHT};
 
-    protected Vector2 start_xy = null;  // The starting position of the enemy in the game world
+    //if you have a getter and setter method of each one it should become all private
 
-    protected Vector2 position = null;  // The current position of the enemy in the game world
+    private Vector2 start_xy = null;  // The starting position of the enemy in the game world
 
-    protected Player targetPlayer = null;   // The player it can threaten in the game world
+    private Vector2 position = null;  // The current position of the enemy in the game world
 
-    protected EnemyState state = null;      // The state of the enemy
+    private Player targetPlayer = null;   // The player it can threaten in the game world
 
-    protected int score = 0;    // The score of the enemy instance if the player kill the enemy
+    private EnemyState state = null;      // The state of the enemy
+
+    private int score = 0;    // The score of the enemy instance if the player kill the enemy
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
      * @param player    The player that the enemy instance can kill in the game world
      * @param start_xy  The stating position to place the enemy instance
      */
-    public Enemy(Player player, Vector2 start_xy) {
+    public Enemy(Player player, Vector2 start_xy, Vector2 position, int score ) {
         this.targetPlayer = player;
-        this.start_xy = new Vector2(start_xy.x, start_xy.y);
+        //this.start_xy = new Vector2(start_xy.x, start_xy.y);
+        this.start_xy = start_xy;
         this.state = EnemyState.ALIVE;
+        this.position = position;
+        this.score = score;
     }
 
-    abstract public void draw(SpriteBatch batch);
+    @Override
+    public void reset(){};
 
-    abstract public void update(float delta);
+    @Override
+    public void draw(SpriteBatch batch){}
 
-    abstract public void dispose();
+    @Override
+    public void update(float delta){}
+
+    @Override
+    public void dispose(){}
 
     // Getters and Setters
     public Vector2 getStartPosition() { return start_xy; }
