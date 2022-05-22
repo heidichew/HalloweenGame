@@ -27,20 +27,22 @@ public abstract class Enemy implements Actor
      * @param player    The player that the enemy instance can kill in the game world
      * @param start_xy  The stating position to place the enemy instance
      */
-    public Enemy(Player player, Vector2 start_xy, Vector2 position, int score ) {
+    public Enemy(Player player, Vector2 start_xy, Vector2 position, int score) {
         this.targetPlayer = player;
-        //this.start_xy = new Vector2(start_xy.x, start_xy.y);
-        this.start_xy = start_xy;
+        this.start_xy = new Vector2(start_xy.x, start_xy.y);
         this.state = EnemyState.ALIVE;
-        this.position = position;
+        this.position = new Vector2(position);
         this.score = score;
+        //texture [...]Game
     }
 
     @Override
-    public void reset(){};
+    public void reset(){}
 
     @Override
-    public void draw(SpriteBatch batch){}
+    public void draw(SpriteBatch batch){
+        //texture
+    }
 
     @Override
     public void update(float delta){}

@@ -22,9 +22,6 @@ public class BatEnemy extends Enemy{
      */
     public BatEnemy(Player player, Vector2 start_xy) {
         super(player, start_xy, start_xy, 50);
-//        super.score = 50;
-//        super.position = new Vector2(start_xy.x, start_xy.y);
-
         GameAssetsDB player_assets = GameAssetsDB.getInstance();
         //loading texture from db
     }

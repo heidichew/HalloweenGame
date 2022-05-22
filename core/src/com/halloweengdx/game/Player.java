@@ -17,7 +17,7 @@ public class Player implements Actor
     private PlayerState state;          // State of the player in game
 
     private Vector2 start_position;     // The player's starting position when the game start
-    private Vector2 position;           // The player's current position
+    protected Vector2 position;           // The player's current position
     private Vector2 velocity;           // The player's current velocity
 
     private Weapon weapon  = null;      // The weapon instance (the player's weapon)
