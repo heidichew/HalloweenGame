@@ -2,6 +2,7 @@ package com.halloweengdx.game;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 
 public class BatEnemy extends Enemy{
@@ -11,6 +12,11 @@ public class BatEnemy extends Enemy{
     private Animation moveAnimation = null;
     private Animation dieAnimation = null;
     private Animation attackAnimation = null;
+
+    //Tile map
+    TiledMapTileLayer layer;
+
+
 
     // create collider
 
@@ -22,7 +28,10 @@ public class BatEnemy extends Enemy{
      */
     public BatEnemy(Player player, Vector2 start_xy) {
         super(player, start_xy, start_xy, 50);
-        GameAssetsDB player_assets = GameAssetsDB.getInstance();
+        GameAssetsDB texture_assets = GameAssetsDB.getInstance();
+        this.layer = texture_assets.tiledMap_L1.getLayers();
+
+        this.moveAnimation = new Animation(0.05f, texture_assets.bat_enemy_idle_texture);
         //loading texture from db
     }
 
@@ -33,6 +42,7 @@ public class BatEnemy extends Enemy{
 
     @Override
     public void draw(SpriteBatch batch) {
+        batch.dra
 
     }
 
