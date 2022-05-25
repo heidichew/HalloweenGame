@@ -19,7 +19,7 @@ public abstract class GameScreen implements Screen {
     protected OrthographicCamera camera;
     protected Viewport viewport;
 
-    protected float targetScreenHeight = 1080;
+    protected float targetScreenHeight =1080;
     protected float targetScreenWidth;
 
     protected SpriteBatch batch;            // batch to draw the enemy instances, NPC and player
@@ -49,8 +49,11 @@ public abstract class GameScreen implements Screen {
 
         //camera
         this.camera = new OrthographicCamera(this.targetScreenWidth, this.targetScreenHeight);
-        this.camera.setToOrtho(false, this.targetScreenWidth , this.targetScreenHeight);
+        this.camera.setToOrtho(false, this.targetScreenWidth /2 , this.targetScreenHeight /2);
         this.camera.update();
+
+        //batch
+        this.batch = new SpriteBatch();
     }
 
     abstract public void update(float delta);
