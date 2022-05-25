@@ -29,9 +29,9 @@ public class BatEnemy extends Enemy{
     public BatEnemy(Player player, Vector2 start_xy) {
         super(player, start_xy, start_xy, 50);
         GameAssetsDB texture_assets = GameAssetsDB.getInstance();
-        this.layer = texture_assets.tiledMap_L1.getLayers();
+        //this.layer = texture_assets.tiledMap_L1.getLayers();
 
-        this.moveAnimation = new Animation(0.05f, texture_assets.bat_enemy_idle_texture);
+        //this.moveAnimation = new Animation(0.05f, texture_assets.bat_enemy_idle_texture);
         //loading texture from db
     }
 
@@ -42,7 +42,7 @@ public class BatEnemy extends Enemy{
 
     @Override
     public void draw(SpriteBatch batch) {
-        batch.dra
+        //batch.dra
 
     }
 
