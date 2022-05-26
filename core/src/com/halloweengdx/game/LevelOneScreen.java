@@ -20,10 +20,10 @@ public class LevelOneScreen extends GameScreen
     private TiledMapRenderer tiledMapRenderer;
 
     //Tile map layer
-    TiledMapTileLayer layer;
+    private TiledMapTileLayer layer;
 
     //Enemy
-    List<Enemy> enemies;
+    private List<Enemy> enemies;
 
     private boolean temp_bol = true;
 
@@ -37,7 +37,9 @@ public class LevelOneScreen extends GameScreen
 
         // work out tile height
         this.enemies = new ArrayList<Enemy>();
-        this.enemies.add(new BatEnemy(null, new Vector2(this.layer.getTileWidth() + 100f, this.layer.getTileHeight() * this.layer.getHeight() - 320f)));
+        this.enemies.add(new BatEnemy(null,
+                new Vector2(this.layer.getTileWidth() + 100f, this.layer.getTileHeight() * this.layer.getHeight() - 320f),
+                this.layer));
     }
 
     @Override
@@ -69,9 +71,9 @@ public class LevelOneScreen extends GameScreen
 
         if(temp_bol)
         {
-            super.camera.translate(new Vector2(0,10));
+            super.camera.translate(new Vector2(0,600));
             super.camera.update();
-            //temp_bol = !temp_bol;
+            temp_bol = !temp_bol;
         }
 
     }
@@ -85,8 +87,10 @@ public class LevelOneScreen extends GameScreen
 //        layer.getTileWidth() * layer.getWidth(); to work out the map width in pixels.
 //        layer.getTileHeight() * layer.getHeight(); to work out the map height in pixels.
 
-
-
+        for(Enemy e: this.enemies)
+        {
+            e.update(Gdx.graphics.getDeltaTime());
+        }
 
     }
 
