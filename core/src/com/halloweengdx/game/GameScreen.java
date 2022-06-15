@@ -4,10 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public abstract class GameScreen implements Screen {
@@ -19,7 +15,7 @@ public abstract class GameScreen implements Screen {
     protected OrthographicCamera camera;
     protected Viewport viewport;
 
-    protected float targetScreenHeight = 800;
+    protected float targetScreenHeight = 900;
     protected float targetScreenWidth;
 
     protected SpriteBatch batch;            // batch to draw the enemy instances, NPC and player
@@ -62,6 +58,6 @@ public abstract class GameScreen implements Screen {
         bgBatch = new SpriteBatch();
     }
 
-    abstract public void update(float delta);
+    abstract public void update();
 
 }

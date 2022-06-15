@@ -1,5 +1,7 @@
 package com.halloweengdx.game;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -9,12 +11,22 @@ public class Player implements Actor
 {
 
     // Heidi Version
-    public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, MOVEUP, MOVEDOWN, DYING, DEAD}
+    public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, JUMP, FALL, DYING, DEAD}
 
-    private static final float GRAVITY = -0.25f;        // The gravity to apply to user after jumping
-    private static final float MOVING_SPEED = 0.02f;
+    public enum PlayerDirection {LEFT, RIGHT}
+
+    public static final float GRAVITY = -0.25f;        // The gravity to apply to user after jumping
+    public static final float MOVING_SPEED = 0.5f;
+
+    public static final float PLAYER_WIDTH = 300f;
+    public static final float PLAYER_HEIGHT = 300f;
 
     private PlayerState state;          // State of the player in game
+    private PlayerDirection direction;
+
+    // Texture
+    private Texture playerTexture;
+    private Sprite playerSprite;
 
     private Vector2 start_position;     // The player's starting position when the game start
     protected Vector2 position;           // The player's current position
@@ -22,6 +34,7 @@ public class Player implements Actor
 
     private Weapon weapon  = null;      // The weapon instance (the player's weapon)
 
+    Rectangle collider;
 
     //texture
 
@@ -37,6 +50,19 @@ public class Player implements Actor
         velocity = new Vector2(0,0);
 
         this.state = PlayerState.ALIVE;
+        this.direction = PlayerDirection.RIGHT;
+
+        create();
+    }
+
+    private void create(){
+        playerTexture = new Texture("player/reaper_man_static.png");
+
+        //Player
+        playerSprite = new Sprite(playerTexture);
+        playerSprite.setSize(300, 300);
+        playerSprite.translate(position.x, position.y);
+        collider = new Rectangle(position.x, position.y, playerSprite.getWidth(), playerSprite.getHeight());
     }
 
     public void reset()
@@ -49,12 +75,31 @@ public class Player implements Actor
 //        if (weapon != null){
 //            batch.draw(weapon.getTexture(), weapon.getPosition().x, weapon.getPosition().y);
 //        }
+        //playerSprite.draw(batch);
+        batch.draw(playerTexture, position.x, position.y, 300, 300);
     }
 
 
     public void update(float delta)
     {
         //update stuff
+        if(state == PlayerState.MOVELEFT){
+            moveLeft(delta);
+            state = PlayerState.ALIVE;
+        }
+
+        if(state == PlayerState.MOVERIGHT){
+            moveRight(delta);
+            state = PlayerState.ALIVE;
+        }
+    }
+
+    private void moveLeft(float delta){
+        position.x -= 1;
+    }
+
+    private void moveRight(float delta){
+        position.x += 1;
     }
 
     public void dispose(){
@@ -78,5 +123,5 @@ public class Player implements Actor
 
     public Weapon getWeapon(){ return weapon ; }
 
-
+    public Sprite getSprite() { return playerSprite; }
 }
