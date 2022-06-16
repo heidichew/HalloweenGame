@@ -25,7 +25,6 @@ public class LevelOneScreen extends GameScreen
     //Enemy
     private List<Enemy> enemies;
 
-    private boolean temp_bol = true;
 
     public LevelOneScreen(HalloweenGdxGame game){
 
@@ -50,7 +49,7 @@ public class LevelOneScreen extends GameScreen
     @Override
     public void render(float delta) {
         //Clear the screen before drawing.
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); //Allows transparent sprites/tiles
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -67,15 +66,6 @@ public class LevelOneScreen extends GameScreen
         this.enemies.get(0).draw(super.batch);
         super.batch.end();
 
-
-
-        if(temp_bol)
-        {
-            super.camera.translate(new Vector2(0,600));
-            super.camera.update();
-            temp_bol = !temp_bol;
-        }
-
     }
 
     @Override
@@ -91,6 +81,20 @@ public class LevelOneScreen extends GameScreen
         {
             e.update(Gdx.graphics.getDeltaTime());
         }
+
+        // Move camera with bat
+        if (this.enemies.get(0).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+            super.camera.position.x = this.enemies.get(0).getPosition().x + 600;
+
+            if(super.camera.position.x >= Gdx.graphics.getWidth() - 190f)
+            {
+                super.camera.position.x = Gdx.graphics.getWidth() - 190;
+            }
+        }
+        if (this.enemies.get(0).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+            super.camera.position.y = this.enemies.get(0).getPosition().y;
+        }
+        super.camera.update();
 
     }
 

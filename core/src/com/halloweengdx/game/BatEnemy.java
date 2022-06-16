@@ -22,11 +22,15 @@ public class BatEnemy extends Enemy{
 
     private float moving_state;
 
+    private float moving_speed;
+
     //environment
     TiledMapTileLayer environment;
 
+    private boolean[][] collisionMap = new boolean[260][170];
 
-
+    private int batWidth;
+    private int batHeight;
 
     // create collider
 
@@ -46,10 +50,29 @@ public class BatEnemy extends Enemy{
         //state
         this.moving_state = 0.0f;
 
+        //moving speed
+        this.moving_speed = 100f;
+
         //animation
         this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_idle_texture);
         //loading texture from db
 
+        this.batWidth = this.texture_assets.bat_enemy_idle_texture[0].getWidth() / 2;
+        this.batHeight = this.texture_assets.bat_enemy_idle_texture[0].getHeight() / 2;
+
+        for (int y = environment.getHeight() - 1; y >= 0; y--) {
+            for (int x = 0; x < environment.getWidth(); x ++) {
+                if (environment.getCell(x,y) != null) {
+                    for (int y1 = 0; y1 < 13; y1++) {
+                        for (int x1 = 0; x1 < 13; x1++) {
+                            if (x + x1 < 260 && y + y1 < 170) {
+                                this.collisionMap[x + x1][y + y1] = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
     }
@@ -68,23 +91,57 @@ public class BatEnemy extends Enemy{
                 temp_texture.getWidth() - 80f, temp_texture.getHeight() - 100f,
                 1,1,
                 0, 0, 0, (int)temp_texture.getWidth(), (int) temp_texture.getHeight(), false, false);
-
     }
 
     public void update(float delta) {
         this.moving_state += delta;
 
-        //moving
-        TiledMapTileLayer.Cell targetCell = this.environment.getCell(12, 0);
-        if(targetCell != null)
-        {
-            super.setPosition(new Vector2(super.getPosition().x += 10, super.getPosition().y));
+        //TODO Determine Character Movement Distance
+        float distance_x;
+        float distance_y;
+
+        distance_x = this.moving_speed * delta;
+        distance_y = -(this.moving_speed / 2) * delta;
+
+        // Find bottom-left corner tile
+        int left = (int) Math.floor(Math.min(super.getPosition().x, super.getPosition().x + distance_x));
+        int bottom = (int) Math.floor(Math.min(super.getPosition().y ,super.getPosition().y + distance_y));
+
+        // Don't move off the screen
+        if (super.getPosition().x + distance_x > environment.getWidth() * 10 || super.getPosition().x + distance_x < 0) {
+            distance_x = 0;
         }
-        else
-        {
-            super.setPosition(new Vector2(super.getPosition().x -= 10, super.getPosition().y));
+        if (super.getPosition().y + distance_y > environment.getHeight() * 10 || super.getPosition().y + distance_y < 0) {
+            distance_y = 0;
         }
 
+        int mapCurrentX = (int)(Math.round(super.getPosition().x / environment.getTileWidth()));
+        int mapCurrentY = (int)(Math.round(super.getPosition().y / environment.getTileHeight()));
+
+        int mapFutureX = (int)(Math.round((super.getPosition().x + distance_x)  / environment.getTileWidth()));
+        int mapFutureY = (int)(Math.round((super.getPosition().y + distance_y)  / environment.getTileHeight()));
+
+        if (this.collisionMap[mapFutureX][mapCurrentY]) { distance_x = 0;}
+
+        if (distance_y != 0) {
+            int yStep = this.batHeight / 10;
+            for (int steps = 0; steps < this.batWidth / 10; steps++) {
+                if (this.collisionMap[mapCurrentX + steps][mapFutureY] || this.collisionMap[mapCurrentX + steps][mapFutureY - yStep]) {
+                    distance_y = 0;
+                }
+            }
+        }
+
+        if (distance_x != 0) {
+            int xStep = this.batWidth / 10;
+            for (int steps = 0; steps < this.batHeight / 10; steps++) {
+                if (this.collisionMap[mapFutureX][mapCurrentY + steps] || this.collisionMap[mapFutureX + xStep][mapCurrentY + steps]) {
+                    distance_x = 0;
+                }
+            }
+        }
+
+        super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }
 
     @Override
