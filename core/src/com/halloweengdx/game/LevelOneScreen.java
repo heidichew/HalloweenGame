@@ -22,70 +22,33 @@ public class LevelOneScreen extends GameScreen
     private TiledMap tiledMap;
     private TiledMapRenderer tiledMapRenderer;
 
-    //UI textures
-    Texture buttonSquareTexture;
-    Texture buttonSquareDownTexture;
-
-    //UI Buttons
-    Button moveLeftButton;
-    Button moveRightButton;
-    Button jumpButton;
-    Button attackButton;
-
-    //Storage class for collision
-    private Rectangle tileRectangle;
-
-    private float stateTime;
-
     // Player
     private Player player;
 
     public LevelOneScreen(HalloweenGdxGame game){
-
         super(game);
         create();
         newGame();
     }
 
-    private void create(){
+    public void create(){
+        super.create();
+
         tiledMap = new TmxMapLoader().load("TileMap/tile_map_level01.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         // Create player
-        //player = new Player(25,480);
-        player = new Player(25,400);
-
-        buttonSquareTexture = new Texture("button/button_square_blue.png");
-        buttonSquareDownTexture = new Texture("button/button_square_beige.png");
-
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
-        // Buttons
-        float buttonSize = h * 0.2f * 0.95f;
-        moveLeftButton = new Button(0.0f, buttonSize - 80f, buttonSize, buttonSize, buttonSquareTexture, buttonSquareDownTexture);
-        moveRightButton = new Button(buttonSize*2, buttonSize - 80f, buttonSize, buttonSize, buttonSquareTexture, buttonSquareDownTexture);
-        attackButton = new Button(w - 250f, buttonSize * 1.15f, buttonSize, buttonSize, buttonSquareTexture, buttonSquareDownTexture);
-        jumpButton = new Button(w - 500f, 0.0f, buttonSize, buttonSize, buttonSquareTexture, buttonSquareDownTexture);
-
-        //Collision
-//        tileRectangle = new Rectangle();
-//        MapLayer collisionLayer = tiledMap.getLayers().get("Collision");
-//        TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
-//        tileRectangle.width = tileLayer.getTileWidth();
-//        tileRectangle.height = tileLayer.getTileHeight();
+        player = new Player(25,1100); // 600
     }
 
-    private void newGame(){
-        gameState = GameState.PLAYING;
-        stateTime = 0;
+    public void newGame(){
 
         //Translate camera to center of screen
         //camera.position.x = 16;
         //camera.position.y = 10;
         //camera.translate(player.getPosition().x, player.getPosition().y);
 
-        stateTime = 0f;
+        super.newGame();
     }
 
     @Override
@@ -100,9 +63,11 @@ public class LevelOneScreen extends GameScreen
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); //Allows transparent sprites/tiles
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.update();
-        this.tiledMapRenderer.setView(camera);
-        this.tiledMapRenderer.render();
+        if(camera != null){
+            camera.update();
+            tiledMapRenderer.setView(camera);
+            tiledMapRenderer.render();
+        }
 
         // Update the game state time
         stateTime += Gdx.graphics.getDeltaTime();
@@ -117,14 +82,24 @@ public class LevelOneScreen extends GameScreen
 
         uiBatch.begin();
 
+        // Render score
+        font.draw(uiBatch, "Score: " + gameScore, Gdx.graphics.getWidth()/2 - 100f, Gdx.graphics.getHeight() - 60f);
+
         if(gameState == GameState.PLAYING){
             moveLeftButton.draw(uiBatch);
             moveRightButton.draw(uiBatch);
             jumpButton.draw(uiBatch);
             attackButton.draw(uiBatch);
-        }else{
 
+            pauseButton.draw(uiBatch);
+        }else if(gameState == GameState.PAUSE){
+
+            resumeButton.draw(uiBatch);
         }
+
+        uiBatch.draw(lifeTexture, 50, Gdx.graphics.getHeight() - 150f);
+        font.draw(uiBatch, Integer.toString(health), 200f, Gdx.graphics.getHeight() - 60f);
+
         uiBatch.end();
     }
 
@@ -139,7 +114,29 @@ public class LevelOneScreen extends GameScreen
         //Update Game State based on input
         switch (gameState) {
 
+            case PAUSE:
+            {
+                // Check if the user press the resume button
+                resumeButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
+                if(resumeButton.isDown){
+                    resumePressed = true;
+                    //bgMusic.pause(); // pause music as well
+                }else if(resumePressed){
+                    gameState = GameState.PLAYING;
+                    //bgMusic.play();
+                    resumePressed = false;
+                }
+                return;
+            }
+
             case PLAYING:
+            {
+                // Check if the user press the pause button
+                pauseButton.update(Gdx.input.isTouched(), Gdx.input.getX(), Gdx.input.getY());
+                if (pauseButton.isDown) {
+                    gameState = GameState.PAUSE;
+                }
+
                 //Poll user for input
                 moveLeftButton.update(checkTouch, touchX, touchY);
                 moveRightButton.update(checkTouch, touchX, touchY);
@@ -165,110 +162,84 @@ public class LevelOneScreen extends GameScreen
                 Vector2 playerDelta = new Vector2(0, 0);
                 playerDelta.x = moveX * player.MOVING_SPEED * stateTime;
                 playerDelta.y = moveY * player.MOVING_SPEED * stateTime;
-//
+
 //                player.update(stateTime);
 //                player.getSprite().translate(playerDelta.x, playerDelta.y);
 
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer)tiledMap.getLayers().get("BaseLayer");
-                //System.out.println(tileLayer.getCell(5, 15));
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get("BaseLayer");
+                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                boolean blocked = false;
 
-                if(moveX != 0 || moveY != 0){
 
-//
-//                    float tileWidth = ((TiledMapTileLayer) collisionLayer).getTileWidth();
-//                    float tileHeight = ((TiledMapTileLayer) collisionLayer).getTileHeight();
-//
-//                    boolean collisonX = false, collisionY = false;
-//                    TiledMapTileLayer.Cell  targetTile = null;
-//
+                if (player.getState() == Player.PlayerState.ALIVE) {
 
-//                    //TODO Determine bounds to check within
-//                    // Find top-right corner tile
-//                    int right = (int) Math.ceil(Math.max(player.getPosition().x + (player.PLAYER_WIDTH * 0.6), player.getPosition().x + (player.PLAYER_WIDTH * 0.6) + playerDelta.x));
-//                    int top = (int) Math.ceil(Math.max(player.getPosition().y + (player.PLAYER_HEIGHT * 0.6), player.getPosition().y + (player.PLAYER_HEIGHT * 0.6) + playerDelta.y));
-//
-//                    int left = (int) Math.floor(Math.min(player.getPosition().x, player.getPosition().x + playerDelta.x));
-//                    int bottom = (int) Math.floor(Math.min(player.getPosition().y, player.getPosition().y + playerDelta.y));
-//
-//                    // Divide bounds by tile sizes to retrieve tile indices
-//                    right /= tileLayer.getTileWidth();
-//                    top /= tileLayer.getTileHeight();
-//                    left /= tileLayer.getTileWidth();
-//                    bottom /= tileLayer.getTileHeight();
-//
-//                    //TODO Loop through selected tiles and correct by each axis
-//                    //EXTRA: Try counting down if moving left or down instead of counting up
-//                    for (int y = bottom; y <= top; y++) {
-//                        for (int x = left; x <= right; x++) {
-//                            TiledMapTileLayer.Cell targetCell = tileLayer.getCell(x, y);
-//                            // If the cell is empty, ignore it
-//                            if (targetCell == null) continue;
-//
-//                            if(targetCell != null){
-//                                if(targetCell.getTile().getProperties().containsKey("blocked")){
-//
-////                                    Rectangle tileCollider = new Rectangle();
-////                                    tileCollider.x = x * tileLayer.getTileWidth();
-////                                    tileCollider.y = y * tileLayer.getTileHeight();
-////
-////                                    Rectangle playerCollider = new Rectangle();
-////                                    playerCollider.x = player.getPosition().x + playerDelta.x;
-////                                    playerCollider.y =  player.getPosition().y;
-////
-////                                    if (playerCollider.overlaps(tileCollider)) System.out.println("hey");
-//
-//
-//                                    System.out.println(x + " " + y);
-//                                    //System.out.println((player.getPosition().x + playerDelta.x) + " " + (playerDelta.y + player.getPosition().y ));
-//                                    playerDelta.x = 0;
-//                                    playerDelta.y = 0;
-//                                }
-//                            }
-//                        }
-//                    }
+                    if (moveX != 0 || moveY != 0) {
 
-                    if(playerDelta.x > 0){
-                        player.setState(Player.PlayerState.MOVERIGHT);
-                    }else if(playerDelta.x < 0){
-                        player.setState(Player.PlayerState.MOVELEFT);
-                    }
+                        try {
+                            cell = tileLayer.getCell((int) (Math.round((player.getPosition().x + playerDelta.x + (player.PLAYER_WIDTH * 0.25)) / tileLayer.getTileWidth())), (int) ((player.getPosition().y) / tileLayer.getTileHeight()));
 
-                    // testing
-                    TiledMapTileLayer.Cell cell =  new TiledMapTileLayer.Cell();
-                    boolean blocked = false;
-                    try {
-                        cell = tileLayer.getCell((int) (Math.round(player.getPosition().x / tileLayer.getTileWidth())), (int) (player.getPosition().y/ tileLayer.getTileHeight()));
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    //System.out.println("x: " + (player.getPosition().x / 7.1f));
-                    //System.out.println("x: " + (Math.round(player.getPosition().x / tileLayer.getTileWidth())));
-                    //System.out.println("y: " + ((player.getPosition().y / tileLayer.getTileHeight())*3));
-                    if(cell != null){
-                        if (cell.getTile().getProperties().containsKey("blocked")) {
-                            blocked = true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }else{
-                        //System.out.println("null");
+
+                        //System.out.println("y: " + ((player.getPosition().x + playerDelta.x + (player.PLAYER_WIDTH * 0.25)) / tileLayer.getTileWidth()));
+
+                        if (cell != null) {
+                            if (cell.getTile().getProperties().containsKey("blocked")) {
+                                blocked = true;
+                            }
+                        }
+
+                        if (blocked) {
+                            //System.out.println("yes");
+                        } else {
+                            //System.out.println("no");
+                            player.setState(Player.PlayerState.FALL);
+                        }
+
                     }
 
-                    if(blocked){
-                        System.out.println("yes");
-                    }else{
-                        System.out.println("no");
+                    if (player.getState() == Player.PlayerState.ALIVE) {
+                        if (playerDelta.x > 0) {
+                            player.setState(Player.PlayerState.MOVERIGHT);
+                        } else if (playerDelta.x < 0) {
+                            player.setState(Player.PlayerState.MOVELEFT);
+                        }
                     }
+                }
 
+                if (player.getState() == Player.PlayerState.FALL || player.getState() == Player.PlayerState.FALLING) {
+                    cell = tileLayer.getCell((int) (Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.25)) / tileLayer.getTileWidth())), (int) ((player.getPosition().y + (player.PLAYER_WIDTH * 1.82f)) / tileLayer.getTileHeight()));
 
+                    System.out.println("ypos: " + (player.getPosition().y));
+                    System.out.println("y: " + ((player.getPosition().y + (player.PLAYER_HEIGHT * 2)) / tileLayer.getTileHeight()));
+                    if (cell != null) {
+                        if (cell.getTile().getProperties().containsKey("killed")) {
+                            System.out.println("die");
+                            //player.setState(Player.PlayerState.DEAD);
+                        } else if (cell.getTile().getProperties().containsKey("blocked")) {
+                            player.setState(Player.PlayerState.ALIVE);
+                        }
+                    } else {
+                        System.out.println("null");
+                    }
                 }
 
                 player.update(stateTime);
-                camera.translate(playerDelta);
 
-                //camera.position.x = player.getPosition().x;
-                //camera.position.y = player.getPosition().y;
-                //camera.update();
+                // Move camera with the player
+                if (player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+                    camera.position.x = player.getPosition().x + 600;
+
+                    if (camera.position.x >= Gdx.graphics.getWidth() - 190f) {
+                        camera.position.x = Gdx.graphics.getWidth() - 190;
+                    }
+                }
+                if (player.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+                    camera.position.y = player.getPosition().y;
+                }
+                camera.update();
+            }
         }
     }
 
@@ -297,5 +268,13 @@ public class LevelOneScreen extends GameScreen
     public void dispose() {
         buttonSquareTexture.dispose();
         buttonSquareDownTexture.dispose();
+        lifeTexture.dispose();
+        pauseTexture.dispose();
+
+        batch.dispose();
+        uiBatch.dispose();
+        bgBatch.dispose();
+
+        player.dispose();
     }
 }

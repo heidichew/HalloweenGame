@@ -146,11 +146,14 @@
   </tile>
   <tile id="26">
    <properties>
-    <property name="killed" value=""/>
+    <property name="killed" value="true"/>
    </properties>
    <image width="128" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Spikes.png"/>
   </tile>
   <tile id="27">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
    <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Stone.png"/>
   </tile>
   <tile id="28">
@@ -237,7 +240,7 @@
  </tileset>
  <layer id="1" name="BaseLayer" width="60" height="20">
   <data encoding="base64" compression="zlib">
-   eJztlMsKgCAQRYdaiETPbfX/v5lB0iDqQBRZcw+clRfx+iICAFxlPdSClr7WOTBBmnCvvOObi1JOzQQnPeGePgnf1zYyvv8VhuL/BT+PxVlR/P7yOXB2ANyHSejfsn+PVsjlMiXZJJyCvp2Qy2W+oNa+Upc/9Z2Zub5SpiQ3vNsOhg==
+   eJztldkKgCAURC/1IBKtr9X//2YKShdxgSiy7hw4Tw7huEUEALjK7pSClL7aODFBmnCtvPObkxJOywQnI+GcPglf1z4ybt8KRfH3gu/HZmwofn75N7B3ANyHSujvsr+PupDLZWqyS7gEfYdCLpf5glL7lrr8qa/9p67OXN9SpiYPva8Ohw==
   </data>
  </layer>
  <layer id="4" name="CeilingLayer" width="60" height="20">
