@@ -48,7 +48,7 @@ public class LevelOneScreen extends GameScreen
     }
 
     private void create(){
-        tiledMap = new TmxMapLoader().load("TileMap/tile_map1.tmx");
+        tiledMap = new TmxMapLoader().load("TileMap/tile_map_level01.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         // Create player
@@ -81,9 +81,9 @@ public class LevelOneScreen extends GameScreen
         stateTime = 0;
 
         //Translate camera to center of screen
-        camera.position.x = 16;
-        camera.position.y = 16;
-        camera.translate(player.getPosition().x, player.getPosition().y);
+        //camera.position.x = 16;
+        //camera.position.y = 10;
+        //camera.translate(player.getPosition().x, player.getPosition().y);
 
         stateTime = 0f;
     }
@@ -169,10 +169,11 @@ public class LevelOneScreen extends GameScreen
 //                player.update(stateTime);
 //                player.getSprite().translate(playerDelta.x, playerDelta.y);
 
+                TiledMapTileLayer tileLayer = (TiledMapTileLayer)tiledMap.getLayers().get("BaseLayer");
+                //System.out.println(tileLayer.getCell(5, 15));
 
                 if(moveX != 0 || moveY != 0){
-                    MapLayer collisionLayer = tiledMap.getLayers().get("Base");
-                    TiledMapTileLayer tileLayer = (TiledMapTileLayer) collisionLayer;
+
 //
 //                    float tileWidth = ((TiledMapTileLayer) collisionLayer).getTileWidth();
 //                    float tileHeight = ((TiledMapTileLayer) collisionLayer).getTileHeight();
@@ -181,56 +182,84 @@ public class LevelOneScreen extends GameScreen
 //                    TiledMapTileLayer.Cell  targetTile = null;
 //
 
-                    //TODO Determine bounds to check within
-                    // Find top-right corner tile
-                    int right = (int) Math.ceil(Math.max(player.getPosition().x + (player.PLAYER_WIDTH * 0.6), player.getPosition().x + (player.PLAYER_WIDTH * 0.6) + playerDelta.x));
-                    int top = (int) Math.ceil(Math.max(player.getPosition().y + (player.PLAYER_HEIGHT * 0.6), player.getPosition().y + (player.PLAYER_HEIGHT * 0.6) + playerDelta.y));
-
-                    int left = (int) Math.floor(Math.min(player.getPosition().x, player.getPosition().x + playerDelta.x));
-                    int bottom = (int) Math.floor(Math.min(player.getPosition().y, player.getPosition().y + playerDelta.y));
-
-                    // Divide bounds by tile sizes to retrieve tile indices
-                    right /= tileLayer.getTileWidth();
-                    top /= tileLayer.getTileHeight();
-                    left /= tileLayer.getTileWidth();
-                    bottom /= tileLayer.getTileHeight();
-
-                    //TODO Loop through selected tiles and correct by each axis
-                    //EXTRA: Try counting down if moving left or down instead of counting up
-                    for (int y = bottom; y <= top; y++) {
-                        for (int x = left; x <= right; x++) {
-                            TiledMapTileLayer.Cell targetCell = tileLayer.getCell(x, y);
-                            // If the cell is empty, ignore it
-                            if (targetCell == null) continue;
-
-                            if(targetCell != null){
-                                if(targetCell.getTile().getProperties().containsKey("blocked")){
-
-//                                    Rectangle tileCollider = new Rectangle();
-//                                    tileCollider.x = x * tileLayer.getTileWidth();
-//                                    tileCollider.y = y * tileLayer.getTileHeight();
+//                    //TODO Determine bounds to check within
+//                    // Find top-right corner tile
+//                    int right = (int) Math.ceil(Math.max(player.getPosition().x + (player.PLAYER_WIDTH * 0.6), player.getPosition().x + (player.PLAYER_WIDTH * 0.6) + playerDelta.x));
+//                    int top = (int) Math.ceil(Math.max(player.getPosition().y + (player.PLAYER_HEIGHT * 0.6), player.getPosition().y + (player.PLAYER_HEIGHT * 0.6) + playerDelta.y));
 //
-//                                    Rectangle playerCollider = new Rectangle();
-//                                    playerCollider.x = player.getPosition().x + playerDelta.x;
-//                                    playerCollider.y =  player.getPosition().y;
+//                    int left = (int) Math.floor(Math.min(player.getPosition().x, player.getPosition().x + playerDelta.x));
+//                    int bottom = (int) Math.floor(Math.min(player.getPosition().y, player.getPosition().y + playerDelta.y));
 //
-//                                    if (playerCollider.overlaps(tileCollider)) System.out.println("hey");
-
-
-                                    System.out.println(x + " " + y);
-                                    //System.out.println((player.getPosition().x + playerDelta.x) + " " + (playerDelta.y + player.getPosition().y ));
-                                    playerDelta.x = 0;
-                                    playerDelta.y = 0;
-                                }
-                            }
-                        }
-                    }
+//                    // Divide bounds by tile sizes to retrieve tile indices
+//                    right /= tileLayer.getTileWidth();
+//                    top /= tileLayer.getTileHeight();
+//                    left /= tileLayer.getTileWidth();
+//                    bottom /= tileLayer.getTileHeight();
+//
+//                    //TODO Loop through selected tiles and correct by each axis
+//                    //EXTRA: Try counting down if moving left or down instead of counting up
+//                    for (int y = bottom; y <= top; y++) {
+//                        for (int x = left; x <= right; x++) {
+//                            TiledMapTileLayer.Cell targetCell = tileLayer.getCell(x, y);
+//                            // If the cell is empty, ignore it
+//                            if (targetCell == null) continue;
+//
+//                            if(targetCell != null){
+//                                if(targetCell.getTile().getProperties().containsKey("blocked")){
+//
+////                                    Rectangle tileCollider = new Rectangle();
+////                                    tileCollider.x = x * tileLayer.getTileWidth();
+////                                    tileCollider.y = y * tileLayer.getTileHeight();
+////
+////                                    Rectangle playerCollider = new Rectangle();
+////                                    playerCollider.x = player.getPosition().x + playerDelta.x;
+////                                    playerCollider.y =  player.getPosition().y;
+////
+////                                    if (playerCollider.overlaps(tileCollider)) System.out.println("hey");
+//
+//
+//                                    System.out.println(x + " " + y);
+//                                    //System.out.println((player.getPosition().x + playerDelta.x) + " " + (playerDelta.y + player.getPosition().y ));
+//                                    playerDelta.x = 0;
+//                                    playerDelta.y = 0;
+//                                }
+//                            }
+//                        }
+//                    }
 
                     if(playerDelta.x > 0){
                         player.setState(Player.PlayerState.MOVERIGHT);
                     }else if(playerDelta.x < 0){
                         player.setState(Player.PlayerState.MOVELEFT);
                     }
+
+                    // testing
+                    TiledMapTileLayer.Cell cell =  new TiledMapTileLayer.Cell();
+                    boolean blocked = false;
+                    try {
+                        cell = tileLayer.getCell((int) (Math.round(player.getPosition().x / tileLayer.getTileWidth())), (int) (player.getPosition().y/ tileLayer.getTileHeight()));
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    //System.out.println("x: " + (player.getPosition().x / 7.1f));
+                    //System.out.println("x: " + (Math.round(player.getPosition().x / tileLayer.getTileWidth())));
+                    //System.out.println("y: " + ((player.getPosition().y / tileLayer.getTileHeight())*3));
+                    if(cell != null){
+                        if (cell.getTile().getProperties().containsKey("blocked")) {
+                            blocked = true;
+                        }
+                    }else{
+                        //System.out.println("null");
+                    }
+
+                    if(blocked){
+                        System.out.println("yes");
+                    }else{
+                        System.out.println("no");
+                    }
+
 
                 }
 

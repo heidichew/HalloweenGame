@@ -95,11 +95,11 @@ public class Player implements Actor
     }
 
     private void moveLeft(float delta){
-        position.x -= 1;
+        position.x -= 1 * delta * MOVING_SPEED;
     }
 
     private void moveRight(float delta){
-        position.x += 1;
+        position.x += 1 * delta * MOVING_SPEED;
     }
 
     public void dispose(){

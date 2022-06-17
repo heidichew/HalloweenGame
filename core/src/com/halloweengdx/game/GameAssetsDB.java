@@ -19,7 +19,7 @@ public class GameAssetsDB
 
     private GameAssetsDB()
     {
-        this.tiledMap_L1 = new TmxMapLoader().load("TileMap/tile_map1.tmx");
+        //this.tiledMap_L1 = new TmxMapLoader().load("TileMap/tile_map1.tmx");
         this.bat_enemy_idle_texture = new Texture[18];
 
         for(int i=0; i<18; i++)

@@ -15,7 +15,7 @@ public abstract class GameScreen implements Screen {
     protected OrthographicCamera camera;
     protected Viewport viewport;
 
-    protected float targetScreenHeight = 900;
+    protected float targetScreenHeight = 1400;
     protected float targetScreenWidth;
 
     protected SpriteBatch batch;            // batch to draw the enemy instances, NPC and player
