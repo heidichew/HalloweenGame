@@ -42,6 +42,7 @@ public class BatEnemy extends Enemy{
      */
     public BatEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment) {
         super(player, start_xy, start_xy, 50);
+
         this.environment = environment;
 
         //TODO Retrieve Target Tile
@@ -55,6 +56,7 @@ public class BatEnemy extends Enemy{
 
         //animation
         this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_idle_texture);
+
         //loading texture from db
 
         this.batWidth = this.texture_assets.bat_enemy_idle_texture[0].getWidth() / 2;
@@ -91,6 +93,7 @@ public class BatEnemy extends Enemy{
                 temp_texture.getWidth() - 80f, temp_texture.getHeight() - 100f,
                 1,1,
                 0, 0, 0, (int)temp_texture.getWidth(), (int) temp_texture.getHeight(), false, false);
+
     }
 
     public void update(float delta) {
