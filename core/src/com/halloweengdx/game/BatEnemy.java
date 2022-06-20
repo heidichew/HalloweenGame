@@ -11,6 +11,8 @@ import com.badlogic.gdx.math.Vector2;
 
 import org.w3c.dom.Text;
 
+import java.util.Random;
+
 public class BatEnemy extends Enemy{
 
     private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
@@ -27,12 +29,14 @@ public class BatEnemy extends Enemy{
     //environment
     TiledMapTileLayer environment;
 
-    private boolean[][] collisionMap = new boolean[260][170];
 
     private int batWidth;
     private int batHeight;
 
     // create collider
+    private boolean rise  = false;
+    private boolean turn = false;
+
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
@@ -40,41 +44,27 @@ public class BatEnemy extends Enemy{
      * @param player   The player that the enemy instance can kill in the game world
      * @param start_xy The stating position to place the enemy instance
      */
-    public BatEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment) {
-        super(player, start_xy, start_xy, 50);
+    public BatEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range) {
+        super(player, start_xy, start_xy, 50, patrol_range);
 
         this.environment = environment;
-
-        //TODO Retrieve Target Tile
-        //TiledMapTileLayer.Cell targetCell = tileLayer.getCell(characterX + moveX, characterY + moveY);
 
         //state
         this.moving_state = 0.0f;
 
         //moving speed
-        this.moving_speed = 100f;
+        this.moving_speed = 128f;
 
         //animation
-        this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_idle_texture);
+        this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_flying_texture);
 
         //loading texture from db
 
-        this.batWidth = this.texture_assets.bat_enemy_idle_texture[0].getWidth() / 2;
-        this.batHeight = this.texture_assets.bat_enemy_idle_texture[0].getHeight() / 2;
+        this.batWidth = this.texture_assets.bat_enemy_idle_texture[0].getWidth();
+        this.batHeight = this.texture_assets.bat_enemy_idle_texture[0].getHeight();
 
-        for (int y = environment.getHeight() - 1; y >= 0; y--) {
-            for (int x = 0; x < environment.getWidth(); x ++) {
-                if (environment.getCell(x,y) != null) {
-                    for (int y1 = 0; y1 < 13; y1++) {
-                        for (int x1 = 0; x1 < 13; x1++) {
-                            if (x + x1 < 260 && y + y1 < 170) {
-                                this.collisionMap[x + x1][y + y1] = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        Gdx.app.log("",environment.getHeight()+"");
+        Gdx.app.log("",environment.getWidth()+"");
 
 
     }
@@ -87,63 +77,92 @@ public class BatEnemy extends Enemy{
     @Override
     public void draw(SpriteBatch batch) {
         Texture temp_texture = (Texture)this.moveAnimation.getKeyFrame(this.moving_state, true);
+
         batch.draw(temp_texture,
-                super.getPosition().x - (temp_texture.getWidth() / 2.0f), super.getPosition().y - (temp_texture.getHeight() / 2.0f) ,
+                super.getPosition().x - (temp_texture.getWidth() / 2.0f), super.getPosition().y - (temp_texture.getHeight() / 2.0f) + 22f ,
                 temp_texture.getWidth() / 2.0f, temp_texture.getHeight()/2.0f,
-                temp_texture.getWidth() - 80f, temp_texture.getHeight() - 100f,
+                temp_texture.getWidth() + 40f, temp_texture.getHeight() - 100f,
                 1,1,
-                0, 0, 0, (int)temp_texture.getWidth(), (int) temp_texture.getHeight(), false, false);
+                0, 0, 0, (int)temp_texture.getWidth(), (int) temp_texture.getHeight(), !turn, false);
 
     }
 
     public void update(float delta) {
         this.moving_state += delta;
 
-        //TODO Determine Character Movement Distance
         float distance_x;
         float distance_y;
 
-        distance_x = this.moving_speed * delta;
-        distance_y = -(this.moving_speed / 2) * delta;
 
-        // Find bottom-left corner tile
-        int left = (int) Math.floor(Math.min(super.getPosition().x, super.getPosition().x + distance_x));
-        int bottom = (int) Math.floor(Math.min(super.getPosition().y ,super.getPosition().y + distance_y));
-
-        // Don't move off the screen
-        if (super.getPosition().x + distance_x > environment.getWidth() * 10 || super.getPosition().x + distance_x < 0) {
-            distance_x = 0;
+        if(turn)
+        {
+            distance_x = -(this.moving_speed) * delta;
         }
-        if (super.getPosition().y + distance_y > environment.getHeight() * 10 || super.getPosition().y + distance_y < 0) {
-            distance_y = 0;
+        else
+        {
+            distance_x = this.moving_speed * delta;
         }
 
-        int mapCurrentX = (int)(Math.round(super.getPosition().x / environment.getTileWidth()));
+        if(rise)
+        {
+            distance_y = (this.moving_speed / 2) * delta;
+        }
+        else
+        {
+            distance_y = -(this.moving_speed / 2) * delta;
+        }
+
+        // Change Position of x
+        if (super.getPosition().x + distance_x >= this.environment.getTileWidth() * super.getPatrolRange())
+        {
+            turn = true;
+
+        }
+        else if(super.getPosition().x + distance_x <= 0 + batWidth /2)
+        {
+            turn = false;
+        }
+
+        //change position of y
+        if(super.getPosition().y + distance_y >= (environment.getHeight() - 7) * 128)
+        {
+            rise = false;
+        }
+
+        int mapCurrentX = (int)(Math.round(super.getPosition().x / environment.getTileWidth())); // convert enemy location to tile row and coloumn
         int mapCurrentY = (int)(Math.round(super.getPosition().y / environment.getTileHeight()));
 
         int mapFutureX = (int)(Math.round((super.getPosition().x + distance_x)  / environment.getTileWidth()));
         int mapFutureY = (int)(Math.round((super.getPosition().y + distance_y)  / environment.getTileHeight()));
 
-        if (this.collisionMap[mapFutureX][mapCurrentY]) { distance_x = 0;}
 
-        if (distance_y != 0) {
-            int yStep = this.batHeight / 10;
-            for (int steps = 0; steps < this.batWidth / 10; steps++) {
-                if (this.collisionMap[mapCurrentX + steps][mapFutureY] || this.collisionMap[mapCurrentX + steps][mapFutureY - yStep]) {
-                    distance_y = 0;
-                }
+        if (distance_y != 0)
+        {
+            int yStep = (int)(Math.round((this.batHeight) / 128));
+
+            // Adding the loop
+            TiledMapTileLayer.Cell topCell = this.environment.getCell(mapCurrentX - 1, mapFutureY); //top
+            TiledMapTileLayer.Cell bottomCell = this.environment.getCell(mapCurrentX - 1, (mapFutureY - yStep)); //bottom
+            if(topCell != null || bottomCell != null)
+            {
+                distance_y = 0;
+                rise = !rise;
             }
         }
 
         if (distance_x != 0) {
-            int xStep = this.batWidth / 10;
-            for (int steps = 0; steps < this.batHeight / 10; steps++) {
-                if (this.collisionMap[mapFutureX][mapCurrentY + steps] || this.collisionMap[mapFutureX + xStep][mapCurrentY + steps]) {
-                    distance_x = 0;
-                }
+            int xStep = (int)(Math.round(this.batWidth / 128)) -3; //cause by the background
+
+            TiledMapTileLayer.Cell leftCell = this.environment.getCell(mapFutureX, mapCurrentY - 1); //left
+            TiledMapTileLayer.Cell rightCell = this.environment.getCell(mapFutureX + xStep, mapCurrentY - 1); //right
+
+            if(leftCell != null || rightCell != null)
+            {
+                leftCell.setTile(null);
+                distance_x = 0;
+                turn = !turn;
             }
         }
-
         super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }
 
