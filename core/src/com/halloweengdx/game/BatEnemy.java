@@ -19,12 +19,18 @@ public class BatEnemy extends Enemy{
 
     // Animations for bat enemy
     private Animation moveAnimation = null;
+    private Animation idleAnimation = null;
     private Animation dieAnimation = null;
     private Animation attackAnimation = null;
 
     private float moving_state;
+    private float idle_state;
 
     private float moving_speed;
+
+    private float holdTimer;
+    private float onHoldTimer;
+    private boolean onHold = false;
 
     //environment
     TiledMapTileLayer environment;
@@ -36,6 +42,8 @@ public class BatEnemy extends Enemy{
     // create collider
     private boolean rise  = false;
     private boolean turn = false;
+
+    private float scale = 0.7f;
 
 
     /**
@@ -51,21 +59,21 @@ public class BatEnemy extends Enemy{
 
         //state
         this.moving_state = 0.0f;
+        this.idle_state = 0.0f;
 
         //moving speed
         this.moving_speed = 128f;
 
         //animation
         this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_flying_texture);
+        this.idleAnimation = new Animation(0.1f, this.texture_assets.bat_enemy_idle_texture);
 
         //loading texture from db
 
         this.batWidth = this.texture_assets.bat_enemy_idle_texture[0].getWidth();
         this.batHeight = this.texture_assets.bat_enemy_idle_texture[0].getHeight();
 
-        Gdx.app.log("",environment.getHeight()+"");
-        Gdx.app.log("",environment.getWidth()+"");
-
+        super.setState(EnemyState.MOVE);
 
     }
 
@@ -76,25 +84,71 @@ public class BatEnemy extends Enemy{
 
     @Override
     public void draw(SpriteBatch batch) {
-        Texture temp_texture = (Texture)this.moveAnimation.getKeyFrame(this.moving_state, true);
 
-        batch.draw(temp_texture,
-                super.getPosition().x - (temp_texture.getWidth() / 2.0f), super.getPosition().y - (temp_texture.getHeight() / 2.0f) + 22f ,
-                temp_texture.getWidth() / 2.0f, temp_texture.getHeight()/2.0f,
-                temp_texture.getWidth() + 40f, temp_texture.getHeight() - 100f,
-                1,1,
-                0, 0, 0, (int)temp_texture.getWidth(), (int) temp_texture.getHeight(), !turn, false);
+        switch (super.getState()){
+            case MOVE:
+                Texture move_texture = (Texture)this.moveAnimation.getKeyFrame(this.moving_state, true);
+
+                batch.draw(move_texture,
+                        super.getPosition().x - (move_texture.getWidth() / 2.0f), super.getPosition().y - (move_texture.getHeight() / 2.0f),
+                        0, 0,
+                        move_texture.getWidth(), move_texture.getHeight(),
+                        scale,scale,
+                        0, 0, 0, (int)move_texture.getWidth(), (int) move_texture.getHeight(), !turn, false);
+                break;
+
+            case IDLE:
+
+                Texture idle_texture = (Texture)this.idleAnimation.getKeyFrame(this.idle_state, true);
+
+                batch.draw(idle_texture,
+                        super.getPosition().x - (idle_texture.getWidth() / 2.0f), super.getPosition().y - (idle_texture.getHeight() / 2.0f),
+                        0, 0,
+                        idle_texture.getWidth(), idle_texture.getHeight(),
+                        scale,scale,
+                        0, 0, 0, (int)idle_texture.getWidth(), (int) idle_texture.getHeight(), !turn, false);
+                break;
+        }
+
 
     }
 
     public void update(float delta) {
+
         this.moving_state += delta;
+        this.idle_state += delta;
+
+
+        if(onHold)
+        {
+            this.onHoldTimer += delta;
+        }
+        else
+        {
+            this.holdTimer += delta;
+        }
 
         float distance_x;
         float distance_y;
 
 
-        if(turn)
+/*        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
+            for (int xc = 0; xc < this.environment.getWidth(); xc++) {
+                if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
+                    System.out.print("*");
+                else if (this.environment.getCell(xc, yc) == null)
+                    System.out.print(".");
+                else
+                    System.out.print("1");
+            }
+            System.out.println(" " + yc);
+        }*/
+
+        if(onHold)
+        {
+            distance_x = 0;
+        }
+        else if(turn)
         {
             distance_x = -(this.moving_speed) * delta;
         }
@@ -112,13 +166,13 @@ public class BatEnemy extends Enemy{
             distance_y = -(this.moving_speed / 2) * delta;
         }
 
-        // Change Position of x
-        if (super.getPosition().x + distance_x >= this.environment.getTileWidth() * super.getPatrolRange())
+        // Change Position of x don't go over screen
+        if (super.getPosition().x + distance_x >= (this.environment.getTileWidth() * super.getPatrolRange()))
         {
             turn = true;
 
         }
-        else if(super.getPosition().x + distance_x <= 0 + batWidth /2)
+        else if(super.getPosition().x + distance_x <= 0 +  ((batWidth /2) * 0.7))
         {
             turn = false;
         }
@@ -129,39 +183,90 @@ public class BatEnemy extends Enemy{
             rise = false;
         }
 
-        int mapCurrentX = (int)(Math.round(super.getPosition().x / environment.getTileWidth())); // convert enemy location to tile row and coloumn
-        int mapCurrentY = (int)(Math.round(super.getPosition().y / environment.getTileHeight()));
 
-        int mapFutureX = (int)(Math.round((super.getPosition().x + distance_x)  / environment.getTileWidth()));
-        int mapFutureY = (int)(Math.round((super.getPosition().y + distance_y)  / environment.getTileHeight()));
+        //map reference for top and bottom
+        int mapFutureY;
+        int mapCurrentX;
 
 
-        if (distance_y != 0)
+        //tracking
+        float tempX = 0;
+
+        while(tempX < this.batWidth * scale)
         {
-            int yStep = (int)(Math.round((this.batHeight) / 128));
+            // Work out the x map reference.
+            mapCurrentX = (int) (Math.floor((super.getPosition().x + tempX) / environment.getTileWidth()));
 
-            // Adding the loop
-            TiledMapTileLayer.Cell topCell = this.environment.getCell(mapCurrentX - 1, mapFutureY); //top
-            TiledMapTileLayer.Cell bottomCell = this.environment.getCell(mapCurrentX - 1, (mapFutureY - yStep)); //bottom
-            if(topCell != null || bottomCell != null)
-            {
+            //bat top
+            // Work out the map y for the top of this thing
+            mapFutureY = (int)(Math.floor(((super.getPosition().y + 28) + distance_y + (this.batHeight * this.scale)) / environment.getTileHeight()));
+
+            // Are we hitting a block from below? Not that this can't be tested until jumping is added
+            // so it might need a change.
+            if (distance_y > 0 && this.environment.getCell(mapCurrentX, mapFutureY -1) != null) {
+                // We have a hit. Can't go up after all.
+                System.out.println(distance_y);
                 distance_y = 0;
-                rise = !rise;
+                rise = false;
             }
+
+            // Work out the y map reference for the bottom
+            mapFutureY = (int) (Math.floor(((super.getPosition().y + 35f) + distance_y)  / environment.getTileHeight()));
+
+            //bat below
+            // Are we hitting a block from above?
+            if (this.environment.getCell(mapCurrentX, mapFutureY -1) != null) {
+                distance_y = 0;
+                rise = true;
+            }
+            tempX += 128;
+
         }
 
-        if (distance_x != 0) {
-            int xStep = (int)(Math.round(this.batWidth / 128)) -3; //cause by the background
+        // Checking for collision on X
 
-            TiledMapTileLayer.Cell leftCell = this.environment.getCell(mapFutureX, mapCurrentY - 1); //left
-            TiledMapTileLayer.Cell rightCell = this.environment.getCell(mapFutureX + xStep, mapCurrentY - 1); //right
+        // What map reference are we going to be at after this frame?
+        int mapCurrentY;
+        int mapFutureX;
 
-            if(leftCell != null || rightCell != null)
-            {
-                leftCell.setTile(null);
+        float tempY = 0;
+
+        while (tempY < this.batHeight * this.scale) {
+
+            mapCurrentY = (int)(Math.floor((super.getPosition().y + tempY) / environment.getTileHeight()));
+
+            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x)  / environment.getTileWidth()));
+
+            // Are we hitting a block to the left?
+            if (this.environment.getCell(mapFutureX - 1, mapCurrentY) != null) {
+                // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
+                distance_x = 0;
+                turn= !turn;
+            }
+
+            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x + (this.batWidth * this.scale)) / environment.getTileWidth()));
+
+            // Are we hitting a block to the right?
+            if (this.environment.getCell(mapFutureX - 2, mapCurrentY) != null) {
+                // We have a hit. Can't go right, and need to move to the left of the block if not already there.
                 distance_x = 0;
                 turn = !turn;
             }
+            tempY += 128;
+        }
+
+        if(this.holdTimer >= 15)
+        {
+            onHold = true;
+            super.setState(EnemyState.IDLE);
+            this.holdTimer = 0;
+        }
+
+        if(this.onHoldTimer >= 1)
+        {
+            onHoldTimer = 0;
+            onHold = false;
+            super.setState(EnemyState.MOVE);
         }
         super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }

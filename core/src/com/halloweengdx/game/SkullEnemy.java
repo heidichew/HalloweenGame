@@ -41,6 +41,8 @@ public class SkullEnemy extends Enemy
     // create collider
     private boolean turn_head = false;
 
+    private float scale = 1f;
+
 
 
     /**
@@ -100,9 +102,9 @@ public class SkullEnemy extends Enemy
             case MOVE:
                 batch.draw(move_texture,
                         super.getPosition().x - (move_texture.getWidth() / 2.0f), super.getPosition().y - (move_texture.getHeight() / 2.0f),
-                        move_texture.getWidth() / 2.0f, move_texture.getHeight() / 2.0f,
+                        0, 0,
                         move_texture.getWidth(),  move_texture.getHeight(),
-                        1,1,
+                        this.scale,this.scale,
                         0, 0, 0, (int)move_texture.getWidth(), (int) move_texture.getHeight(), turn_head, false);
 
                 break;
@@ -112,7 +114,7 @@ public class SkullEnemy extends Enemy
                         super.getPosition().x - (jump_texture.getWidth() / 2.0f), super.getPosition().y - (jump_texture.getHeight() / 2.0f),
                         jump_texture.getWidth() / 2.0f, jump_texture.getHeight() / 2.0f,
                         jump_texture.getWidth(),  jump_texture.getHeight(),
-                        1,1,
+                        0.8f,0.8f,
                         0, 0, 0, (int)jump_texture.getWidth(), (int) jump_texture.getHeight(), turn_head, false);
 
                 break;
@@ -120,9 +122,9 @@ public class SkullEnemy extends Enemy
             case IDLE:
                 batch.draw(idle_texture,
                         super.getPosition().x - (idle_texture.getWidth() / 2.0f), super.getPosition().y - (idle_texture.getHeight() / 2.0f),
-                        idle_texture.getWidth() / 2.0f, idle_texture.getHeight() / 2.0f,
+                        0, 0,
                         idle_texture.getWidth(),  idle_texture.getHeight(),
-                        1,1,
+                        this.scale,this.scale,
                         0, 0, 0, (int)idle_texture.getWidth(), (int) idle_texture.getHeight(), turn_head, false);
 
                 break;
@@ -216,6 +218,7 @@ public class SkullEnemy extends Enemy
             }
 
         }
+
 
         if(!getTurn && super.getPatrolRange() == 0 && turnHeadTimer >= 3)
         {

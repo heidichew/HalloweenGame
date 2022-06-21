@@ -37,13 +37,15 @@ public class LevelOneScreen extends GameScreen
         // work out tile height
         this.enemies = new ArrayList<Enemy>();
         this.enemies.add(new BatEnemy(null,
-                new Vector2(0f + this.layer.getTileWidth(), 30f + (this.layer.getHeight()-10) * 128), this.layer, 3));
+                new Vector2(0f + this.layer.getTileWidth(), 30f + (this.layer.getHeight()-10) * 128), this.layer, 4));
 
-        this.enemies.add(new SkullEnemy(null,
-                new Vector2(0f + this.layer.getTileWidth() * 27,  (this.layer.getHeight() - 4) * 128), this.layer, 0));
+        this.enemies.add(new LickingEnemy(null,
+                new Vector2(0f + this.layer.getTileWidth() * 26,  (this.layer.getHeight() - 4) * 128), this.layer, 0));
 
         this.enemies.add(new SkullEnemy(null,
                 new Vector2(0f + this.layer.getTileWidth() * 14,  this.layer.getTileHeight() * 10), this.layer, 6));
+        //14 10
+
     }
 
     @Override
@@ -68,7 +70,10 @@ public class LevelOneScreen extends GameScreen
         //render enemy
         super.batch.setProjectionMatrix(super.camera.combined);
         super.batch.begin();
-        this.enemies.get(2).draw(super.batch);
+        for(Enemy e: this.enemies)
+        {
+            e.draw(super.batch);
+        }
         super.batch.end();
 
     }

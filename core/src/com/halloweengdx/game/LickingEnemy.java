@@ -25,7 +25,6 @@ public class LickingEnemy extends Enemy {
     private float attack_state;
     private float hurting;
 
-    private float turnHeadTimer;
 
     private float moving_speed;
 
@@ -37,6 +36,8 @@ public class LickingEnemy extends Enemy {
 
     // create collider
     private boolean turn_head = false;
+
+    private float scale = 0.5f;
 
 
     /**
@@ -58,22 +59,33 @@ public class LickingEnemy extends Enemy {
         this.die_state = 0;
         this.attack_state = 0;
 
-        this.turnHeadTimer = 0.0f;
-
-        this.moving_speed = 128f;
+        this.moving_speed = 200f;
 
         //this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
-        this.moveAnimation = new Animation(0.05f, texture_assets.licking_enemy_walking);
-//        this.jumpingAnimation = new Animation(0.2f, texture_assets.skull_enemy_jumping_texture);
+        this.moveAnimation = new Animation(0.03f, texture_assets.licking_enemy_walking);
+        this.jumpingAnimation = new Animation(0.2f, texture_assets.licking_enemy_jumping);
 //        this.dieAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
 //        this.attackAnimation = new Animation(0.1f, texture_assets.skull_enemy_attacking_texture);
 
 
-        this.lickingWidth = texture_assets.licking_enemy_walking[0].getWidth();
-        this.lickingHeight = texture_assets.licking_enemy_walking[0].getHeight();
+        this.lickingWidth = (int)Math.round(texture_assets.licking_enemy_walking[0].getWidth());
+        this.lickingHeight = (int) Math.round(texture_assets.licking_enemy_walking[0].getHeight());
 
 
         super.setState(EnemyState.MOVE);
+
+
+
+/*
+        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
+            for (int xc = 0; xc < this.environment.getWidth(); xc++) {
+                if (this.environment.getCell(xc, yc) == null)
+                    System.out.print(".");
+                else System.out.print("1");
+            }
+            System.out.println(" " + yc);
+        }
+*/
 
     }
 
@@ -87,41 +99,41 @@ public class LickingEnemy extends Enemy {
     public void draw(SpriteBatch batch) {
 
         Texture move_texture = (Texture) this.moveAnimation.getKeyFrame(this.moving_state, true);
-        Texture jump_texture = (Texture) this.jumpingAnimation.getKeyFrame(this.jumping_state, true);
-        Texture idle_texture = (Texture) this.idleAnimation.getKeyFrame(this.idle_state, true);
-        Texture attacking_texture = (Texture) this.attackAnimation.getKeyFrame(this.attack_state, true);
-        Texture dead_texture = (Texture) this.dieAnimation.getKeyFrame(this.die_state, true);
+//        Texture idle_texture = (Texture) this.idleAnimation.getKeyFrame(this.idle_state, true);
+//        Texture attacking_texture = (Texture) this.attackAnimation.getKeyFrame(this.attack_state, true);
+//        Texture dead_texture = (Texture) this.dieAnimation.getKeyFrame(this.die_state, true);
 
         switch (super.getState()) {
             case MOVE:
                 batch.draw(move_texture,
-                        super.getPosition().x - (move_texture.getWidth() / 2.0f), super.getPosition().y - (move_texture.getHeight() / 2.0f),
-                        move_texture.getWidth() / 2.0f, move_texture.getHeight() / 2.0f,
-                        move_texture.getWidth(), move_texture.getHeight(),
-                        1, 1,
+                        super.getPosition().x, super.getPosition().y,
+                        0,0,
+                        move_texture.getWidth() , move_texture.getHeight(),
+                        this.scale, this.scale,
                         0, 0, 0, (int) move_texture.getWidth(), (int) move_texture.getHeight(), turn_head, false);
 
                 break;
 
             case JUMP:
+                Texture jump_texture = (Texture) this.jumpingAnimation.getKeyFrame(this.jumping_state, true);
                 batch.draw(jump_texture,
-                        super.getPosition().x - (jump_texture.getWidth() / 2.0f), super.getPosition().y - (jump_texture.getHeight() / 2.0f) + 60f,
-                        jump_texture.getWidth() / 2.0f, jump_texture.getHeight() / 2.0f,
+                        super.getPosition().x, super.getPosition().y,
+                        0, 0,
                         jump_texture.getWidth(), jump_texture.getHeight(),
-                        1, 1,
+                        this.scale, this.scale,
                         0, 0, 0, (int) jump_texture.getWidth(), (int) jump_texture.getHeight(), turn_head, false);
 
                 break;
-
-            case IDLE:
-                batch.draw(idle_texture,
-                        super.getPosition().x - (idle_texture.getWidth() / 2.0f), super.getPosition().y - (idle_texture.getHeight() / 2.0f) + 60f,
-                        idle_texture.getWidth() / 2.0f, idle_texture.getHeight() / 2.0f,
-                        idle_texture.getWidth(), idle_texture.getHeight(),
-                        1, 1,
-                        0, 0, 0, (int) idle_texture.getWidth(), (int) idle_texture.getHeight(), turn_head, false);
-
-                break;
+//
+//            case IDLE:
+//                batch.draw(idle_texture,
+//                        super.getPosition().x - (idle_texture.getWidth() / 2.0f), super.getPosition().y - (idle_texture.getHeight() / 2.0f) + 60f,
+//                        idle_texture.getWidth() / 2.0f, idle_texture.getHeight() / 2.0f,
+//                        idle_texture.getWidth(), idle_texture.getHeight(),
+//                        1, 1,
+//                        0, 0, 0, (int) idle_texture.getWidth(), (int) idle_texture.getHeight(), turn_head, false);
+//
+//                break;
 
         }
 
@@ -135,77 +147,127 @@ public class LickingEnemy extends Enemy {
         this.attack_state += delta;
         this.die_state += delta;
 
-        this.turnHeadTimer += delta;
-
-        boolean collision = false;
 
         float distance_x;
         float distance_y;
 
         if(turn_head)
         {
-            distance_x = -(this.moving_speed) * delta;
+            distance_x = this.moving_speed * delta;
         }
         else
         {
-            distance_x = this.moving_speed * delta;
+            distance_x = -(this.moving_speed) * delta;
         }
 
-        distance_y = (float) (-(this.moving_speed) * 2.5 * delta);
+        distance_y = 0;
 
-        int mapCurrentX = (int)(Math.round(super.getPosition().x / environment.getTileWidth())); // convert enemy location to tile row and coloumn
-        int mapCurrentY = (int)(Math.round(super.getPosition().y / environment.getTileHeight()));
+/*
+        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
+            for (int xc = 0; xc < this.environment.getWidth(); xc++) {
+                if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
+                    System.out.print("*");
+                else if (this.environment.getCell(xc, yc) == null)
+                    System.out.print(".");
+                else
+                    System.out.print("1");
+            }
+            System.out.println(" " + yc);
+        }
+ */
 
-        int mapFutureX = (int)(Math.round((super.getPosition().x + distance_x)  / environment.getTileWidth()));
-        int mapFutureY = (int)(Math.round((super.getPosition().y + distance_y)  / environment.getTileHeight()));
 
-        if (distance_y != 0)
-        {
-            int yStep = (int) (Math.round((this.lickingHeight) / 128));
+        // Checking for a collision above or below the character.
 
-            Gdx.app.log("", yStep + "");
+        // What map reference are we going to be at after this frame?
+        int mapFutureY;
+        int mapCurrentX;
 
-            // Adding the loop
-            TiledMapTileLayer.Cell topCell = this.environment.getCell(mapCurrentX, mapFutureY); //top
-            TiledMapTileLayer.Cell bottomCell = this.environment.getCell(mapCurrentX, (mapFutureY - yStep)); //bottom
+        // Only make it fall if it is on land. So lok to see if we are on the ground.
+        boolean onGround = false;
 
-            if (topCell != null || bottomCell != null)
-            {
-                super.setState(EnemyState.MOVE);
+        // This is to track the width. A character could be on 1, 2 or 3 blocks, so
+        // more than one block may need to be checked. This tracks how far into the width
+        // we are
+        float tempX = 0;
+
+        // Keep checking for collisions until the go past the width
+        while (tempX < this.lickingWidth * this.scale) {
+            // Work out the x map reference.
+            mapCurrentX = (int) (Math.floor((super.getPosition().x + tempX) / environment.getTileWidth()));
+
+            // Work out the y map reference for the bottom
+            mapFutureY = (int)(Math.floor((super.getPosition().y + distance_y)  / environment.getTileHeight()));
+
+            // Are we hitting a block from above?
+            if (this.environment.getCell(mapCurrentX, mapFutureY) != null) {
+                // We have a hit. Can't go down, and need to move up to the top of the block if not already there.
+                distance_y = 0;
+                super.setPosition(new Vector2(super.getPosition().x, (mapFutureY + 1) * 128));
+            }
+            // If not, is there a block underneath?
+            else if (this.environment.getCell(mapCurrentX, mapFutureY - 1) != null) {
+                onGround = true;
+            }
+
+            // Work out the map y for the top of this thing
+            mapFutureY = (int)(Math.floor((super.getPosition().y + distance_y + (this.lickingHeight * this.scale)  / environment.getTileHeight())));
+
+            // Are we hitting a block from below? Not that this can't be tested until jumping is added
+            // so it might need a change.
+            if (distance_y > 0 && this.environment.getCell(mapCurrentX, mapFutureY) != null) {
+                // We have a hit. Can't go up after all.
                 distance_y = 0;
             }
-            else
-            {
-                if(mapFutureY- yStep <= 4 )
-                {
-                    distance_y = 0;
-                    super.setState(EnemyState.MOVE);
-                    distance_x = 0;
-                    super.setState(EnemyState.IDLE);
-                }
-                else
-                {
-                    super.setState(EnemyState.JUMP);
-                }
 
-                // need to change stage
-            }
+            tempX += 128;
+        }
+
+        // Do we need to fall?
+        if (!onGround || super.getPosition().y % 128 != 0) {
+            // We need to fall
+            super.setState(EnemyState.JUMP);
+            distance_y = (float) (-(this.moving_speed) * 2.5 * delta);
+        }
+        else
+        {
+            super.setState(EnemyState.MOVE);
         }
 
         Gdx.app.log("",environment.getWidth()+"");
 
-        if (distance_x != 0) {
+        // Checking for collision on X
 
-            int xStep = (int) (Math.round(this.lickingWidth / 128)); //cause by the background
+        // What map reference are we going to be at after this frame?
+        int mapCurrentY;
+        int mapFutureX;
 
-            TiledMapTileLayer.Cell leftCell = this.environment.getCell(mapFutureX, mapCurrentY); //left
-            TiledMapTileLayer.Cell rightCell = this.environment.getCell(mapFutureX + xStep, mapCurrentY); //right
+        float tempY = 0;
 
-            if (leftCell != null || rightCell != null) {
+        while (tempY < this.lickingHeight * this.scale) {
+
+            mapCurrentY = (int)(Math.floor((super.getPosition().y + tempY) / environment.getTileHeight()));
+
+            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x)  / environment.getTileWidth()));
+
+            // Are we hitting a block to the left?
+            if (this.environment.getCell(mapFutureX, mapCurrentY) != null) {
+                // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
                 distance_x = 0;
+                super.setPosition(new Vector2((mapFutureX + 1) * 128, super.getPosition().y));
                 turn_head = !turn_head;
             }
 
+            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x + (this.lickingWidth * this.scale))  / environment.getTileWidth()));
+
+            // Are we hitting a block to the right?
+            if (this.environment.getCell(mapFutureX, mapCurrentY) != null) {
+                // We have a hit. Can't go right, and need to move to the left of the block if not already there.
+                distance_x = 0;
+                super.setPosition(new Vector2(mapFutureX * 128 - (this.lickingWidth * this.scale) - 5, super.getPosition().y));
+                turn_head = !turn_head;
+            }
+            tempY += 128;
         }
 
         if (super.getPosition().x + distance_x >= (this.environment.getWidth() *128) - (lickingWidth /2) ||
@@ -214,18 +276,7 @@ public class LickingEnemy extends Enemy {
             turn_head = !turn_head; // no side bar so this may work
 
         }
-//        else
-//        {
-//            if(collision == false && this.turnHeadTimer >= 3.0 && super.getState() == EnemyState.MOVE)
-//            {
-//                this.turnHeadTimer = 0.0f;
-//                if(new Random().nextInt(10)+1 >= 5)
-//                {
-//                    turn_head = !turn_head;
-//                }
-//            }
-//
-//        }
+
         super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }
 
