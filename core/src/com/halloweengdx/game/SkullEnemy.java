@@ -99,6 +99,7 @@ public class SkullEnemy extends Enemy
 
         switch (super.getState())
         {
+            case CHASE:
             case MOVE:
                 batch.draw(move_texture,
                         super.getPosition().x - (move_texture.getWidth() / 2.0f), super.getPosition().y - (move_texture.getHeight() / 2.0f),
@@ -126,6 +127,17 @@ public class SkullEnemy extends Enemy
                         idle_texture.getWidth(),  idle_texture.getHeight(),
                         this.scale,this.scale,
                         0, 0, 0, (int)idle_texture.getWidth(), (int) idle_texture.getHeight(), turn_head, false);
+
+                break;
+
+            case ATTACK:
+
+                batch.draw(attacking_texture,
+                        super.getPosition().x - (attacking_texture.getWidth() / 2.0f), super.getPosition().y - (attacking_texture.getHeight() / 2.0f),
+                        0, 0,
+                        attacking_texture.getWidth(),  attacking_texture.getHeight(),
+                        this.scale,this.scale,
+                        0, 0, 0, (int)attacking_texture.getWidth(), (int) attacking_texture.getHeight(), turn_head, false);
 
                 break;
 
@@ -161,7 +173,7 @@ public class SkullEnemy extends Enemy
                 }
             }
 
-            if(super.getState()==EnemyState.MOVE)
+            if(super.getState()==EnemyState.MOVE || super.getState() == EnemyState.CHASE)
             {
 
                 if(turn_head)
@@ -181,6 +193,49 @@ public class SkullEnemy extends Enemy
             super.setState(EnemyState.IDLE);
         }
 
+        System.out.println(super.getTargetPlayer().getPosition().y);
+        System.out.println(super.getPosition().y);
+
+        if((super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange()  * 128))
+                && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
+                && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() >= super.getStartPosition().y
+                && super.getTargetPlayer().getPosition().y  < super.getStartPosition().y + skullHeight/2)
+        {
+            super.setState(EnemyState.CHASE);
+
+        }
+        else
+        {
+            if(super.getState() == EnemyState.CHASE)
+            {
+                super.setState(EnemyState.MOVE);
+            }
+        }
+
+        if(super.getState() == EnemyState.CHASE)
+        {
+            distance_x *= 1.05;
+
+            if(super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() + 25f)) >= 0)
+            {
+                turn_head = true;
+
+            }
+            else if(super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() - 335f) /2) < 0)
+            {
+                turn_head = false;
+
+            }
+            else
+            {
+                distance_x = 0;
+                super.setState(EnemyState.ATTACK);
+                //getTargetPlayer().setState(Player.PlayerState.DEAD);
+            }
+
+
+        }
+
         int mapCurrentY = (int)(Math.round(super.getPosition().y / environment.getTileHeight()));
         int mapFutureX = (int)(Math.round((super.getPosition().x + distance_x)  / environment.getTileWidth()));
 
@@ -188,8 +243,8 @@ public class SkullEnemy extends Enemy
         {
             int mapInitialX = (int)(Math.round(super.getStartPosition().x / environment.getTileHeight()));
 
-            if (Math.abs(mapInitialX - mapFutureX) >= super.getPatrolRange() ||
-                    super.getPosition().x + distance_x <= 0 + skullWidth /2) // using graphic pixel
+            if (super.getState() == EnemyState.MOVE && (Math.abs(mapInitialX - mapFutureX) >= super.getPatrolRange() ||
+                    super.getPosition().x + distance_x <= 0 + skullWidth /2))// using graphic pixel
             {
                 distance_x = 0;
                 if(new Random().nextInt(10)+1 > 3)

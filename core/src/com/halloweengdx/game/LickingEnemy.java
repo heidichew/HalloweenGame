@@ -271,7 +271,7 @@ public class LickingEnemy extends Enemy {
         }
 
         if (super.getPosition().x + distance_x >= (this.environment.getWidth() *128) - (lickingWidth /2) ||
-                super.getPosition().x + distance_x <= 0 + lickingWidth /2) // using graphic pixel
+                super.getPosition().x + distance_x <= (0 + (lickingWidth /2) - 120f) ) // using graphic pixel
         {
             turn_head = !turn_head; // no side bar so this may work
 

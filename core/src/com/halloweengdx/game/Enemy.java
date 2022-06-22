@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 public abstract class Enemy implements Actor
 {
 
-    public enum EnemyState {IDLE, ALIVE, ATTACK, DYING, DEAD, MOVE, JUMP}
+    public enum EnemyState {IDLE, ALIVE, ATTACK, DYING, DEAD, MOVE, JUMP, CHASE}
 
     public enum ENEMY_DIRECTION {LEFT, RIGHT};
 

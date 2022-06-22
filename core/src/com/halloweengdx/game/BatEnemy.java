@@ -25,6 +25,7 @@ public class BatEnemy extends Enemy{
 
     private float moving_state;
     private float idle_state;
+    private float attack_state;
 
     private float moving_speed;
 
@@ -60,6 +61,7 @@ public class BatEnemy extends Enemy{
         //state
         this.moving_state = 0.0f;
         this.idle_state = 0.0f;
+        this.attack_state = 0.0f;
 
         //moving speed
         this.moving_speed = 128f;
@@ -67,6 +69,7 @@ public class BatEnemy extends Enemy{
         //animation
         this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_flying_texture);
         this.idleAnimation = new Animation(0.1f, this.texture_assets.bat_enemy_idle_texture);
+        this.attackAnimation = new Animation(0.05f, this.texture_assets.bat_enemy_attacking_texture);
 
         //loading texture from db
 
@@ -87,6 +90,8 @@ public class BatEnemy extends Enemy{
 
         switch (super.getState()){
             case MOVE:
+
+            case CHASE:
                 Texture move_texture = (Texture)this.moveAnimation.getKeyFrame(this.moving_state, true);
 
                 batch.draw(move_texture,
@@ -108,6 +113,18 @@ public class BatEnemy extends Enemy{
                         scale,scale,
                         0, 0, 0, (int)idle_texture.getWidth(), (int) idle_texture.getHeight(), !turn, false);
                 break;
+
+            case ATTACK:
+
+                Texture attack_texture = (Texture)this.attackAnimation.getKeyFrame(this.attack_state, true);
+
+                batch.draw(attack_texture,
+                        super.getPosition().x - (attack_texture.getWidth() / 2.0f), 10+ super.getPosition().y - (attack_texture.getHeight() / 2.0f),
+                        0, 0,
+                        attack_texture.getWidth(), attack_texture.getHeight(),
+                        scale,scale,
+                        0, 0, 0, (int)attack_texture.getWidth(), (int) attack_texture.getHeight(), !turn, false);
+                break;
         }
 
 
@@ -117,6 +134,7 @@ public class BatEnemy extends Enemy{
 
         this.moving_state += delta;
         this.idle_state += delta;
+        this.attack_state += delta;
 
 
         if(onHold)
@@ -128,9 +146,22 @@ public class BatEnemy extends Enemy{
             this.holdTimer += delta;
         }
 
+
+
         float distance_x;
         float distance_y;
 
+        if (turn) {
+            distance_x = -(this.moving_speed) * delta;
+        } else {
+            distance_x = this.moving_speed * delta;
+        }
+
+        if (rise) {
+            distance_y = (this.moving_speed / 2) * delta;
+        } else {
+            distance_y = -(this.moving_speed / 2) * delta;
+        }
 
 /*        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
             for (int xc = 0; xc < this.environment.getWidth(); xc++) {
@@ -144,43 +175,81 @@ public class BatEnemy extends Enemy{
             System.out.println(" " + yc);
         }*/
 
-        if(onHold)
+        if((super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
+        && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
+        && super.getTargetPlayer().getPosition().y > super.getStartPosition().y - ((super.getPatrolRange()) *128))
         {
-            distance_x = 0;
+            super.setState(EnemyState.CHASE);
+
         }
-        else if(turn)
+
+        if(super.getState() == EnemyState.CHASE)
         {
-            distance_x = -(this.moving_speed) * delta;
+
+            System.out.println(super.getStartPosition().y); //1566
+            System.out.println(super.getTargetPlayer().getPosition().y); //1408
+
+            if(super.getPosition().y >= super.getTargetPlayer().getPosition().y + getTargetPlayer().getSprite().getHeight() /2 + 60)
+            {
+                rise = false;
+            }
+            else if(super.getPosition().y < super.getTargetPlayer().getPosition().y + getTargetPlayer().getSprite().getHeight()/2 + 60)
+            {
+                rise = true;
+            }
+            else
+            {
+                distance_y = 0;
+            }
+
+            distance_x *= 1.05;
+
+            if(super.getPosition().x - 210f - super.getTargetPlayer().getPosition().x - super.getTargetPlayer().getSprite().getWidth()/2 >= 0)
+            {
+                turn = true;
+
+            }
+            else if(super.getPosition().x - super.getTargetPlayer().getPosition().x - ((getTargetPlayer().getSprite().getWidth() - 180f) /2) < 0)
+            {
+                turn = false;
+
+            }
+            else
+            {
+                distance_x = 0;
+                //super.setState(EnemyState.ATTACK);
+                //getTargetPlayer().setState(Player.PlayerState.DEAD);
+            }
+
+
         }
         else
         {
-            distance_x = this.moving_speed * delta;
-        }
+            if (onHold)
+            {
+                distance_x = 0;
+            }
 
-        if(rise)
-        {
-            distance_y = (this.moving_speed / 2) * delta;
-        }
-        else
-        {
-            distance_y = -(this.moving_speed / 2) * delta;
-        }
 
-        // Change Position of x don't go over screen
-        if (super.getPosition().x + distance_x >= (this.environment.getTileWidth() * super.getPatrolRange()))
-        {
-            turn = true;
+            int mapInitialX = (int) (Math.round(super.getStartPosition().x / environment.getTileWidth()));
+            int currentPatrol = mapInitialX - (int) (Math.floor((super.getPosition().x + distance_x) / environment.getTileWidth()));
 
-        }
-        else if(super.getPosition().x + distance_x <= 0 +  ((batWidth /2) * 0.7))
-        {
-            turn = false;
-        }
+            if (Math.abs(currentPatrol) >= super.getPatrolRange()) {
+                System.out.print(currentPatrol);
+                if (currentPatrol < 0) {
+                    turn = true;
+                } else {
+                    turn = false;
+                }
 
-        //change position of y
-        if(super.getPosition().y + distance_y >= (environment.getHeight() - 7) * 128)
-        {
-            rise = false;
+            } else if (super.getPosition().x + distance_x <= 0 + (batWidth / 2) - 60f) {
+                turn = false;
+            }
+
+            //change position of y
+            if (super.getPosition().y + distance_y >= (environment.getHeight() - 7) * 128) {
+                rise = false;
+            }
         }
 
 
@@ -241,7 +310,7 @@ public class BatEnemy extends Enemy{
             if (this.environment.getCell(mapFutureX - 1, mapCurrentY) != null) {
                 // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
                 distance_x = 0;
-                turn= !turn;
+                turn= false;
             }
 
             mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x + (this.batWidth * this.scale)) / environment.getTileWidth()));
@@ -250,7 +319,7 @@ public class BatEnemy extends Enemy{
             if (this.environment.getCell(mapFutureX - 2, mapCurrentY) != null) {
                 // We have a hit. Can't go right, and need to move to the left of the block if not already there.
                 distance_x = 0;
-                turn = !turn;
+                turn = true;
             }
             tempY += 128;
         }
@@ -268,6 +337,8 @@ public class BatEnemy extends Enemy{
             onHold = false;
             super.setState(EnemyState.MOVE);
         }
+
+
         super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }
 
