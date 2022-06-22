@@ -32,6 +32,7 @@ public class HalloweenGdxGame extends Game {
 	@Override
 	public void dispose () {
 		super.dispose();
+
 	}
 
 	@Override

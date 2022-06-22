@@ -200,13 +200,13 @@ public class LevelOneScreen extends GameScreen
 
                 if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || moveRightButton.isDown) {
 
-                    // Prevent pressing left and right on the same time
-                    if(!isLeftHeld){
+                    if(!isRightHeld){
                         isRightHeld = true;
-                    }else{
-                        moveRightButton.isDown = false;
-                        isRightHeld = false;
                     }
+//                    }else{
+//                        moveRightButton.isDown = false;
+//                        isRightHeld = false;
+//                    }
 
                 }else{
                     isRightHeld = false;
@@ -371,29 +371,32 @@ public class LevelOneScreen extends GameScreen
 
                     }
                 }
-                if(player.getState() == Player.PlayerState.DEAD || player.getState() == Player.PlayerState.DYING){
-                    if(health > 0){
+                if(player.getState() == Player.PlayerState.HURT){
+                    if(health >= 1){
                         respawnTime += 1;
 
                         if(respawnTime >= RESPAWN_TIME){
                             health -= 1;
 
-                            // Reset camera position
-                            camera.position.x = (Gdx.graphics.getWidth() / 2) + 300;
-                            camera.position.y = player.getPosition().y + 600f;
-                            camera.update();
+                            if(health >= 1){
+                                // Reset camera position
+                                camera.position.x = (Gdx.graphics.getWidth() / 2) + 300;
+                                camera.position.y = player.getPosition().y + 600f;
+                                camera.update();
 
-                            if(player.getPosition().x <= CHECKPOINT_TWO.x){
-                                player.setPosition(CHECKPOINT_ONE);
-                            }else{
-                                player.setPosition(CHECKPOINT_TWO);
+                                if(player.getPosition().x <= CHECKPOINT_TWO.x){
+                                    player.setPosition(CHECKPOINT_ONE);
+                                }else{
+                                    player.setPosition(CHECKPOINT_TWO);
+                                }
+
+                                player.setState(Player.PlayerState.ALIVE);
+                                respawnTime = 0;
                             }
-
-                            player.setState(Player.PlayerState.ALIVE);
-                            respawnTime = 0;
                         }
                     }else{
                         // restart button
+                        player.setState(Player.PlayerState.DYING);
                     }
                 }
 
