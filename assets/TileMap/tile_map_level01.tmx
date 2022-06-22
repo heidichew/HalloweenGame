@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.5" orientation="orthogonal" renderorder="left-down" width="60" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="6" nextobjectid="1">
+<map version="1.8" tiledversion="1.8.5" orientation="orthogonal" renderorder="left-down" width="60" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="1">
  <tileset firstgid="1" name="Floor" tilewidth="320" tileheight="320" tilecount="30" columns="0">
   <grid orientation="orthogonal" width="10" height="10"/>
   <tile id="0">
@@ -240,7 +240,7 @@
  </tileset>
  <layer id="1" name="BaseLayer" width="60" height="20">
   <data encoding="base64" compression="zlib">
-   eJztldkKgCAURC/1IBKtr9X//2YKShdxgSiy7hw4Tw7huEUEALjK7pSClL7aODFBmnCtvPObkxJOywQnI+GcPglf1z4ybt8KRfH3gu/HZmwofn75N7B3ANyHSujvsr+PupDLZWqyS7gEfYdCLpf5glL7lrr8qa/9p67OXN9SpiYPva8Ohw==
+   eJztldEKgCAMRaUeQqKyXjP//zNLUliWs6DSbAfOU5faZE3GCIIgrjPFLuBh1KIANnHLSZ6Obc+rj1vO7UhjeTJfOL6FntvSkVhRHok9emYVuza7FfBoX3LzTCDqvSGR78J35LZjCCImlUf9L8P7hCM5iy+TkrXHwfRg7842kMMyX/Cv/YZ6yanfEYj1G8qk5AwEvw75
   </data>
  </layer>
  <layer id="4" name="CeilingLayer" width="60" height="20">

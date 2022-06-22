@@ -88,6 +88,7 @@ public class MenuScreen implements Screen {
 
         if (playButton.isDown){
             game.setScreen(HalloweenGdxGame.gameScreenOne);
+            System.out.println("pressed play");
         }
     }
 

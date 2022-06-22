@@ -22,8 +22,27 @@ public class LevelOneScreen extends GameScreen
     private TiledMap tiledMap;
     private TiledMapRenderer tiledMapRenderer;
 
+    private boolean isJumpHeld, isRightHeld, isLeftHeld, isAttackHeld;
+
+    public static final long LONG_JUMP_PRESS = 100l;
+    private long jumpPressedTime;
+
+    private TiledMapTileLayer tileLayer;
+
+
     // Player
     private Player player;
+
+    public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 600);
+    public final static Vector2 CHECKPOINT_TWO = new Vector2(3800, 600);
+    public final static float RESPAWN_TIME = 20;
+
+    private boolean[][] collisionMap = new boolean[60][20];
+
+    private float respawnTime;
+
+    private boolean shouldMove = false;
+    private boolean shouldFall = false;
 
     public LevelOneScreen(HalloweenGdxGame game){
         super(game);
@@ -38,7 +57,19 @@ public class LevelOneScreen extends GameScreen
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
         // Create player
-        player = new Player(25,1100); // 600
+        //player = new Player((int)(CHECKPOINT_ONE.x), (int)(CHECKPOINT_ONE.y)); // , y = 1100 (platform 2)
+        player = new Player((int)(1500), (int)(600)); // , y = 1100 (platform 2)
+
+        tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get("BaseLayer");
+        for (int y = 0; y < tileLayer.getHeight(); y++) {
+            for (int x = 0; x < tileLayer.getWidth(); x ++) {
+                this.collisionMap[x][y] = false;
+                if (tileLayer.getCell(x,y) != null) {
+                    this.collisionMap[x][y] = true;
+                }
+            }
+        }
+
     }
 
     public void newGame(){
@@ -49,6 +80,13 @@ public class LevelOneScreen extends GameScreen
         //camera.translate(player.getPosition().x, player.getPosition().y);
 
         super.newGame();
+
+        isAttackHeld = false;
+        isJumpHeld = false;
+        isRightHeld = false;
+        isLeftHeld = false;
+
+        respawnTime = 0;
     }
 
     @Override
@@ -111,6 +149,9 @@ public class LevelOneScreen extends GameScreen
         int touchX = Gdx.input.getX();
         int touchY = Gdx.input.getY();
 
+        System.out.println("x");
+        System.out.println(player.getPosition().x);
+
         //Update Game State based on input
         switch (gameState) {
 
@@ -129,6 +170,7 @@ public class LevelOneScreen extends GameScreen
                 return;
             }
 
+
             case PLAYING:
             {
                 // Check if the user press the pause button
@@ -143,103 +185,238 @@ public class LevelOneScreen extends GameScreen
                 attackButton.update(checkTouch, touchX, touchY);
                 jumpButton.update(checkTouch, touchX, touchY);
 
-                int moveX = 0;
-                int moveY = 0;
-                if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || moveLeftButton.isDown) {
-                    //moveLeftButton.isDown = true;
-                    moveX -= 1;
-                    //player.setState(Player.PlayerState.MOVELEFT);
-                } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || moveRightButton.isDown) {
-                    //moveRightButton.isDown = true;
-                    moveX += 1;
-                    //player.setState(Player.PlayerState.MOVERIGHT);
-                } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || attackButton.isDown) {
-                    //attackButton.isDown = true;
-                } else if (Gdx.input.isKeyPressed(Input.Keys.UP) || jumpButton.isDown) {
-                    //jumpButton.isDown = true;
+
+                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || moveLeftButton.isDown) {
+
+                    if(!isLeftHeld) isLeftHeld = true;
+
+                    // Prevent player to move out from the tile
+                    if(player.getPosition().x <= 0){
+                        isLeftHeld = false;
+                    }
+                } else{
+                    isLeftHeld = false;
                 }
 
-                Vector2 playerDelta = new Vector2(0, 0);
-                playerDelta.x = moveX * player.MOVING_SPEED * stateTime;
-                playerDelta.y = moveY * player.MOVING_SPEED * stateTime;
+                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || moveRightButton.isDown) {
 
-//                player.update(stateTime);
-//                player.getSprite().translate(playerDelta.x, playerDelta.y);
+                    // Prevent pressing left and right on the same time
+                    if(!isLeftHeld){
+                        isRightHeld = true;
+                    }else{
+                        moveRightButton.isDown = false;
+                        isRightHeld = false;
+                    }
 
-                TiledMapTileLayer tileLayer = (TiledMapTileLayer) tiledMap.getLayers().get("BaseLayer");
-                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                boolean blocked = false;
+                }else{
+                    isRightHeld = false;
+                }
+
+                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN) || attackButton.isDown) {
+                    isAttackHeld = true;
+                }else{
+                    isAttackHeld = false;
+                }
+
+                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP) || jumpButton.isDown) {
+                    if(player.getState() != Player.PlayerState.JUMPING && player.getState() != Player.PlayerState.JUMP_START){
+                        isJumpHeld = true;
+                        jumpPressedTime = System.currentTimeMillis();
+                        player.setState(Player.PlayerState.JUMP_START);
+                    }else{
+                        if(isJumpHeld &&  ((System.currentTimeMillis() - jumpPressedTime) >= LONG_JUMP_PRESS)){
+                            isJumpHeld = false;
+                            jumpPressedTime = 0;
+                        }else{
+                            player.setState(Player.PlayerState.JUMP_START);
+                        }
+                    }
+                }else{
+                    if(isJumpHeld){
+                        isJumpHeld = false;
+                        jumpPressedTime = 0;
+                    }
+                }
+
+                int x = 0, y = 0;
 
 
                 if (player.getState() == Player.PlayerState.ALIVE) {
 
-                    if (moveX != 0 || moveY != 0) {
+//                    if(isLeftHeld){
+//                        x = Math.round((player.getPosition().x / 128)) + 1;
+//                    }else{
+//                        x = Math.round((player.getPosition().x / 128)) ;
+//                    }
+                    x = Math.round((player.getPosition().x / 128)) + 1;
+                    y = Math.round((player.getPosition().y / 128)) - 1;
 
-                        try {
-                            cell = tileLayer.getCell((int) (Math.round((player.getPosition().x + playerDelta.x + (player.PLAYER_WIDTH * 0.25)) / tileLayer.getTileWidth())), (int) ((player.getPosition().y) / tileLayer.getTileHeight()));
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                    boolean shouldFall = false;
+                    if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
+                        if(collisionMap[x][y] == true){
+                            System.out.println("blocked fall");
+                            shouldFall = false;
+                        }else{
+                            System.out.println("not blocked fall");
+                            shouldFall = true;
                         }
+                    }else{
+                        shouldFall = false;
+                    }
 
-                        //System.out.println("y: " + ((player.getPosition().x + playerDelta.x + (player.PLAYER_WIDTH * 0.25)) / tileLayer.getTileWidth()));
-
-                        if (cell != null) {
-                            if (cell.getTile().getProperties().containsKey("blocked")) {
-                                blocked = true;
-                            }
-                        }
-
-                        if (blocked) {
-                            //System.out.println("yes");
-                        } else {
-                            //System.out.println("no");
+                    if(player.getState() != Player.PlayerState.DEAD || player.getState() != Player.PlayerState.DYING && health > 0){
+                        if (shouldFall && !player.getIsOnGround()) {
                             player.setState(Player.PlayerState.FALL);
-                        }
-
-                    }
-
-                    if (player.getState() == Player.PlayerState.ALIVE) {
-                        if (playerDelta.x > 0) {
-                            player.setState(Player.PlayerState.MOVERIGHT);
-                        } else if (playerDelta.x < 0) {
-                            player.setState(Player.PlayerState.MOVELEFT);
-                        }
-                    }
-                }
-
-                if (player.getState() == Player.PlayerState.FALL || player.getState() == Player.PlayerState.FALLING) {
-                    cell = tileLayer.getCell((int) (Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.25)) / tileLayer.getTileWidth())), (int) ((player.getPosition().y + (player.PLAYER_WIDTH * 1.82f)) / tileLayer.getTileHeight()));
-
-                    System.out.println("ypos: " + (player.getPosition().y));
-                    System.out.println("y: " + ((player.getPosition().y + (player.PLAYER_HEIGHT * 2)) / tileLayer.getTileHeight()));
-                    if (cell != null) {
-                        if (cell.getTile().getProperties().containsKey("killed")) {
-                            System.out.println("die");
-                            //player.setState(Player.PlayerState.DEAD);
-                        } else if (cell.getTile().getProperties().containsKey("blocked")) {
+                        }else{
                             player.setState(Player.PlayerState.ALIVE);
                         }
-                    } else {
-                        System.out.println("null");
+
+                        if (player.getState() == Player.PlayerState.ALIVE){
+                            if(isRightHeld){
+                                player.setState(Player.PlayerState.MOVERIGHT);
+                            }else if(isLeftHeld){
+                                player.setState(Player.PlayerState.MOVELEFT);
+                            }
+//
+//                            if(isJumpHeld){
+//                                player.setIsJumpStart(true);
+//                                player.setState(Player.PlayerState.JUMPING);
+//                            }
+                        }
                     }
                 }
 
-                player.update(stateTime);
+                if(player.getState() == Player.PlayerState.JUMPING){
+                    x = Math.round((player.getPosition().x / 128));
+                    y = Math.round((player.getPosition().y / 128));
 
-                // Move camera with the player
-                if (player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-                    camera.position.x = player.getPosition().x + 600;
+//                    x = Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.5f)) / 120);
+//                    y = Math.round((player.getPosition().y - (player.PLAYER_HEIGHT * 0.35f) - 10) / 120);
 
-                    if (camera.position.x >= Gdx.graphics.getWidth() - 190f) {
-                        camera.position.x = Gdx.graphics.getWidth() - 190;
+                    boolean stopJump = false;
+                    if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
+                        if(collisionMap[x][y] == true){
+                            System.out.println("should stop jump");
+                            stopJump = true;
+                        }else{
+                            stopJump = false;
+                        }
+                    }else{
+                        stopJump = true;
+                    }
+
+                    if (stopJump) {
+                        player.setState(Player.PlayerState.ALIVE);
+                        isJumpHeld = false;
+                        jumpPressedTime = 0;
+                        player.setPosition(player.getPosition().x, player.getPosition().y + 40f);
                     }
                 }
-                if (player.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-                    camera.position.y = player.getPosition().y;
+                if (player.getState() == Player.PlayerState.FALL || player.getState() == Player.PlayerState.FALLING) {
+
+//                    if(player.getFacingDirection() == Player.PlayerDirection.LEFT){
+//                        //x = Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.3f) + 10) / 120);
+//                        //x = Math.round((player.getPosition().x - (player.PLAYER_WIDTH * 0.35f) - 10) / 120);
+//                    }else{
+//                        //x = Math.round((player.getPosition().x - (player.PLAYER_WIDTH * 0.3f) - 10) / 120);
+//                        x = Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.35f) - 10) / 120);
+//                    }
+//                    x = Math.round(((player.getPosition().x) / 120));
+//                    x += 1;
+//                    y = Math.round((player.getPosition().y - (player.PLAYER_HEIGHT / 5f)) / 120);
+
+                    if(player.getFacingDirection() == Player.PlayerDirection.LEFT){
+                        x = Math.round(((player.getPosition().x) / 128));
+                    }else{
+                        x = Math.round((player.getPosition().x / 128)) + 1;
+                    }
+
+                    y = Math.round((player.getPosition().y / 128));
+
+                    boolean fall = false;
+                    if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
+                        if(collisionMap[x][y] == true){
+                            System.out.println("should not fall");
+                            fall = false;
+                        }else{
+                            if(player.getPosition().y <= 15f){
+                                fall = false;
+                            }else{
+                                fall = true;
+                            }
+                        }
+                    }else{
+                        fall = false;
+                    }
+
+                    if(fall){
+                        player.setState(Player.PlayerState.FALL);
+                    }else if(!fall){
+                        player.setState(Player.PlayerState.ALIVE);
+
+                        if(player.getPosition().y <= 200){
+                            player.setState(Player.PlayerState.FALL);
+                        }else{
+                            player.setPosition(player.getPosition().x, player.getPosition().y + 25);
+                        }
+//                        if(player.getPosition().y > 1000){
+//                            player.setPosition(player.getPosition().x, player.getPosition().y + 30);
+//                        }else{
+//                            if(player.getPosition().y <= 300){
+//                                player.setState(Player.PlayerState.FALL);
+//                            }else{
+//                                player.setPosition(player.getPosition().x, player.getPosition().y + 25);
+//                            }
+//                        }
+
+                    }
                 }
-                camera.update();
+                if(player.getState() == Player.PlayerState.DEAD || player.getState() == Player.PlayerState.DYING){
+                    if(health > 0){
+                        respawnTime += 1;
+
+                        if(respawnTime >= RESPAWN_TIME){
+                            health -= 1;
+
+                            // Reset camera position
+                            camera.position.x = (Gdx.graphics.getWidth() / 2) + 300;
+                            camera.position.y = player.getPosition().y + 600f;
+                            camera.update();
+
+                            if(player.getPosition().x <= CHECKPOINT_TWO.x){
+                                player.setPosition(CHECKPOINT_ONE);
+                            }else{
+                                player.setPosition(CHECKPOINT_TWO);
+                            }
+
+                            player.setState(Player.PlayerState.ALIVE);
+                            respawnTime = 0;
+                        }
+                    }else{
+                        // restart button
+                    }
+                }
+
             }
+
+
+            // Update player
+            player.update(stateTime);
+
+            // Move camera with the player
+            if (player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
+                camera.position.x = player.getPosition().x + 600f;
+
+//                    if (camera.position.x >= Gdx.graphics.getWidth() - 190f) {
+//                        camera.position.x = Gdx.graphics.getWidth() - 190;
+//                    }
+            }
+            if (player.getPosition().y > (Gdx.graphics.getHeight() / 2) + 400f) {
+                camera.position.y = player.getPosition().y;
+            }else{
+                camera.position.y = 715f;
+            }
+            camera.update();
         }
     }
 

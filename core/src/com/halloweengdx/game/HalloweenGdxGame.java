@@ -25,6 +25,7 @@ public class HalloweenGdxGame extends Game {
 		menuScreen = new MenuScreen(this);
 		// Change screens to the menu
 		setScreen(menuScreen);
+		//setScreen(gameScreenOne);
 	}
 
 
