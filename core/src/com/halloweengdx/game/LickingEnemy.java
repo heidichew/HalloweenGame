@@ -13,7 +13,7 @@ public class LickingEnemy extends Enemy {
 
     private Animation idleAnimation = null;
     private Animation moveAnimation = null;
-    private Animation dieAnimation = null;
+    private Animation dyingAnimation = null;
     private Animation attackAnimation = null;
     private Animation jumpingAnimation = null;
     private Animation hurtingAnimation = null;
@@ -21,7 +21,7 @@ public class LickingEnemy extends Enemy {
     private float idle_state;
     private float moving_state;
     private float jumping_state;
-    private float die_state;
+    private float dying_state;
     private float attack_state;
     private float hurting;
 
@@ -56,14 +56,15 @@ public class LickingEnemy extends Enemy {
         this.idle_state = 0;
         this.moving_state = 0;
         this.jumping_state = 0;
-        this.die_state = 0;
+        this.dying_state = 0;
         this.attack_state = 0;
 
-        this.moving_speed = 200f;
+        this.moving_speed = 350f;
 
         //this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
         this.moveAnimation = new Animation(0.03f, texture_assets.licking_enemy_walking);
         this.jumpingAnimation = new Animation(0.2f, texture_assets.licking_enemy_jumping);
+        this.dyingAnimation = new Animation(0.05f, texture_assets.enemy_dead_texture);
 //        this.dieAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
 //        this.attackAnimation = new Animation(0.1f, texture_assets.skull_enemy_attacking_texture);
 
@@ -124,16 +125,19 @@ public class LickingEnemy extends Enemy {
                         0, 0, 0, (int) jump_texture.getWidth(), (int) jump_texture.getHeight(), turn_head, false);
 
                 break;
-//
-//            case IDLE:
-//                batch.draw(idle_texture,
-//                        super.getPosition().x - (idle_texture.getWidth() / 2.0f), super.getPosition().y - (idle_texture.getHeight() / 2.0f) + 60f,
-//                        idle_texture.getWidth() / 2.0f, idle_texture.getHeight() / 2.0f,
-//                        idle_texture.getWidth(), idle_texture.getHeight(),
-//                        1, 1,
-//                        0, 0, 0, (int) idle_texture.getWidth(), (int) idle_texture.getHeight(), turn_head, false);
-//
-//                break;
+
+
+            case DYING:
+                Texture dying_texture = (Texture) this.dyingAnimation.getKeyFrame(dying_state, true);
+                batch.draw(dying_texture,
+                        super.getPosition().x, super.getPosition().y,
+                        0, 0,
+                        dying_texture.getWidth(), dying_texture.getHeight(),
+                        this.scale, this.scale,
+                        0, 0, 0, (int) dying_texture.getWidth(), (int) dying_texture.getHeight(), turn_head, false);
+
+                break;
+
 
         }
 
@@ -145,7 +149,6 @@ public class LickingEnemy extends Enemy {
         this.jumping_state += delta;
         this.idle_state += delta;
         this.attack_state += delta;
-        this.die_state += delta;
 
 
         float distance_x;
@@ -161,29 +164,39 @@ public class LickingEnemy extends Enemy {
 //            super.getTargetPlayer().setState(Player.PlayerState.DEAD);
 //        }
 
-        if((super.getTargetPlayer().position.y < super.getPosition().y + 128f)
-                && (super.getTargetPlayer().getPosition().y >= super.getPosition().y - 128f))
+        if(super.getState() == EnemyState.DYING || super.getState() == EnemyState.DEAD)
         {
-            if(super.getPosition().x + (lickingWidth * scale) - 160f > super.getTargetPlayer().getPosition().x &&
-                    super.getPosition().x + (lickingWidth * scale) <= super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth())
+            this.dying_state += delta;
+            if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
             {
-                System.out.println(this.getTargetPlayer().getState());
-                System.out.println("Player Y"+ super.getTargetPlayer().getPosition().y);
-                System.out.println("enemy y"+(super.getPosition().y + lickingHeight/2));
-                if(super.getTargetPlayer().getState() == Player.PlayerState.FALL && super.getTargetPlayer().getPosition().y > super.getPosition().y + ((lickingHeight/2) * scale))
-                {
-                    super.setState(EnemyState.DEAD);
-                }
-                else
-                {
-                    super.setState(EnemyState.DEAD);
-                    super.getTargetPlayer().setState(Player.PlayerState.HURT);
+                this.dying_state = 0.0f;
+                this.setState(EnemyState.DEAD);
+            }
+
+        }
+        else
+        {
+
+            if ((super.getTargetPlayer().position.y < super.getPosition().y + 128f)
+                    && (super.getTargetPlayer().getPosition().y >= super.getPosition().y - 128f)) {
+                if (super.getPosition().x + (lickingWidth * scale) - 160f > super.getTargetPlayer().getPosition().x &&
+                        super.getPosition().x + (lickingWidth * scale) <= super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth()) {
+                    System.out.println(this.getTargetPlayer().getState());
+                    System.out.println("Player Y" + super.getTargetPlayer().getPosition().y);
+                    System.out.println("enemy y" + (super.getPosition().y + lickingHeight / 2));
+                    if (super.getTargetPlayer().getState() == Player.PlayerState.FALL && super.getTargetPlayer().getPosition().y > super.getPosition().y + ((lickingHeight / 2) * scale)) {
+                        super.setState(EnemyState.DYING);
+                    } else {
+                        super.setState(EnemyState.DYING);
+                        super.getTargetPlayer().setState(Player.PlayerState.HURT);
+                    }
                 }
             }
+
         }
 
 
-        if(super.getState() != EnemyState.DEAD)
+        if(super.getState() != EnemyState.DYING && super.getState()!= EnemyState.DEAD)
         {
 
             if (turn_head) {
