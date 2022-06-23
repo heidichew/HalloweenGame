@@ -33,7 +33,7 @@ public class LevelOneScreen extends GameScreen
 
     private boolean isJumpHeld, isRightHeld, isLeftHeld, isAttackHeld;
 
-    public static final long LONG_JUMP_PRESS = 100l;
+    public static final long LONG_JUMP_PRESS = 200l;
     private long jumpPressedTime;
 
 
@@ -82,7 +82,6 @@ public class LevelOneScreen extends GameScreen
                 }
             }
         }
-
 
         // work out tile height
         this.enemies = new ArrayList<Enemy>();
@@ -227,10 +226,9 @@ public class LevelOneScreen extends GameScreen
                 attackButton.update(checkTouch, touchX, touchY);
                 jumpButton.update(checkTouch, touchX, touchY);
 
-
                 if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || moveLeftButton.isDown) {
 
-                    if(!isLeftHeld) isLeftHeld = true;
+                    isLeftHeld = true;
 
                     // Prevent player to move out from the tile
                     if(player.getPosition().x <= 0){
@@ -242,13 +240,7 @@ public class LevelOneScreen extends GameScreen
 
                 if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || moveRightButton.isDown) {
 
-                    if(!isRightHeld){
-                        isRightHeld = true;
-                    }
-//                    }else{
-//                        moveRightButton.isDown = false;
-//                        isRightHeld = false;
-//                    }
+                    isRightHeld = true;
 
                 }else{
                     isRightHeld = false;
@@ -290,8 +282,18 @@ public class LevelOneScreen extends GameScreen
 //                    }else{
 //                        x = Math.round((player.getPosition().x / 128)) ;
 //                    }
-                    x = Math.round((player.getPosition().x / 128)) + 1;
-                    y = Math.round((player.getPosition().y / 128)) - 1;
+                    x = Math.round((player.getPosition().x)/ 128) + 1;
+
+                    if(player.getPosition().y < 1000 ){
+                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+                    }else if(player.getPosition().y > 1200 && player.getPosition().y < 1700){
+                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+                    }else if(player.getPosition().y >= 1700){
+                        // have to fix
+                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+                    }else{
+                        y = Math.round(player.getPosition().y / 128) - 1;
+                    }
 
                     boolean shouldFall = false;
                     if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
@@ -307,10 +309,12 @@ public class LevelOneScreen extends GameScreen
                     }
 
                     if(player.getState() != Player.PlayerState.DEAD || player.getState() != Player.PlayerState.DYING && health > 0){
-                        if (shouldFall && !player.getIsOnGround()) {
-                            player.setState(Player.PlayerState.FALL);
+                        if (shouldFall) {
+                            player.setState(Player.PlayerState.FALL_START);
+                            player.setIsOnGround(false);
                         }else{
                             player.setState(Player.PlayerState.ALIVE);
+                            player.setIsOnGround(true);
                         }
 
                         if (player.getState() == Player.PlayerState.ALIVE){
@@ -348,24 +352,17 @@ public class LevelOneScreen extends GameScreen
                     }
 
                     if (stopJump) {
-                        player.setState(Player.PlayerState.ALIVE);
                         isJumpHeld = false;
                         jumpPressedTime = 0;
                         player.setPosition(player.getPosition().x, player.getPosition().y + 40f);
+                        player.setIsOnGround(true);
+                        //player.setState(Player.PlayerState.ALIVE);
+                    }else{
+                        player.setIsOnGround(false);
                     }
+                    player.setState(Player.PlayerState.ALIVE);
                 }
-                if (player.getState() == Player.PlayerState.FALL || player.getState() == Player.PlayerState.FALLING) {
-
-//                    if(player.getFacingDirection() == Player.PlayerDirection.LEFT){
-//                        //x = Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.3f) + 10) / 120);
-//                        //x = Math.round((player.getPosition().x - (player.PLAYER_WIDTH * 0.35f) - 10) / 120);
-//                    }else{
-//                        //x = Math.round((player.getPosition().x - (player.PLAYER_WIDTH * 0.3f) - 10) / 120);
-//                        x = Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.35f) - 10) / 120);
-//                    }
-//                    x = Math.round(((player.getPosition().x) / 120));
-//                    x += 1;
-//                    y = Math.round((player.getPosition().y - (player.PLAYER_HEIGHT / 5f)) / 120);
+                if (player.getState() == Player.PlayerState.FALLING) {
 
                     if(player.getFacingDirection() == Player.PlayerDirection.LEFT){
                         x = Math.round(((player.getPosition().x) / 128));
@@ -392,27 +389,20 @@ public class LevelOneScreen extends GameScreen
                     }
 
                     if(fall){
-                        player.setState(Player.PlayerState.FALL);
+                        player.setState(Player.PlayerState.FALL_START);
+                        player.setIsOnGround(false);
                     }else if(!fall){
-                        player.setState(Player.PlayerState.ALIVE);
-
                         if(player.getPosition().y <= 200){
-                            player.setState(Player.PlayerState.FALL);
+                            player.setState(Player.PlayerState.FALL_START);
+                            player.setIsOnGround(false);
                         }else{
                             player.setPosition(player.getPosition().x, player.getPosition().y + 25);
+                            player.setIsOnGround(true);
+                            player.setState(Player.PlayerState.ALIVE);
                         }
-//                        if(player.getPosition().y > 1000){
-//                            player.setPosition(player.getPosition().x, player.getPosition().y + 30);
-//                        }else{
-//                            if(player.getPosition().y <= 300){
-//                                player.setState(Player.PlayerState.FALL);
-//                            }else{
-//                                player.setPosition(player.getPosition().x, player.getPosition().y + 25);
-//                            }
-//                        }
-
                     }
                 }
+
                 if(player.getState() == Player.PlayerState.HURT){
                     if(health >= 1){
                         respawnTime += 1;
@@ -422,7 +412,7 @@ public class LevelOneScreen extends GameScreen
 
                             if(health >= 1){
                                 // Reset camera position
-                                camera.position.x = (Gdx.graphics.getWidth() / 2) + 300;
+                                camera.position.x = (Gdx.graphics.getWidth() / 2) - 100;
                                 camera.position.y = player.getPosition().y + 600f;
                                 camera.update();
 
@@ -504,7 +494,7 @@ public class LevelOneScreen extends GameScreen
 
             // Move camera with the player
             if (player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
-                camera.position.x = player.getPosition().x + 600f;
+                camera.position.x = player.getPosition().x + 200f;
 
                 if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
                 {

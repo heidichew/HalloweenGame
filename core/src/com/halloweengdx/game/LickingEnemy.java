@@ -184,7 +184,7 @@ public class LickingEnemy extends Enemy {
                     System.out.println(this.getTargetPlayer().getState());
                     System.out.println("Player Y" + super.getTargetPlayer().getPosition().y);
                     System.out.println("enemy y" + (super.getPosition().y + lickingHeight / 2));
-                    if (super.getTargetPlayer().getState() == Player.PlayerState.FALL && super.getTargetPlayer().getPosition().y > super.getPosition().y + ((lickingHeight / 2) * scale)) {
+                    if (super.getTargetPlayer().getState() == Player.PlayerState.FALLING && super.getTargetPlayer().getPosition().y > super.getPosition().y + ((lickingHeight / 2) * scale)) {
                         super.setState(EnemyState.DYING);
                     } else {
                         super.setState(EnemyState.DYING);
