@@ -20,12 +20,13 @@ public class BatEnemy extends Enemy{
     // Animations for bat enemy
     private Animation moveAnimation = null;
     private Animation idleAnimation = null;
-    private Animation dieAnimation = null;
+    private Animation dyingAnimation = null;
     private Animation attackAnimation = null;
 
     private float moving_state;
     private float idle_state;
     private float attack_state;
+    private float dying_state;
 
     private float moving_speed;
 
@@ -70,6 +71,7 @@ public class BatEnemy extends Enemy{
         this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_flying_texture);
         this.idleAnimation = new Animation(0.1f, this.texture_assets.bat_enemy_idle_texture);
         this.attackAnimation = new Animation(0.03f, this.texture_assets.bat_enemy_attacking_texture);
+        this.dyingAnimation = new Animation(0.05f, this.texture_assets.enemy_dead_texture);
 
         //loading texture from db
 
@@ -125,6 +127,18 @@ public class BatEnemy extends Enemy{
                         scale,scale,
                         0, 0, 0, (int)attack_texture.getWidth(), (int) attack_texture.getHeight(), !turn, false);
                 break;
+
+            case DYING:
+                Texture dying_texture = (Texture)this.dyingAnimation.getKeyFrame(this.dying_state, true);
+
+                batch.draw(dying_texture,
+                        super.getPosition().x - (dying_texture.getWidth() / 2.0f), super.getPosition().y - (dying_texture.getHeight() / 2.0f),
+                        0, 0,
+                        dying_texture.getWidth(), dying_texture.getHeight(),
+                        scale,scale,
+                        0, 0, 0, (int)dying_texture.getWidth(), (int) dying_texture.getHeight(), !turn, false);
+                break;
+
         }
 
 
@@ -132,227 +146,212 @@ public class BatEnemy extends Enemy{
 
     public void update(float delta) {
 
-        this.moving_state += delta;
-        this.idle_state += delta;
-        this.attack_state += delta;
-
-
-        if(onHold)
+        if(this.getState() == EnemyState.DYING || this.getState() == EnemyState.DEAD)
         {
-            this.onHoldTimer += delta;
-        }
-        else
-        {
-            this.holdTimer += delta;
-        }
-
-
-
-        float distance_x;
-        float distance_y;
-
-        if (turn) {
-            distance_x = -(this.moving_speed) * delta;
-        } else {
-            distance_x = this.moving_speed * delta;
-        }
-
-        if (rise) {
-            distance_y = (this.moving_speed / 2) * delta;
-        } else {
-            distance_y = -(this.moving_speed / 2) * delta;
-        }
-
-/*        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
-            for (int xc = 0; xc < this.environment.getWidth(); xc++) {
-                if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
-                    System.out.print("*");
-                else if (this.environment.getCell(xc, yc) == null)
-                    System.out.print(".");
-                else
-                    System.out.print("1");
+            this.dying_state += delta;
+            if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
+            {
+                this.dying_state = 0.0f;
+                this.setState(EnemyState.DEAD);
             }
-            System.out.println(" " + yc);
-        }*/
-
-        if((super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
-        && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
-        && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - ((super.getPatrolRange()) *128))
-        {
-            super.setState(EnemyState.CHASE);
 
         }
         else
         {
-            if(super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK)
-            {
-                super.setState(EnemyState.MOVE);
-            }
-        }
+            this.moving_state += delta;
+            this.idle_state += delta;
 
-        if(super.getState() == EnemyState.CHASE)
-        {
-            distance_y *= 2;
-
-
-            if(super.getPosition().y >= super.getTargetPlayer().getPosition().y + this.getTargetPlayer().getSprite().getHeight() - 60f)
-            {
-                rise = false;
-            }
-            else if(super.getPosition().y < super.getTargetPlayer().getPosition().y + getTargetPlayer().getSprite().getHeight()/2 + 60)
-            {
-                rise = true;
-            }
-            else
-            {
-                distance_y = 0;
-            }
-
-            distance_x *= 1.05;
-
-            if((super.getPosition().x) - (super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth() + 40f) >= 0)
-            {
-                turn = true;
-
-            }
-            else if((super.getPosition().x + batWidth/2 + 40f) - (super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth()) < 0)
-            {
-                turn = false;
-
-            }
-            else
-            {
-                distance_x = 0;
-            }
-
-            if(distance_x == 0 && distance_y == 0)
-            {
-                super.setState(EnemyState.ATTACK);
-                super.getTargetPlayer().setState(Player.PlayerState.HURT);
-            }
-
-//            if(super.getPosition().y + distance_y < super.getStartPosition().y)
-//            {
-//                super.setPosition(new Vector2(super.getPosition().x, super.getStartPosition().y));
-//            }
-
-
-        }
-        else
-        {
-            if (onHold)
-            {
-                distance_x = 0;
+            if (onHold) {
+                this.onHoldTimer += delta;
+            } else {
+                this.holdTimer += delta;
             }
 
 
-            int mapInitialX = (int) (Math.round(super.getStartPosition().x / environment.getTileWidth()));
-            int currentPatrol = mapInitialX - (int) (Math.floor((super.getPosition().x + distance_x) / environment.getTileWidth()));
+            float distance_x;
+            float distance_y;
 
-            if (Math.abs(currentPatrol) >= super.getPatrolRange()) {
-                if (currentPatrol < 0) {
-                    turn = true;
+            if (turn) {
+                distance_x = -(this.moving_speed) * delta;
+            } else {
+                distance_x = this.moving_speed * delta;
+            }
+
+            if (rise) {
+                distance_y = (this.moving_speed / 2) * delta;
+            } else {
+                distance_y = -(this.moving_speed / 2) * delta;
+            }
+
+    /*        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
+                for (int xc = 0; xc < this.environment.getWidth(); xc++) {
+                    if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
+                        System.out.print("*");
+                    else if (this.environment.getCell(xc, yc) == null)
+                        System.out.print(".");
+                    else
+                        System.out.print("1");
+                }
+                System.out.println(" " + yc);
+            }*/
+
+            if ((super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
+                    && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
+                    && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - ((super.getPatrolRange()) * 128)) {
+                super.setState(EnemyState.CHASE);
+
+            } else {
+                if (super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK) {
+                    super.setState(EnemyState.MOVE);
+                }
+            }
+
+            if (super.getState() == EnemyState.CHASE) {
+                distance_y *= 2;
+
+
+                if (super.getPosition().y >= super.getTargetPlayer().getPosition().y + this.getTargetPlayer().getSprite().getHeight() - 60f) {
+                    rise = false;
+                } else if (super.getPosition().y < super.getTargetPlayer().getPosition().y + getTargetPlayer().getSprite().getHeight() / 2 + 60) {
+                    rise = true;
                 } else {
+                    distance_y = 0;
+                }
+
+                distance_x *= 1.05;
+
+                if ((super.getPosition().x) - (super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth() + 40f) >= 0) {
+                    turn = true;
+
+                } else if ((super.getPosition().x + batWidth / 2 + 40f) - (super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth()) < 0) {
+                    turn = false;
+
+                } else {
+                    distance_x = 0;
+                }
+
+                if (distance_x == 0 && distance_y == 0)
+                {
+                    this.attack_state += delta;
+                    super.setState(EnemyState.ATTACK);
+
+                    if (this.attack_state >= attackAnimation.getAnimationDuration())
+                    {
+                        super.getTargetPlayer().setState(Player.PlayerState.HURT);
+                        this.attack_state = 0.0f;
+                    }
+                }
+
+            } else {
+                if (onHold) {
+                    distance_x = 0;
+                }
+
+
+                int mapInitialX = (int) (Math.round(super.getStartPosition().x / environment.getTileWidth()));
+                int currentPatrol = mapInitialX - (int) (Math.floor((super.getPosition().x + distance_x) / environment.getTileWidth()));
+
+                if (Math.abs(currentPatrol) >= super.getPatrolRange()) {
+                    if (currentPatrol < 0) {
+                        turn = true;
+                    } else {
+                        turn = false;
+                    }
+
+                } else if (super.getPosition().x + distance_x <= 0 + (batWidth / 2)) {
                     turn = false;
                 }
 
-            } else if (super.getPosition().x + distance_x <= 0 + (batWidth / 2)) {
-                turn = false;
+                //change position of y
+                if (super.getPosition().y + distance_y >= (environment.getHeight() - 7) * 128) {
+                    rise = false;
+                }
             }
 
-            //change position of y
-            if (super.getPosition().y + distance_y >= (environment.getHeight() - 7) * 128) {
-                rise = false;
+
+            //map reference for top and bottom
+            int mapFutureY;
+            int mapCurrentX;
+
+
+            //tracking
+            float tempX = 0;
+
+            while (tempX < this.batWidth * scale) {
+                // Work out the x map reference.
+                mapCurrentX = (int) (Math.floor((super.getPosition().x + tempX) / environment.getTileWidth()));
+
+                //bat top
+                // Work out the map y for the top of this thing
+                mapFutureY = (int) (Math.floor(((super.getPosition().y + 28) + distance_y + (this.batHeight * this.scale)) / environment.getTileHeight()));
+
+                // Are we hitting a block from below? Not that this can't be tested until jumping is added
+                // so it might need a change.
+                if (distance_y > 0 && this.environment.getCell(mapCurrentX, mapFutureY - 1) != null) {
+                    // We have a hit. Can't go up after all.
+                    distance_y = 0;
+                    rise = false;
+                }
+
+                // Work out the y map reference for the bottom
+                mapFutureY = (int) (Math.floor(((super.getPosition().y + 35f) + distance_y) / environment.getTileHeight()));
+
+                //bat below
+                // Are we hitting a block from above?
+                if (this.environment.getCell(mapCurrentX, mapFutureY - 1) != null) {
+                    distance_y = 0;
+                    rise = true;
+                }
+                tempX += 128;
+
             }
+
+            // Checking for collision on X
+
+            // What map reference are we going to be at after this frame?
+            int mapCurrentY;
+            int mapFutureX;
+
+            float tempY = 0;
+
+            while (tempY < this.batHeight * this.scale) {
+
+                mapCurrentY = (int) (Math.floor((super.getPosition().y + tempY) / environment.getTileHeight()));
+
+                mapFutureX = (int) (Math.floor((super.getPosition().x + distance_x) / environment.getTileWidth()));
+
+                // Are we hitting a block to the left?
+                if (this.environment.getCell(mapFutureX - 1, mapCurrentY) != null) {
+                    // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
+                    distance_x = 0;
+                    turn = false;
+                }
+
+                mapFutureX = (int) (Math.floor((super.getPosition().x + distance_x + (this.batWidth * this.scale)) / environment.getTileWidth()));
+
+                // Are we hitting a block to the right?
+                if (this.environment.getCell(mapFutureX - 2, mapCurrentY) != null) {
+                    // We have a hit. Can't go right, and need to move to the left of the block if not already there.
+                    distance_x = 0;
+                    turn = true;
+                }
+                tempY += 128;
+            }
+
+            if (this.holdTimer >= 15) {
+                onHold = true;
+                super.setState(EnemyState.IDLE);
+                this.holdTimer = 0;
+            }
+
+            if (this.onHoldTimer >= 1) {
+                onHoldTimer = 0;
+                onHold = false;
+                super.setState(EnemyState.MOVE);
+            }
+
+            super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
         }
-
-
-        //map reference for top and bottom
-        int mapFutureY;
-        int mapCurrentX;
-
-
-        //tracking
-        float tempX = 0;
-
-        while(tempX < this.batWidth * scale)
-        {
-            // Work out the x map reference.
-            mapCurrentX = (int) (Math.floor((super.getPosition().x + tempX) / environment.getTileWidth()));
-
-            //bat top
-            // Work out the map y for the top of this thing
-            mapFutureY = (int)(Math.floor(((super.getPosition().y + 28) + distance_y + (this.batHeight * this.scale)) / environment.getTileHeight()));
-
-            // Are we hitting a block from below? Not that this can't be tested until jumping is added
-            // so it might need a change.
-            if (distance_y > 0 && this.environment.getCell(mapCurrentX, mapFutureY -1) != null) {
-                // We have a hit. Can't go up after all.
-                distance_y = 0;
-                rise = false;
-            }
-
-            // Work out the y map reference for the bottom
-            mapFutureY = (int) (Math.floor(((super.getPosition().y + 35f) + distance_y)  / environment.getTileHeight()));
-
-            //bat below
-            // Are we hitting a block from above?
-            if (this.environment.getCell(mapCurrentX, mapFutureY -1) != null) {
-                distance_y = 0;
-                rise = true;
-            }
-            tempX += 128;
-
-        }
-
-        // Checking for collision on X
-
-        // What map reference are we going to be at after this frame?
-        int mapCurrentY;
-        int mapFutureX;
-
-        float tempY = 0;
-
-        while (tempY < this.batHeight * this.scale) {
-
-            mapCurrentY = (int)(Math.floor((super.getPosition().y + tempY) / environment.getTileHeight()));
-
-            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x)  / environment.getTileWidth()));
-
-            // Are we hitting a block to the left?
-            if (this.environment.getCell(mapFutureX - 1, mapCurrentY) != null) {
-                // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
-                distance_x = 0;
-                turn= false;
-            }
-
-            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x + (this.batWidth * this.scale)) / environment.getTileWidth()));
-
-            // Are we hitting a block to the right?
-            if (this.environment.getCell(mapFutureX - 2, mapCurrentY) != null) {
-                // We have a hit. Can't go right, and need to move to the left of the block if not already there.
-                distance_x = 0;
-                turn = true;
-            }
-            tempY += 128;
-        }
-
-        if(this.holdTimer >= 15)
-        {
-            onHold = true;
-            super.setState(EnemyState.IDLE);
-            this.holdTimer = 0;
-        }
-
-        if(this.onHoldTimer >= 1)
-        {
-            onHoldTimer = 0;
-            onHold = false;
-            super.setState(EnemyState.MOVE);
-        }
-
-
-        super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }
 
     @Override

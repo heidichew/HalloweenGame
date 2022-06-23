@@ -34,6 +34,8 @@ public class GameAssetsDB
     protected Texture[] licking_enemy_walking;
     protected Texture[] licking_enemy_jumping;
 
+    protected Texture[] enemy_dead_texture;
+
     // Player Texture
     protected Texture[] playerIdleTexture;
     protected Texture[] playerRunTexture;
@@ -65,6 +67,8 @@ public class GameAssetsDB
 
         this.licking_enemy_walking = new Texture[18];
         this.licking_enemy_jumping = new Texture[18];
+
+        this.enemy_dead_texture = new Texture[10];
 
         playerDieTexture = new Texture[15];
         playerRunTexture = new Texture[12];
@@ -100,6 +104,11 @@ public class GameAssetsDB
             this.skull_enemy_idle_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Idle Blink/Idle Blink_0"+ i +".png"));
             this.skull_enemy_hurt_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Hurt/Hurt_0"+ i +".png"));
             this.skull_enemy_attacking_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Attacking/Attacking_0"+ i +".png"));
+        }
+
+        for(int i =0; i<10; i++)
+        {
+            this.enemy_dead_texture[i] = new Texture(Gdx.files.internal("enemies/Death Sprite/skeleton-animation_"+i+".png"));
         }
 
         for(int i = 0; i < 6; i++)

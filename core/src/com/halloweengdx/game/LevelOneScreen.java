@@ -129,7 +129,7 @@ public class LevelOneScreen extends GameScreen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         super.bgBatch.begin();
-        super.bgBatch.draw(gameAssetsDB.L1_background, 0,0, this.layer.getWidth(), this.layer.getHeight());
+        super.bgBatch.draw(gameAssetsDB.L1_background, 0,0, 60*128, 20*128);
         super.bgBatch.end();
 
         if(camera != null){

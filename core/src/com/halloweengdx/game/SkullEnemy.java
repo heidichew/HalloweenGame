@@ -15,7 +15,7 @@ public class SkullEnemy extends Enemy
 
     private Animation idleAnimation = null;
     private Animation moveAnimation = null;
-    private Animation dieAnimation = null;
+    private Animation dyingAnimation = null;
     private Animation attackAnimation = null;
     private Animation jumpingAnimation = null;
     private Animation hurtingAnimation = null;
@@ -23,7 +23,7 @@ public class SkullEnemy extends Enemy
     private float idle_state;
     private float moving_state;
     private float jumping_state;
-    private float die_state;
+    private float dying_state;
     private float attack_state;
     private float hurting_state;
 
@@ -62,7 +62,7 @@ public class SkullEnemy extends Enemy
         this.idle_state = 0;
         this.moving_state = 0;
         this.jumping_state = 0;
-        this.die_state = 0;
+        this.dying_state = 0;
         this.attack_state = 0;
         this.hurting_state = 0;
 
@@ -73,8 +73,8 @@ public class SkullEnemy extends Enemy
         this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
         this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
         this.jumpingAnimation = new Animation(0.2f, texture_assets.skull_enemy_jumping_texture);
-        this.dieAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
-        this.attackAnimation = new Animation(0.08f, texture_assets.skull_enemy_attacking_texture);
+        this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
+        this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
 
 
         this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
@@ -90,8 +90,6 @@ public class SkullEnemy extends Enemy
 
     @Override
     public void draw(SpriteBatch batch) {
-
-        Texture dead_texture = (Texture) this.dieAnimation.getKeyFrame(this.die_state, true);
 
         switch (super.getState())
         {
@@ -140,6 +138,17 @@ public class SkullEnemy extends Enemy
 
                 break;
 
+            case DYING:
+                Texture dying_texture = (Texture) this.dyingAnimation.getKeyFrame(this.dying_state, true);
+                batch.draw(dying_texture,
+                        super.getPosition().x - (dying_texture.getWidth() / 2.0f), super.getPosition().y - (dying_texture.getHeight() / 2.0f),
+                        0, 0,
+                        dying_texture.getWidth(),  dying_texture.getHeight(),
+                        this.scale,this.scale,
+                        0, 0, 0, (int)dying_texture.getWidth(), (int) dying_texture.getHeight(), turn_head, false);
+
+
+
         }
 
     }
@@ -147,139 +156,132 @@ public class SkullEnemy extends Enemy
     @Override
     public void update(float delta)
     {
-        this.moving_state += delta;
-        this.jumping_state += delta;
-        this.idle_state += delta;
-        this.attack_state += delta;
-        this.die_state += delta;
 
-        this.turnHeadTimer +=delta;
-        this.stayTimer+=delta;
-
-        float distance_x = 0;
-        float distance_y = 0;
-
-        boolean getTurn = false;
-
-        if(super.getPatrolRange() > 0)
+        if(this.getState() == EnemyState.DYING || this.getState() == EnemyState.DEAD)
         {
-            if(super.getState() == EnemyState.IDLE)
+            this.dying_state += delta;
+            if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
             {
-                if(this.stayTimer >= 3)
-                {
-                    stayTimer = 0.0f;
+                this.dying_state = 0.0f;
+                this.setState(EnemyState.DEAD);
+            }
+
+        }
+        else
+        {
+            this.moving_state += delta;
+            this.jumping_state += delta;
+            this.idle_state += delta;
+
+            this.turnHeadTimer += delta;
+            this.stayTimer += delta;
+
+            float distance_x = 0;
+            float distance_y = 0;
+
+            boolean getTurn = false;
+
+            if (super.getPatrolRange() > 0) {
+                if (super.getState() == EnemyState.IDLE) {
+                    if (this.stayTimer >= 3) {
+                        stayTimer = 0.0f;
+                        super.setState(EnemyState.MOVE);
+                    }
+                }
+
+                if (super.getState() == EnemyState.MOVE || super.getState() == EnemyState.CHASE) {
+
+                    if (turn_head) {
+                        distance_x = -(this.moving_speed) * delta;
+                    } else {
+                        distance_x = this.moving_speed * delta;
+                    }
+
+                }
+
+            } else {
+                super.setState(EnemyState.IDLE);
+            }
+
+
+            if ((super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange() * 128))
+                    && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
+                    && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() >= super.getStartPosition().y
+                    && super.getTargetPlayer().getPosition().y < super.getStartPosition().y + skullHeight / 2) {
+                super.setState(EnemyState.CHASE);
+
+            } else {
+                if (super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK) {
                     super.setState(EnemyState.MOVE);
                 }
             }
 
-            if(super.getState()==EnemyState.MOVE || super.getState() == EnemyState.CHASE)
-            {
+            if (super.getState() == EnemyState.CHASE) {
+                distance_x *= 2;
 
-                if(turn_head)
-                {
-                    distance_x = -(this.moving_speed) * delta;
+                if (super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() + 25f)) >= 0) {
+                    turn_head = true;
+
+                } else if (super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() - 335f) / 2) < 0) {
+                    turn_head = false;
+
+                } else {
+                    distance_x = 0;
+                    this.attack_state += delta;
+                    super.setState(EnemyState.ATTACK);
+
+                    if(this.attack_state >= this.attackAnimation.getAnimationDuration())
+                    {
+                        super.getTargetPlayer().setState(Player.PlayerState.HURT);
+                        this.attack_state = 0.0f;
+                    }
+
                 }
-                else
-                {
-                    distance_x = this.moving_speed * delta;
-                }
+
 
             }
 
-        }
-        else
-        {
-            super.setState(EnemyState.IDLE);
-        }
+            int mapCurrentY = (int) (Math.round(super.getPosition().y / environment.getTileHeight()));
+            int mapFutureX = (int) (Math.round((super.getPosition().x + distance_x) / environment.getTileWidth()));
 
+            if (distance_x != 0) {
+                int mapInitialX = (int) (Math.round(super.getStartPosition().x / environment.getTileHeight()));
 
-        if((super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange()  * 128))
-            && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
-            && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() >= super.getStartPosition().y
-            && super.getTargetPlayer().getPosition().y  < super.getStartPosition().y + skullHeight/2)
-        {
-            super.setState(EnemyState.CHASE);
-
-        }
-        else
-        {
-            if(super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK)
-            {
-                super.setState(EnemyState.MOVE);
-            }
-        }
-
-        if(super.getState() == EnemyState.CHASE)
-        {
-            distance_x *= 2;
-
-            if(super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() + 25f)) >= 0)
-            {
-                turn_head = true;
-
-            }
-            else if(super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() - 335f) /2) < 0)
-            {
-                turn_head = false;
-
-            }
-            else
-            {
-                distance_x = 0;
-                super.setState(EnemyState.ATTACK);
-                super.getTargetPlayer().setState(Player.PlayerState.HURT);
-            }
-
-
-        }
-
-        int mapCurrentY = (int)(Math.round(super.getPosition().y / environment.getTileHeight()));
-        int mapFutureX = (int)(Math.round((super.getPosition().x + distance_x)  / environment.getTileWidth()));
-
-        if (distance_x != 0)
-        {
-            int mapInitialX = (int)(Math.round(super.getStartPosition().x / environment.getTileHeight()));
-
-            if (super.getState() == EnemyState.MOVE && (Math.abs(mapInitialX - mapFutureX +1) >= super.getPatrolRange() ||
-                    super.getPosition().x + distance_x <= 0 + skullWidth /2))// using graphic pixel
-            {
-                distance_x = 0;
-                if(new Random().nextInt(10)+1 > 3)
-                {
-                    super.setState(EnemyState.IDLE);
-                }
-                else
-                {
-                    turn_head = !turn_head; // no side bar so this may work
-                    getTurn = true;
-                }
-            }
-            else {
-
-                int xStep = (int) (Math.round(this.skullWidth / 128)) - 3; //cause by the background
-
-                TiledMapTileLayer.Cell leftCell = this.environment.getCell(mapFutureX, mapCurrentY); //left
-                TiledMapTileLayer.Cell rightCell = this.environment.getCell(mapFutureX + xStep, mapCurrentY); //right
-
-                if (leftCell != null || rightCell != null)
+                if (super.getState() == EnemyState.MOVE && (Math.abs(mapInitialX - mapFutureX + 1) >= super.getPatrolRange() ||
+                        super.getPosition().x + distance_x <= 0 + skullWidth / 2))// using graphic pixel
                 {
                     distance_x = 0;
-                    turn_head = !turn_head;
-                    getTurn = true;
+                    if (new Random().nextInt(10) + 1 > 3) {
+                        super.setState(EnemyState.IDLE);
+                    } else {
+                        turn_head = !turn_head; // no side bar so this may work
+                        getTurn = true;
+                    }
+                } else {
+
+                    int xStep = (int) (Math.round(this.skullWidth / 128)) - 3; //cause by the background
+
+                    TiledMapTileLayer.Cell leftCell = this.environment.getCell(mapFutureX, mapCurrentY); //left
+                    TiledMapTileLayer.Cell rightCell = this.environment.getCell(mapFutureX + xStep, mapCurrentY); //right
+
+                    if (leftCell != null || rightCell != null) {
+                        distance_x = 0;
+                        turn_head = !turn_head;
+                        getTurn = true;
+                    }
                 }
+
             }
 
+
+            if (!getTurn && super.getPatrolRange() == 0 && turnHeadTimer >= 3) {
+                turn_head = !turn_head;
+                turnHeadTimer = 0.0f;
+
+            }
+
+            super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
         }
-
-
-        if(!getTurn && super.getPatrolRange() == 0 && turnHeadTimer >= 3)
-        {
-            turn_head = !turn_head;
-            turnHeadTimer = 0.0f;
-
-        }
-
-        super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }
 
 
