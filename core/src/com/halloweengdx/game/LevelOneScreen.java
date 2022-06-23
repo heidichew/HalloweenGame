@@ -70,7 +70,8 @@ public class LevelOneScreen extends GameScreen
 
         // Create player
 //        player = new Player(128 * 36,128 * 11); // 600
-        player = new Player((int)(128), (int)(600)); // , y = 1100 (platform 2)
+        player = new Player((int)(1500), (int)(600));
+        //player = new Player((int)(128*36), (int)(128*11)); // , y = 1100 (platform 2)
 
         tileLayer = (TiledMapTileLayer) gameAssetsDB.tiledMap_L1.getLayers().get("BaseLayer");
         for (int y = 0; y < tileLayer.getHeight(); y++) {
@@ -88,11 +89,11 @@ public class LevelOneScreen extends GameScreen
         this.enemies.add(new BatEnemy(this.player,
                 new Vector2(0f + this.layer.getTileWidth(), 30f + (this.layer.getHeight()-10) * 128), this.layer, 3));
 
-        this.enemies.add(new LickingEnemy(null,
+        this.enemies.add(new LickingEnemy(this.player,
                 new Vector2(0f + this.layer.getTileWidth() * 26,  (this.layer.getHeight() - 4) * 128), this.layer, 0));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.layer.getTileWidth() * 14,  this.layer.getTileHeight() * 10), this.layer, 6));
+                new Vector2(0f + this.layer.getTileWidth() * 14,  this.layer.getTileHeight() * 10), this.layer, 5));
 
         this.enemies.add(new BatEnemy(this.player,
                 new Vector2(0f + this.layer.getTileWidth() * 35, 30f + this.layer.getTileHeight() * 12), this.layer, 3));
@@ -127,6 +128,10 @@ public class LevelOneScreen extends GameScreen
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA); //Allows transparent sprites/tiles
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        super.bgBatch.begin();
+        super.bgBatch.draw(gameAssetsDB.L1_background, 0,0, this.layer.getWidth(), this.layer.getHeight());
+        super.bgBatch.end();
+
         if(camera != null){
             camera.update();
             tiledMapRenderer.setView(camera);
@@ -136,6 +141,7 @@ public class LevelOneScreen extends GameScreen
         // Update the game state time
         stateTime += Gdx.graphics.getDeltaTime();
         update();
+
 
         //Apply camera to spritebatch and draw player
         batch.setProjectionMatrix(camera.combined);
@@ -179,10 +185,14 @@ public class LevelOneScreen extends GameScreen
         int touchX = Gdx.input.getX();
         int touchY = Gdx.input.getY();
 
-        for(Enemy e: this.enemies)
-        {
-            e.update(Gdx.graphics.getDeltaTime());
+        for(int i=this.enemies.size() -1; i>=0; i--){
+            this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
+            if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+            {
+                this.enemies.remove(i);
+            }
         }
+
 
         //Update Game State based on input
         switch (gameState) {
@@ -232,13 +242,13 @@ public class LevelOneScreen extends GameScreen
 
                 if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || moveRightButton.isDown) {
 
-                    // Prevent pressing left and right on the same time
-                    if(!isLeftHeld){
+                    if(!isRightHeld){
                         isRightHeld = true;
-                    }else{
-                        moveRightButton.isDown = false;
-                        isRightHeld = false;
                     }
+//                    }else{
+//                        moveRightButton.isDown = false;
+//                        isRightHeld = false;
+//                    }
 
                 }else{
                     isRightHeld = false;
@@ -403,29 +413,32 @@ public class LevelOneScreen extends GameScreen
 
                     }
                 }
-                if(player.getState() == Player.PlayerState.DEAD || player.getState() == Player.PlayerState.DYING){
-                    if(health > 0){
+                if(player.getState() == Player.PlayerState.HURT){
+                    if(health >= 1){
                         respawnTime += 1;
 
                         if(respawnTime >= RESPAWN_TIME){
                             health -= 1;
 
-                            // Reset camera position
-                            camera.position.x = (Gdx.graphics.getWidth() / 2) + 300;
-                            camera.position.y = player.getPosition().y + 600f;
-                            camera.update();
+                            if(health >= 1){
+                                // Reset camera position
+                                camera.position.x = (Gdx.graphics.getWidth() / 2) + 300;
+                                camera.position.y = player.getPosition().y + 600f;
+                                camera.update();
 
-                            if(player.getPosition().x <= CHECKPOINT_TWO.x){
-                                player.setPosition(CHECKPOINT_ONE);
-                            }else{
-                                player.setPosition(CHECKPOINT_TWO);
+                                if(player.getPosition().x <= CHECKPOINT_TWO.x){
+                                    player.setPosition(CHECKPOINT_ONE);
+                                }else{
+                                    player.setPosition(CHECKPOINT_TWO);
+                                }
+
+                                player.setState(Player.PlayerState.ALIVE);
+                                respawnTime = 0;
                             }
-
-                            player.setState(Player.PlayerState.ALIVE);
-                            respawnTime = 0;
                         }
                     }else{
                         // restart button
+                        player.setState(Player.PlayerState.DYING);
                     }
                 }
 
@@ -435,36 +448,36 @@ public class LevelOneScreen extends GameScreen
             // Update player
             player.update(stateTime);
 
-            // Move camera with bat
-            if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-                super.camera.position.x = this.player.getPosition().x + 600;
-
-                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
-                {
-                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
-                }
-                else if(super.camera.position.x <= 0)
-                {
-                    super.camera.position.x = 0;
-                }
-            }
-            if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-                super.camera.position.y = this.player.getPosition().y; // can change
-
-                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
-                {
-                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
-                }
-                else if(super.camera.position.y <= 0)
-                {
-                    super.camera.position.y = 0;
-                }
-            }
-            super.camera.update();
+//            // Move camera with bat
+//            if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+//                super.camera.position.x = this.player.getPosition().x + 600;
+//
+//                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
+//                {
+//                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
+//                }
+//                else if(super.camera.position.x <= 0)
+//                {
+//                    super.camera.position.x = 0;
+//                }
+//            }
+//            if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) + 400f) {
+//                super.camera.position.y = this.player.getPosition().y; // can change
+//
+//                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+//                {
+//                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+//                }
+//                else if(super.camera.position.y <= 0)
+//                {
+//                    super.camera.position.y = 0;
+//                }
+//            }
+//            super.camera.update();
 
                 // Move camera with bat
-//                if (this.enemies.get(3).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-//                    super.camera.position.x = this.enemies.get(3).getPosition().x + 600;
+//                if (this.enemies.get(0).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+//                    super.camera.position.x = this.enemies.get(0).getPosition().x + 600;
 //
 //                    if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
 //                    {
@@ -475,8 +488,8 @@ public class LevelOneScreen extends GameScreen
 //                        super.camera.position.x = 0;
 //                    }
 //                }
-//                if (this.enemies.get(3).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-//                    super.camera.position.y = this.enemies.get(3).getPosition().y; // can change
+//                if (this.enemies.get(0).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+//                    super.camera.position.y = this.enemies.get(0).getPosition().y; // can change
 //
 //                    if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
 //                    {
@@ -488,6 +501,40 @@ public class LevelOneScreen extends GameScreen
 //                    }
 //                }
 //                super.camera.update();
+
+            // Move camera with the player
+            if (player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
+                camera.position.x = player.getPosition().x + 600f;
+
+                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
+                {
+                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
+                }
+                else if(super.camera.position.x <= 0)
+                {
+                    super.camera.position.x = 0;
+                }
+
+            }
+            if (player.getPosition().y > (Gdx.graphics.getHeight() / 2) + 400f) {
+                camera.position.y = player.getPosition().y;
+            }else{
+                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+                {
+                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+                }
+                else if(super.camera.position.y <= 0)
+                {
+                    super.camera.position.y = 0;
+                }
+                else
+                {
+                    camera.position.y = 715f;
+                }
+            }
+            camera.update();
+
+
         }
 
 

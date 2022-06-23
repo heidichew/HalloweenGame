@@ -151,133 +151,164 @@ public class LickingEnemy extends Enemy {
         float distance_x;
         float distance_y;
 
-        if(turn_head)
-        {
-            distance_x = this.moving_speed * delta;
-        }
-        else
-        {
-            distance_x = -(this.moving_speed) * delta;
-        }
+//        if(((super.getTargetPlayer().position.x + super.getTargetPlayer().getSprite().getWidth()/2 < (super.getPosition().x) + 5f)
+//                && (super.getTargetPlayer().position.x + super.getTargetPlayer().getSprite().getWidth()/2 >= (super.getPosition().x) - 5f))
+//                && (super.getTargetPlayer().position.y < super.getPosition().y + 128)
+//                && (super.getTargetPlayer().getPosition().y >= super.getPosition().y - 128))
+//        {
+//            System.out.println("in here");
+//            super.setState(EnemyState.DEAD);
+//            super.getTargetPlayer().setState(Player.PlayerState.DEAD);
+//        }
 
-        distance_y = 0;
-
-/*
-        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
-            for (int xc = 0; xc < this.environment.getWidth(); xc++) {
-                if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
-                    System.out.print("*");
-                else if (this.environment.getCell(xc, yc) == null)
-                    System.out.print(".");
+        if((super.getTargetPlayer().position.y < super.getPosition().y + 128f)
+                && (super.getTargetPlayer().getPosition().y >= super.getPosition().y - 128f))
+        {
+            if(super.getPosition().x + (lickingWidth * scale) - 160f > super.getTargetPlayer().getPosition().x &&
+                    super.getPosition().x + (lickingWidth * scale) <= super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth())
+            {
+                System.out.println(this.getTargetPlayer().getState());
+                System.out.println("Player Y"+ super.getTargetPlayer().getPosition().y);
+                System.out.println("enemy y"+(super.getPosition().y + lickingHeight/2));
+                if(super.getTargetPlayer().getState() == Player.PlayerState.FALL && super.getTargetPlayer().getPosition().y > super.getPosition().y + ((lickingHeight/2) * scale))
+                {
+                    super.setState(EnemyState.DEAD);
+                }
                 else
-                    System.out.print("1");
+                {
+                    super.setState(EnemyState.DEAD);
+                    super.getTargetPlayer().setState(Player.PlayerState.HURT);
+                }
             }
-            System.out.println(" " + yc);
-        }
- */
-
-
-        // Checking for a collision above or below the character.
-
-        // What map reference are we going to be at after this frame?
-        int mapFutureY;
-        int mapCurrentX;
-
-        // Only make it fall if it is on land. So lok to see if we are on the ground.
-        boolean onGround = false;
-
-        // This is to track the width. A character could be on 1, 2 or 3 blocks, so
-        // more than one block may need to be checked. This tracks how far into the width
-        // we are
-        float tempX = 0;
-
-        // Keep checking for collisions until the go past the width
-        while (tempX < this.lickingWidth * this.scale) {
-            // Work out the x map reference.
-            mapCurrentX = (int) (Math.floor((super.getPosition().x + tempX) / environment.getTileWidth()));
-
-            // Work out the y map reference for the bottom
-            mapFutureY = (int)(Math.floor((super.getPosition().y + distance_y)  / environment.getTileHeight()));
-
-            // Are we hitting a block from above?
-            if (this.environment.getCell(mapCurrentX, mapFutureY) != null) {
-                // We have a hit. Can't go down, and need to move up to the top of the block if not already there.
-                distance_y = 0;
-                super.setPosition(new Vector2(super.getPosition().x, (mapFutureY + 1) * 128));
-            }
-            // If not, is there a block underneath?
-            else if (this.environment.getCell(mapCurrentX, mapFutureY - 1) != null) {
-                onGround = true;
-            }
-
-            // Work out the map y for the top of this thing
-            mapFutureY = (int)(Math.floor((super.getPosition().y + distance_y + (this.lickingHeight * this.scale)  / environment.getTileHeight())));
-
-            // Are we hitting a block from below? Not that this can't be tested until jumping is added
-            // so it might need a change.
-            if (distance_y > 0 && this.environment.getCell(mapCurrentX, mapFutureY) != null) {
-                // We have a hit. Can't go up after all.
-                distance_y = 0;
-            }
-
-            tempX += 128;
         }
 
-        // Do we need to fall?
-        if (!onGround || super.getPosition().y % 128 != 0) {
-            // We need to fall
-            super.setState(EnemyState.JUMP);
-            distance_y = (float) (-(this.moving_speed) * 2.5 * delta);
-        }
-        else
+
+        if(super.getState() != EnemyState.DEAD)
         {
-            super.setState(EnemyState.MOVE);
-        }
 
-        Gdx.app.log("",environment.getWidth()+"");
-
-        // Checking for collision on X
-
-        // What map reference are we going to be at after this frame?
-        int mapCurrentY;
-        int mapFutureX;
-
-        float tempY = 0;
-
-        while (tempY < this.lickingHeight * this.scale) {
-
-            mapCurrentY = (int)(Math.floor((super.getPosition().y + tempY) / environment.getTileHeight()));
-
-            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x)  / environment.getTileWidth()));
-
-            // Are we hitting a block to the left?
-            if (this.environment.getCell(mapFutureX, mapCurrentY) != null) {
-                // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
-                distance_x = 0;
-                super.setPosition(new Vector2((mapFutureX + 1) * 128, super.getPosition().y));
-                turn_head = !turn_head;
+            if (turn_head) {
+                distance_x = this.moving_speed * delta;
+            } else {
+                distance_x = -(this.moving_speed) * delta;
             }
 
-            mapFutureX = (int)(Math.floor((super.getPosition().x + distance_x + (this.lickingWidth * this.scale))  / environment.getTileWidth()));
+            distance_y = 0;
 
-            // Are we hitting a block to the right?
-            if (this.environment.getCell(mapFutureX, mapCurrentY) != null) {
-                // We have a hit. Can't go right, and need to move to the left of the block if not already there.
-                distance_x = 0;
-                super.setPosition(new Vector2(mapFutureX * 128 - (this.lickingWidth * this.scale) - 5, super.getPosition().y));
-                turn_head = !turn_head;
+    /*
+            for (int yc = 0; yc < this.environment.getHeight(); yc++) {
+                for (int xc = 0; xc < this.environment.getWidth(); xc++) {
+                    if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
+                        System.out.print("*");
+                    else if (this.environment.getCell(xc, yc) == null)
+                        System.out.print(".");
+                    else
+                        System.out.print("1");
+                }
+                System.out.println(" " + yc);
             }
-            tempY += 128;
+     */
+
+
+            // Checking for a collision above or below the character.
+
+            // What map reference are we going to be at after this frame?
+            int mapFutureY;
+            int mapCurrentX;
+
+            // Only make it fall if it is on land. So lok to see if we are on the ground.
+            boolean onGround = false;
+
+            // This is to track the width. A character could be on 1, 2 or 3 blocks, so
+            // more than one block may need to be checked. This tracks how far into the width
+            // we are
+            float tempX = 0;
+
+            // Keep checking for collisions until the go past the width
+            while (tempX < this.lickingWidth * this.scale) {
+                // Work out the x map reference.
+                mapCurrentX = (int) (Math.floor((super.getPosition().x + tempX) / environment.getTileWidth()));
+
+                // Work out the y map reference for the bottom
+                mapFutureY = (int) (Math.floor((super.getPosition().y + distance_y) / environment.getTileHeight()));
+
+                // Are we hitting a block from above?
+                if (this.environment.getCell(mapCurrentX, mapFutureY) != null) {
+                    // We have a hit. Can't go down, and need to move up to the top of the block if not already there.
+                    distance_y = 0;
+                    super.setPosition(new Vector2(super.getPosition().x, (mapFutureY + 1) * 128));
+                }
+                // If not, is there a block underneath?
+                else if (this.environment.getCell(mapCurrentX, mapFutureY - 1) != null) {
+                    onGround = true;
+                }
+
+                // Work out the map y for the top of this thing
+                mapFutureY = (int) (Math.floor((super.getPosition().y + distance_y + (this.lickingHeight * this.scale) / environment.getTileHeight())));
+
+                // Are we hitting a block from below? Not that this can't be tested until jumping is added
+                // so it might need a change.
+                if (distance_y > 0 && this.environment.getCell(mapCurrentX, mapFutureY) != null) {
+                    // We have a hit. Can't go up after all.
+                    distance_y = 0;
+                }
+
+                tempX += 128;
+            }
+
+            // Do we need to fall?
+            if (!onGround || super.getPosition().y % 128 != 0) {
+                // We need to fall
+                super.setState(EnemyState.JUMP);
+                distance_y = (float) (-(this.moving_speed) * 2.5 * delta);
+            } else {
+                super.setState(EnemyState.MOVE);
+            }
+
+            Gdx.app.log("", environment.getWidth() + "");
+
+            // Checking for collision on X
+
+            // What map reference are we going to be at after this frame?
+            int mapCurrentY;
+            int mapFutureX;
+
+            float tempY = 0;
+
+            while (tempY < this.lickingHeight * this.scale) {
+
+                mapCurrentY = (int) (Math.floor((super.getPosition().y + tempY) / environment.getTileHeight()));
+
+                mapFutureX = (int) (Math.floor((super.getPosition().x + distance_x) / environment.getTileWidth()));
+
+                // Are we hitting a block to the left?
+                if (this.environment.getCell(mapFutureX, mapCurrentY) != null) {
+                    // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
+                    distance_x = 0;
+                    super.setPosition(new Vector2((mapFutureX + 1) * 128, super.getPosition().y));
+                    turn_head = !turn_head;
+                }
+
+                mapFutureX = (int) (Math.floor((super.getPosition().x + distance_x + (this.lickingWidth * this.scale)) / environment.getTileWidth()));
+
+                // Are we hitting a block to the right?
+                if (this.environment.getCell(mapFutureX, mapCurrentY) != null) {
+                    // We have a hit. Can't go right, and need to move to the left of the block if not already there.
+                    distance_x = 0;
+                    super.setPosition(new Vector2(mapFutureX * 128 - (this.lickingWidth * this.scale) - 5, super.getPosition().y));
+                    turn_head = !turn_head;
+                }
+                tempY += 128;
+            }
+
+            if (super.getPosition().x + distance_x >= (this.environment.getWidth() * 128) - (lickingWidth / 2) ||
+                    super.getPosition().x + distance_x <= (0 + (lickingWidth / 2) - 120f)) // using graphic pixel
+            {
+                turn_head = !turn_head; // no side bar so this may work
+
+            }
+
+            super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
         }
-
-        if (super.getPosition().x + distance_x >= (this.environment.getWidth() *128) - (lickingWidth /2) ||
-                super.getPosition().x + distance_x <= (0 + (lickingWidth /2) - 120f) ) // using graphic pixel
-        {
-            turn_head = !turn_head; // no side bar so this may work
-
-        }
-
-        super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
     }
 
 

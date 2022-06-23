@@ -74,7 +74,7 @@ public class SkullEnemy extends Enemy
         this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
         this.jumpingAnimation = new Animation(0.2f, texture_assets.skull_enemy_jumping_texture);
         this.dieAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
-        this.attackAnimation = new Animation(0.1f, texture_assets.skull_enemy_attacking_texture);
+        this.attackAnimation = new Animation(0.08f, texture_assets.skull_enemy_attacking_texture);
 
 
         this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
@@ -91,16 +91,13 @@ public class SkullEnemy extends Enemy
     @Override
     public void draw(SpriteBatch batch) {
 
-        Texture move_texture = (Texture)this.moveAnimation.getKeyFrame(this.moving_state, true);
-        Texture jump_texture = (Texture) this.jumpingAnimation.getKeyFrame(this.jumping_state, true);
-        Texture idle_texture = (Texture) this.idleAnimation.getKeyFrame(this.idle_state, true);
-        Texture attacking_texture = (Texture) this.attackAnimation.getKeyFrame(this.attack_state, true);
         Texture dead_texture = (Texture) this.dieAnimation.getKeyFrame(this.die_state, true);
 
         switch (super.getState())
         {
             case CHASE:
             case MOVE:
+                Texture move_texture = (Texture)this.moveAnimation.getKeyFrame(this.moving_state, true);
                 batch.draw(move_texture,
                         super.getPosition().x - (move_texture.getWidth() / 2.0f), super.getPosition().y - (move_texture.getHeight() / 2.0f),
                         0, 0,
@@ -111,6 +108,7 @@ public class SkullEnemy extends Enemy
                 break;
 
             case JUMP:
+                Texture jump_texture = (Texture) this.jumpingAnimation.getKeyFrame(this.jumping_state, true);
                 batch.draw(jump_texture,
                         super.getPosition().x - (jump_texture.getWidth() / 2.0f), super.getPosition().y - (jump_texture.getHeight() / 2.0f),
                         jump_texture.getWidth() / 2.0f, jump_texture.getHeight() / 2.0f,
@@ -121,6 +119,7 @@ public class SkullEnemy extends Enemy
                 break;
 
             case IDLE:
+                Texture idle_texture = (Texture) this.idleAnimation.getKeyFrame(this.idle_state, true);
                 batch.draw(idle_texture,
                         super.getPosition().x - (idle_texture.getWidth() / 2.0f), super.getPosition().y - (idle_texture.getHeight() / 2.0f),
                         0, 0,
@@ -131,7 +130,7 @@ public class SkullEnemy extends Enemy
                 break;
 
             case ATTACK:
-
+                Texture attacking_texture = (Texture) this.attackAnimation.getKeyFrame(this.attack_state, true);
                 batch.draw(attacking_texture,
                         super.getPosition().x - (attacking_texture.getWidth() / 2.0f), super.getPosition().y - (attacking_texture.getHeight() / 2.0f),
                         0, 0,
@@ -193,20 +192,18 @@ public class SkullEnemy extends Enemy
             super.setState(EnemyState.IDLE);
         }
 
-        System.out.println(super.getTargetPlayer().getPosition().y);
-        System.out.println(super.getPosition().y);
 
         if((super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange()  * 128))
-                && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
-                && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() >= super.getStartPosition().y
-                && super.getTargetPlayer().getPosition().y  < super.getStartPosition().y + skullHeight/2)
+            && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
+            && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() >= super.getStartPosition().y
+            && super.getTargetPlayer().getPosition().y  < super.getStartPosition().y + skullHeight/2)
         {
             super.setState(EnemyState.CHASE);
 
         }
         else
         {
-            if(super.getState() == EnemyState.CHASE)
+            if(super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK)
             {
                 super.setState(EnemyState.MOVE);
             }
@@ -214,7 +211,7 @@ public class SkullEnemy extends Enemy
 
         if(super.getState() == EnemyState.CHASE)
         {
-            distance_x *= 1.05;
+            distance_x *= 2;
 
             if(super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() + 25f)) >= 0)
             {
@@ -230,7 +227,7 @@ public class SkullEnemy extends Enemy
             {
                 distance_x = 0;
                 super.setState(EnemyState.ATTACK);
-                //getTargetPlayer().setState(Player.PlayerState.DEAD);
+                super.getTargetPlayer().setState(Player.PlayerState.HURT);
             }
 
 
@@ -243,7 +240,7 @@ public class SkullEnemy extends Enemy
         {
             int mapInitialX = (int)(Math.round(super.getStartPosition().x / environment.getTileHeight()));
 
-            if (super.getState() == EnemyState.MOVE && (Math.abs(mapInitialX - mapFutureX) >= super.getPatrolRange() ||
+            if (super.getState() == EnemyState.MOVE && (Math.abs(mapInitialX - mapFutureX +1) >= super.getPatrolRange() ||
                     super.getPosition().x + distance_x <= 0 + skullWidth /2))// using graphic pixel
             {
                 distance_x = 0;
