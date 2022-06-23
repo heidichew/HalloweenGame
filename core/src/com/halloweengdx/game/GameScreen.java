@@ -19,13 +19,14 @@ public abstract class GameScreen implements Screen {
 
     protected OrthographicCamera camera;
 
-    protected float targetScreenHeight = 1400;
+    protected float targetScreenHeight = 1920;
     protected float targetScreenWidth;
 
     protected SpriteBatch batch;            // batch to draw the enemy instances, NPC and player
     protected SpriteBatch levelBatch;       // batch to draw instances in a level (e.g., Tilemap)
     protected SpriteBatch bgBatch;          // batch to draw background only
     protected SpriteBatch uiBatch;          // batch to draw buttons or UI related
+    protected SpriteBatch enemyBatch;
 
     // Game clock
     protected float stateTime;
@@ -72,7 +73,7 @@ public abstract class GameScreen implements Screen {
 
         // Camera
         camera = new OrthographicCamera(this.targetScreenWidth, this.targetScreenHeight);
-        camera.setToOrtho(false, this.targetScreenWidth , this.targetScreenHeight);
+        camera.setToOrtho(false, this.targetScreenWidth/2, this.targetScreenHeight/2);
         camera.update();
 
         // Instantiate sprite batch
@@ -80,6 +81,7 @@ public abstract class GameScreen implements Screen {
         batch = new SpriteBatch();
         levelBatch = new SpriteBatch();
         bgBatch = new SpriteBatch();
+        enemyBatch = new SpriteBatch();
 
         // Load button texture
         buttonSquareTexture = new Texture("button/button_square_blue.png");
