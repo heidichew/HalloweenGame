@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.5" orientation="orthogonal" renderorder="left-down" width="60" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="1">
+ <tileset firstgid="1" name="Floor" tilewidth="320" tileheight="320" tilecount="30" columns="0">
+  <grid orientation="orthogonal" width="10" height="10"/>
+  <tile id="0">
+   <properties>
+    <property name="floor" value=""/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Bonus.png"/>
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0"/>
+    <object id="2" x="0" y="0"/>
+    <object id="4" x="0" y="0"/>
+    <object id="3" x="128" y="-128"/>
+    <object id="5" x="0" y="0"/>
+    <object id="6" x="0" y="0"/>
+    <object id="7" x="256" y="-384"/>
+    <object id="8" x="128" y="0"/>
+    <object id="9" x="128" y="128"/>
+    <object id="10" x="0" y="128"/>
+    <object id="11" x="0" y="0" height="128"/>
+    <object id="12" x="0" y="0"/>
+    <object id="13" x="0" y="0"/>
+    <object id="14" x="5" y="3" width="118" height="122"/>
+    <object id="15" x="128" y="0"/>
+    <object id="16" x="128" y="0"/>
+    <object id="17" x="0" y="-256" width="128" height="128"/>
+   </objectgroup>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Brick 01.png"/>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Brick 02.png"/>
+  </tile>
+  <tile id="3">
+   <image width="64" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Bridge 01.png"/>
+  </tile>
+  <tile id="4">
+   <image width="64" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Bridge 02.png"/>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 01.png"/>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 02.png"/>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 03.png"/>
+  </tile>
+  <tile id="8">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 04.png"/>
+  </tile>
+  <tile id="9">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 05.png"/>
+  </tile>
+  <tile id="10">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 06.png"/>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 07.png"/>
+  </tile>
+  <tile id="12">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 08.png"/>
+  </tile>
+  <tile id="13">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 09.png"/>
+  </tile>
+  <tile id="14">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 10.png"/>
+  </tile>
+  <tile id="15">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 11.png"/>
+  </tile>
+  <tile id="16">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 12.png"/>
+  </tile>
+  <tile id="17">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground 13.png"/>
+  </tile>
+  <tile id="18">
+   <image width="320" height="320" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground Additional 01.png"/>
+  </tile>
+  <tile id="19">
+   <image width="320" height="320" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground Additional 02.png"/>
+  </tile>
+  <tile id="20">
+   <image width="320" height="320" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground Additional 03.png"/>
+  </tile>
+  <tile id="21">
+   <image width="320" height="320" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground Additional 04.png"/>
+  </tile>
+  <tile id="22">
+   <image width="128" height="320" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground Additional 05.png"/>
+  </tile>
+  <tile id="23">
+   <image width="128" height="320" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground Additional 06.png"/>
+  </tile>
+  <tile id="24">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="320" height="320" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ground Additional 07.png"/>
+  </tile>
+  <tile id="25">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Ladder.png"/>
+  </tile>
+  <tile id="26">
+   <properties>
+    <property name="killed" value="true"/>
+   </properties>
+   <image width="128" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Spikes.png"/>
+  </tile>
+  <tile id="27">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Stone.png"/>
+  </tile>
+  <tile id="28">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Wooden Barrel.png"/>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="blocked" value="true"/>
+   </properties>
+   <image width="129" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Platformer/Cartoon Spooky Level Set_Platformer - Wooden Box.png"/>
+  </tile>
+ </tileset>
+ <tileset firstgid="31" name="Environment" tilewidth="480" tileheight="480" tilecount="23" columns="0">
+  <grid orientation="orthogonal" width="10" height="10"/>
+  <tile id="0">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Fence 01.png"/>
+  </tile>
+  <tile id="1">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Fence 02.png"/>
+  </tile>
+  <tile id="2">
+   <image width="128" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Grass 01.png"/>
+  </tile>
+  <tile id="3">
+   <image width="128" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Grass 02.png"/>
+  </tile>
+  <tile id="4">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Grass 03.png"/>
+  </tile>
+  <tile id="5">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Pumpkin.png"/>
+  </tile>
+  <tile id="6">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 01.png"/>
+  </tile>
+  <tile id="7">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 02.png"/>
+  </tile>
+  <tile id="8">
+   <image width="128" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 03.png"/>
+  </tile>
+  <tile id="9">
+   <image width="128" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 04.png"/>
+  </tile>
+  <tile id="10">
+   <image width="64" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 05.png"/>
+  </tile>
+  <tile id="11">
+   <image width="64" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 06.png"/>
+  </tile>
+  <tile id="12">
+   <image width="64" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 07.png"/>
+  </tile>
+  <tile id="13">
+   <image width="64" height="64" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Rock 08.png"/>
+  </tile>
+  <tile id="14">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Signpost 01.png"/>
+  </tile>
+  <tile id="15">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Signpost 02.png"/>
+  </tile>
+  <tile id="16">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Signpost 03.png"/>
+  </tile>
+  <tile id="17">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Signpost 04.png"/>
+  </tile>
+  <tile id="18">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Signpost 05.png"/>
+  </tile>
+  <tile id="19">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Signpost 06.png"/>
+  </tile>
+  <tile id="20">
+   <image width="128" height="128" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Tombstone.png"/>
+  </tile>
+  <tile id="21">
+   <image width="480" height="480" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Tree 01.png"/>
+  </tile>
+  <tile id="22">
+   <image width="480" height="480" source="craftpix-561771-cartoon-2d-platformer-tileset/PNG/Environment/Cartoon Spooky Level Set_Environment - Tree 02.png"/>
+  </tile>
+ </tileset>
+ <layer id="1" name="BaseLayer" width="60" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztldEKgCAMRaUeQqKyXjP//zNLUliWs6DSbAfOU5faZE3GCIIgrjPFLuBh1KIANnHLSZ6Obc+rj1vO7UhjeTJfOL6FntvSkVhRHok9emYVuza7FfBoX3LzTCDqvSGR78J35LZjCCImlUf9L8P7hCM5iy+TkrXHwfRg7842kMMyX/Cv/YZ6yanfEYj1G8qk5AwEvw75
+  </data>
+ </layer>
+ <layer id="4" name="CeilingLayer" width="60" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztw7ENAAAMAiB3//+3d9hAQpPUtwEAAADWHfrlBSk=
+  </data>
+ </layer>
+ <layer id="2" name="BackgroundLayer" width="60" height="20">
+  <data encoding="base64" compression="zlib">
+   eJzt0d0KgCAMBlAforroKqkookCo3v/VootAxLVg6kx2QLDmzzdUSgjxVxV3AAE6A5xRBzhD5Cun9x24AxSoseYGWXsQ7tkJe0UaLXeAxErrd0PqT7/6ZU1nDVcP7DHO+EIDc0E3IvXF82+NEYQA6+Hmy5xbH7Fgfdp133tzmp1vKN8U4C7u3i9bbwWD
+  </data>
+ </layer>
+</map>
