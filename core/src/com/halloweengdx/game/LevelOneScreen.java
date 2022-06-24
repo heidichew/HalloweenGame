@@ -283,17 +283,18 @@ public class LevelOneScreen extends GameScreen
 //                        x = Math.round((player.getPosition().x / 128)) ;
 //                    }
                     x = Math.round((player.getPosition().x)/ 128) + 1;
+                    y = (int)Math.floor(player.getPosition().y / 128f);
 
-                    if(player.getPosition().y < 1000 ){
-                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-                    }else if(player.getPosition().y > 1200 && player.getPosition().y < 1700){
-                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-                    }else if(player.getPosition().y >= 1700){
-                        // have to fix
-                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-                    }else{
-                        y = Math.round(player.getPosition().y / 128) - 1;
-                    }
+//                    if(player.getPosition().y < 1000 ){
+//                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+//                    }else if(player.getPosition().y > 1200 && player.getPosition().y < 1700){
+//                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+//                    }else if(player.getPosition().y >= 1700){
+//                        // have to fix
+//                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+//                    }else{
+//                        y = Math.round(player.getPosition().y / 128) - 1;
+//                    }
 
                     boolean shouldFall = false;
                     if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
@@ -304,8 +305,6 @@ public class LevelOneScreen extends GameScreen
                             System.out.println("not blocked fall");
                             shouldFall = true;
                         }
-                    }else{
-                        shouldFall = false;
                     }
 
                     if(player.getState() != Player.PlayerState.DEAD || player.getState() != Player.PlayerState.DYING && health > 0){
@@ -354,7 +353,7 @@ public class LevelOneScreen extends GameScreen
                     if (stopJump) {
                         isJumpHeld = false;
                         jumpPressedTime = 0;
-                        player.setPosition(player.getPosition().x, player.getPosition().y + 40f);
+                        player.setPosition(player.getPosition().x, player.getPosition().y + 25f);
                         player.setIsOnGround(true);
                         //player.setState(Player.PlayerState.ALIVE);
                     }else{
@@ -384,9 +383,8 @@ public class LevelOneScreen extends GameScreen
                                 fall = true;
                             }
                         }
-                    }else{
-                        fall = false;
                     }
+
 
                     if(fall){
                         player.setState(Player.PlayerState.FALL_START);
@@ -396,7 +394,7 @@ public class LevelOneScreen extends GameScreen
                             player.setState(Player.PlayerState.FALL_START);
                             player.setIsOnGround(false);
                         }else{
-                            player.setPosition(player.getPosition().x, player.getPosition().y + 25);
+                            player.setPosition(player.getPosition().x, player.getPosition().y + 25f);
                             player.setIsOnGround(true);
                             player.setState(Player.PlayerState.ALIVE);
                         }

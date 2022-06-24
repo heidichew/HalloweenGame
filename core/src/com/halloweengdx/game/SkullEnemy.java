@@ -41,7 +41,7 @@ public class SkullEnemy extends Enemy
     // create collider
     private boolean turn_head = false;
 
-    private float scale = 1f;
+    private float scale = 0.95f;
 
 
 
@@ -203,11 +203,14 @@ public class SkullEnemy extends Enemy
                 super.setState(EnemyState.IDLE);
             }
 
+            System.out.println(super.getTargetPlayer().getPosition().y);
+            System.out.println(super.getStartPosition().y - skullHeight/2);
+
 
             if ((super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange() * 128))
                     && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
-                    && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() >= super.getStartPosition().y
-                    && super.getTargetPlayer().getPosition().y < super.getStartPosition().y + skullHeight / 2) {
+                    && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - this.skullHeight/2
+                    && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() < super.getStartPosition().y + skullHeight) {
                 super.setState(EnemyState.CHASE);
 
             } else {
@@ -232,7 +235,7 @@ public class SkullEnemy extends Enemy
 
                     if(this.attack_state >= this.attackAnimation.getAnimationDuration())
                     {
-                        super.getTargetPlayer().setState(Player.PlayerState.HURT);
+                        //super.getTargetPlayer().setState(Player.PlayerState.HURT);
                         this.attack_state = 0.0f;
                     }
 
