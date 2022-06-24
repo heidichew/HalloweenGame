@@ -16,9 +16,9 @@ public class Player implements Actor
 
     public enum PlayerDirection {LEFT, RIGHT}
 
-    public static final float GRAVITY = 20f;        // The gravity to apply to user after jumping
+    public static final float GRAVITY = 3f;        // The gravity to apply to user after jumping
     public static final float MOVING_SPEED = 20f;
-    public static final float MAX_JUMP_SPEED = 6f;
+    public static final float MAX_JUMP_SPEED = 200f;
     public static final float JUMP_X_SPEED = 10f;
 
     public static final float PLAYER_WIDTH = 300f;
@@ -35,6 +35,8 @@ public class Player implements Actor
     private Sprite playerSprite;
 
     private Texture currentFrame;
+
+    float tmp = 0.0f;
 
     // Animation
     private Animation idleAnimation = null;
@@ -273,13 +275,14 @@ public class Player implements Actor
     }
 
     private void jump(float delta){
+        tmp += delta;
         if (state == PlayerState.DEAD || state == PlayerState.DYING){
             return;
         }
 
         float movement_y = 0;
         if(this.position.y < 2000f){
-            movement_y += GRAVITY * 0.6f;
+            movement_y += MAX_JUMP_SPEED  - (GRAVITY * tmp);
         }
 
         this.position.y += movement_y;
