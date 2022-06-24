@@ -11,14 +11,14 @@ import com.badlogic.gdx.math.Vector2;
 public class Player implements Actor
 {
 
-    // Heidi Version
-    public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, JUMP_START, JUMPING, FALL, FALLING, HURT, DYING, DEAD}
+    public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, JUMP_START, JUMPING, FALL_START, FALLING, HURT, DYING, DEAD}
 
     public enum PlayerDirection {LEFT, RIGHT}
 
     public static final float GRAVITY = 3f;        // The gravity to apply to user after jumping
     public static final float MOVING_SPEED = 20f;
-    public static final float MAX_JUMP_SPEED = 200f;
+    public static final float INITIAL_JUMP_SPEED = 3f;
+    public static final float MAX_JUMP_SPEED = 20f;
     public static final float JUMP_X_SPEED = 10f;
 
     public static final float PLAYER_WIDTH = 300f;
@@ -56,8 +56,11 @@ public class Player implements Actor
 
     private float jumpStartTime = 0f;
     private float dieTime = 0f;
+    private float jumpYForce;            // record jump force to enable smooth falling
 
     private boolean isOnGround = false;
+    private boolean isFlipLeft = false;
+    private boolean fallStraight = false;
 
     private Rectangle collider;
 
@@ -77,6 +80,8 @@ public class Player implements Actor
 
         curDirection = PlayerDirection.RIGHT;
         prevDirection = curDirection;
+
+        isFlipLeft = false;
 
         create();
     }
@@ -128,9 +133,12 @@ public class Player implements Actor
 //            batch.draw(weapon.getTexture(), weapon.getPosition().x, weapon.getPosition().y);
 //        }
 
-        if(prevDirection != curDirection){
+        if(curDirection == PlayerDirection.LEFT && !isFlipLeft){
             playerSprite.flip(true, false);
-            //batch.draw(, position.x, position.y, originX, originY, (int)PLAYER_WIDTH, (int)PLAYER_HEIGHT, 1, 1, 90);
+            isFlipLeft = true;
+        }else if(curDirection == PlayerDirection.RIGHT && isFlipLeft){
+            playerSprite.flip(true, false);
+            isFlipLeft = false;
         }
 
         playerSprite.draw(batch);
@@ -146,7 +154,9 @@ public class Player implements Actor
         createAnimation();
 
         if(state == PlayerState.ALIVE){
-            isOnGround = true;
+            //isOnGround = true;
+            //fallStraight = false;
+            velocity.x = 0;
             if(idleAnimation != null) currentFrame = (Texture) idleAnimation.getKeyFrame(delta, true);
         }else{
             isOnGround = false;
@@ -155,24 +165,28 @@ public class Player implements Actor
         if(state == PlayerState.MOVELEFT){
             moveLeft(delta);
 
+            prevState = state;
             state = PlayerState.ALIVE;
 
+            velocity.x = -MOVING_SPEED;
+
             // Set direction
-            prevDirection = curDirection;
             curDirection = PlayerDirection.LEFT;
 
             if(runAnimation != null) currentFrame = (Texture) runAnimation.getKeyFrame(delta, true);
         }else if(state == PlayerState.MOVERIGHT){
             moveRight(delta);
 
+            prevState = state;
             state = PlayerState.ALIVE;
 
-            prevDirection = curDirection;
+            velocity.x = MOVING_SPEED;
+
             curDirection = PlayerDirection.RIGHT;
 
             if(runAnimation != null) currentFrame = (Texture) runAnimation.getKeyFrame(delta, true);
         }else if(state == PlayerState.JUMP_START){
-            velocity.y = MAX_JUMP_SPEED;
+            velocity.y = INITIAL_JUMP_SPEED;
 
             if(curDirection == PlayerDirection.LEFT){
                 velocity.x = -JUMP_X_SPEED;
@@ -183,22 +197,26 @@ public class Player implements Actor
             if(jumpStartAnimation != null)  currentFrame = (Texture) jumpStartAnimation.getKeyFrame(jumpStartTime);
             jumpStartTime += 0.03f;
 
+            prevState = state;
             state = PlayerState.JUMPING;
-        }else if(state == PlayerState.HURT){
-            currentFrame = (Texture) hurtAnimation.getKeyFrame(delta, true);
-        }else if(state == PlayerState.FALL){
-            if(position.y <= 15){
-                position.y = 15;
-                state = PlayerState.HURT;
+        }else if(state == PlayerState.FALL_START){
+            if(curDirection == PlayerDirection.LEFT){
+                velocity.x = -JUMP_X_SPEED;
             }else{
-                fall(delta);
+                velocity.x = JUMP_X_SPEED;
             }
 
-            currentFrame = (Texture) fallAnimation.getKeyFrame(delta, true);
+            prevState = state;
+            state = PlayerState.FALLING;
+        }
+        else if(state == PlayerState.HURT){
+
+            currentFrame = (Texture) hurtAnimation.getKeyFrame(delta, true);
         }else if(state == PlayerState.DYING) {
 
             // Make sure the animation only play once and stop at last frame of the animation
             if (dieAnimation.isAnimationFinished(dieTime)) {
+                prevState = state;
                 state = PlayerState.DEAD;
             } else {
                 currentFrame = (Texture) dieAnimation.getKeyFrame(dieTime);
@@ -216,18 +234,33 @@ public class Player implements Actor
                 velocity.y = 0f;
             }
 
-            // Make sure the animation only play once and stop at last frame of the animation
-            if(jumpStartAnimation != null & jumpAnimation != null) {
-                if (jumpStartAnimation.isAnimationFinished(jumpStartTime)) {
-                    currentFrame = (Texture) jumpAnimation.getKeyFrame(delta, true);
-                    jumpStartTime = 0f;
-                }else{
-                    currentFrame = (Texture) jumpStartAnimation.getKeyFrame(jumpStartTime);
-                    jumpStartTime += 0.03f;
-                }
+//            // Make sure the animation only play once and stop at last frame of the animation
+//            if(jumpStartAnimation != null & jumpAnimation != null) {
+//                if (jumpStartAnimation.isAnimationFinished(jumpStartTime)) {
+//                    currentFrame = (Texture) jumpAnimation.getKeyFrame(delta, true);
+//                    jumpStartTime = 0f;
+//                }else{
+//                    currentFrame = (Texture) jumpStartAnimation.getKeyFrame(jumpStartTime);
+//                    jumpStartTime += 0.03f;
+//                }
+//            }
+
+            jumpStartTime = 0f;
+            currentFrame = (Texture) jumpAnimation.getKeyFrame(delta, true);
+
+            prevState = state;
+            //state = PlayerState.ALIVE;
+        }else if(state == PlayerState.FALLING){
+            if(position.y <= 15){
+                position.y = 15;
+
+                prevState = state;
+                state = PlayerState.HURT;
+            }else{
+                fall(delta);
             }
 
-            state = PlayerState.ALIVE;
+            currentFrame = (Texture) fallAnimation.getKeyFrame(delta, true);
         }
 
         // Update animation frame
@@ -249,7 +282,7 @@ public class Player implements Actor
             return;
         }
 
-        position.x -= ( MOVING_SPEED);
+        position.x += velocity.x;
     }
 
     private void moveRight(float delta){
@@ -257,7 +290,7 @@ public class Player implements Actor
             return;
         }
 
-        position.x += (MOVING_SPEED);
+        position.x += velocity.x;
     }
 
     private void fall(float delta){
@@ -266,11 +299,31 @@ public class Player implements Actor
             return;
         }
 
-        float y = position.y - GRAVITY;
+        float y = 0;
+        if(jumpYForce <= 0){
+            y = position.y - GRAVITY;
+        }else{
+            y = position.y - jumpYForce;
+        }
+        jumpYForce = 0;
+
         if(y < position.y){
             position.y = y;
         }else if(position.y <= 15f){
             state = PlayerState.HURT;
+        }
+
+
+        if(position.y > 1300){
+            if(velocity.x < 0){
+                velocity.x = -10;
+            }else{
+                velocity.x = 10;
+            }
+        }
+        float x = velocity.x + position.x;
+        if(x > 0 && position.y > 300){
+            position.x = x;
         }
     }
 
@@ -280,12 +333,39 @@ public class Player implements Actor
             return;
         }
 
-        float movement_y = 0;
-        if(this.position.y < 2000f){
-            movement_y += MAX_JUMP_SPEED  - (GRAVITY * tmp);
+//        float y = position.y;
+//        y += GRAVITY * 0.6f;
+//
+//        if(y < 2000f){
+//            this.position.y += y;
+//        }
+
+        float y = velocity.y * delta;
+        if(y > MAX_JUMP_SPEED){
+            y = MAX_JUMP_SPEED;
+        }
+        jumpYForce = y;
+        y += position.y;
+
+        float x = velocity.x + position.x;
+
+        if(y < 2000f){
+            if(x > 0){
+                position = new Vector2(position.x + velocity.x, y);
+            }else{
+                position = new Vector2(0, y);
+            }
+        }else{
+            if(x > 0){
+                position = new Vector2(position.x + velocity.x, 2000);
+            }else{
+                position = new Vector2(0, 2000);
+            }
         }
 
-        this.position.y += movement_y;
+        if(position.y > 2000){
+            position.y = 2000;
+        }
     }
 
     public void dispose(){
@@ -332,4 +412,11 @@ public class Player implements Actor
 
     public void setVelocity(float x, float y) { this.velocity = new Vector2(x, y); }
 
+//    public boolean isFallStraight() {
+//        return fallStraight;
+//    }
+
+   // public void setFallStraight(boolean shouldFallStraight){ fallStraight = shouldFallStraight; }
+
+    public PlayerState getPreviousState(){ return prevState; }
 }
