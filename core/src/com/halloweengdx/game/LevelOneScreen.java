@@ -284,16 +284,22 @@ public class LevelOneScreen extends GameScreen
 //                    }
                     x = Math.round((player.getPosition().x)/ 128) + 1;
 
-                    if(player.getPosition().y < 1000 ){
-                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-                    }else if(player.getPosition().y > 1200 && player.getPosition().y < 1700){
-                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-                    }else if(player.getPosition().y >= 1700){
-                        // have to fix
-                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-                    }else{
-                        y = Math.round(player.getPosition().y / 128) - 1;
-                    }
+                    System.out.println("Here y");
+                    System.out.println(player.getPosition().y);
+                    y = Math.round((player.getPosition().y + 90f) / 128) - 1;
+
+
+
+//                    if(player.getPosition().y < 1000 ){
+//                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+////                    }else if(player.getPosition().y > 1500 && player.getPosition().y < 1700){
+////                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+//                    }else if(player.getPosition().y >= 1700){
+//                        // have to fix
+//                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
+//                    }else{
+//                        y = Math.round(player.getPosition().y / 128) - 1;
+//                    }
 
                     boolean shouldFall = false;
                     if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
@@ -506,6 +512,7 @@ public class LevelOneScreen extends GameScreen
                 }
 
             }
+
             if (player.getPosition().y > (Gdx.graphics.getHeight() / 2) + 400f) {
                 camera.position.y = player.getPosition().y;
             }else{
