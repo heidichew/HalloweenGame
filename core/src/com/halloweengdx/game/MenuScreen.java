@@ -23,7 +23,7 @@ public class MenuScreen implements Screen {
     private Button exitButton = null;
 
     // Music
-    private Music bgMusic = null;
+    private Music bgMusic = GameAssetsDB.getInstance().menu_music;
 
     public MenuScreen(HalloweenGdxGame game) {
         this.game = game;
@@ -51,8 +51,9 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         create();
-//        bgMusic.play();
-//        bgMusic.setVolume(0.5f);
+
+        bgMusic.play();
+        bgMusic.setVolume(0.5f);
     }
 
     @Override
@@ -88,6 +89,7 @@ public class MenuScreen implements Screen {
 
         if (playButton.isDown){
             game.setScreen(HalloweenGdxGame.gameScreenOne);
+            System.out.println("pressed play");
         }
     }
 
@@ -108,7 +110,7 @@ public class MenuScreen implements Screen {
 
     @Override
     public void hide() {
-        //bgMusic.stop();
+        bgMusic.stop();
     }
 
     @Override

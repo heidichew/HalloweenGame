@@ -1,6 +1,7 @@
 package com.halloweengdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -45,6 +46,22 @@ public class GameAssetsDB
     protected Texture[] playerHurtTexture;
     protected Texture[] playerAttackTexture;
     protected Texture[] playerFallTexture;
+
+    //Music
+    protected Music menu_music;
+    protected Music l1_music;
+    protected Music danger_zone_music;
+    protected Music game_over;
+    protected Music satire;
+
+    protected Music player_hurt;
+    protected Music player_attack;
+    protected Music player_fall_down;
+
+    protected Music skull_hit;
+    protected Music bat_hit;
+    protected Music licking_hit;
+    protected Music enemy_dead;
 
 
 
@@ -124,7 +141,33 @@ public class GameAssetsDB
 
         }
 
-        //texture initialise
+        this.menu_music = Gdx.audio.newMusic(Gdx.files.internal("music/Ghost_Stories_by_Steve_Oxen.mp3"));
+        menu_music.setLooping(true);
+
+        this.l1_music = Gdx.audio.newMusic(Gdx.files.internal("music/Dancing_Skeletons_by_Steve_Oxen.mp3"));
+        this.l1_music.setLooping(true);
+
+        this.danger_zone_music = Gdx.audio.newMusic(Gdx.files.internal("music/Danger-Zone_SIPML_J.mp3"));
+        this.danger_zone_music.setLooping(true);
+
+        this.game_over = Gdx.audio.newMusic(Gdx.files.internal("music/mixkit-player-losing-or-failing.wav"));
+
+        this.satire = Gdx.audio.newMusic(Gdx.files.internal("music/sf_devil_10.mp3"));
+
+        this.player_hurt = Gdx.audio.newMusic(Gdx.files.internal("music/mixkit-player_hit.wav"));
+
+        this.player_attack = Gdx.audio.newMusic(Gdx.files.internal("music/mixkit-player_attack.mp3"));
+
+        this.player_fall_down = Gdx.audio.newMusic(Gdx.files.internal("music/zapsplat_player_fall.mp3"));
+
+        this.skull_hit = Gdx.audio.newMusic(Gdx.files.internal("music/sword_hit_zapsplat.mp3"));
+
+        this.bat_hit = Gdx.audio.newMusic(Gdx.files.internal("music/zapsplat_bat_attack.mp3"));
+
+        this.licking_hit = Gdx.audio.newMusic(Gdx.files.internal("music/zapsplat_body_hit.mp3"));
+
+        this.enemy_dead = Gdx.audio.newMusic(Gdx.files.internal("music/mixkit-enemy_get_kill.wav"));
+
     }
 
     public static GameAssetsDB getInstance()

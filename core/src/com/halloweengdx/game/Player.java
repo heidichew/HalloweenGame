@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Player implements Actor
 {
+    GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
     public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, JUMP_START, JUMPING, FALL_START, FALLING, HURT, DYING, DEAD}
 
@@ -199,6 +200,7 @@ public class Player implements Actor
 
             prevState = state;
             state = PlayerState.JUMPING;
+
         }else if(state == PlayerState.FALL_START){
             if(curDirection == PlayerDirection.LEFT){
                 velocity.x = -JUMP_X_SPEED;
@@ -212,10 +214,12 @@ public class Player implements Actor
         else if(state == PlayerState.HURT){
 
             currentFrame = (Texture) hurtAnimation.getKeyFrame(delta, true);
+
         }else if(state == PlayerState.DYING) {
 
             // Make sure the animation only play once and stop at last frame of the animation
             if (dieAnimation.isAnimationFinished(dieTime)) {
+                this.gameAssetsDB.player_fall_down.play();
                 prevState = state;
                 state = PlayerState.DEAD;
             } else {
