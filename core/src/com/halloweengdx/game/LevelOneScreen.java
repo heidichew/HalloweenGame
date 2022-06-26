@@ -49,6 +49,9 @@ public class LevelOneScreen extends GameScreen
 
     private TiledMapTileLayer tileLayer;
 
+    //NPC
+    private NPC npc;
+
     //Enemy
     private List<Enemy> enemies;
 
@@ -79,6 +82,8 @@ public class LevelOneScreen extends GameScreen
         // player = new Player(128 * 36,128 * 11); // 600
         this.player = new Player((int)(1500), (int)(600));
         // player = new Player((int)(128*36), (int)(128*11)); // , y = 1100 (platform 2)
+
+        this.npc = new NPC(this.player, (this.layer.getTileWidth() * 45) - 20f, (this.layer.getTileHeight()*13) + 50f, NPC.NPC_TYPE.Vampire);
 
         this.tileLayer = (TiledMapTileLayer) gameAssetsDB.tiledMap_L1.getLayers().get("BaseLayer");
         for (int y = 0; y < this.tileLayer.getHeight(); y++) {
@@ -166,6 +171,11 @@ public class LevelOneScreen extends GameScreen
         //Apply camera to spritebatch and draw player
         super.batch.setProjectionMatrix(camera.combined);
         super.batch.begin();
+
+        if(this.npc!=null)
+        {
+            this.npc.draw(batch);
+        }
 
         for(Enemy e: this.enemies)
         {
@@ -283,6 +293,16 @@ public class LevelOneScreen extends GameScreen
                 if (super.pauseButton.isDown)
                 {
                     super.gameState = GameState.PAUSE;
+                }
+
+                if(this.npc!=null && this.npc.getNpcState() == NPC.NPC_STATE.Mission_Complete)
+                {
+                    this.npc = null;
+                }
+
+                if(this.npc!=null)
+                {
+                    this.npc.update(Gdx.graphics.getDeltaTime());
                 }
 
                 for(int i=this.enemies.size() -1; i>=0; i--){
@@ -518,6 +538,20 @@ public class LevelOneScreen extends GameScreen
 
                 }
 
+                if(this.player.isRewarded())
+                {
+                    Reward tmp_reward = this.player.openReward();
+
+                    if(tmp_reward.getRewardType() == Reward.RewardType.SCORE)
+                    {
+                        super.gameScore += tmp_reward.getValue();
+                    }
+                    else
+                    {
+                        super.health += tmp_reward.getValue();
+                    }
+
+                }
             }
 
 
@@ -540,6 +574,33 @@ public class LevelOneScreen extends GameScreen
 //            }
 //            if (this.enemies.get(2).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
 //                super.camera.position.y = this.enemies.get(2).getPosition().y; // can change
+//
+//                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+//                {
+//                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+//                }
+//                else if(super.camera.position.y <= 0)
+//                {
+//                    super.camera.position.y = 0;
+//                }
+//            }
+//            super.camera.update();
+
+//            if (this.npc.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+//                super.camera.position.x = this.npc.getPosition().x + 600;
+//
+//                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
+//                {
+//                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
+//                }
+//                else if(super.camera.position.x <= 0)
+//                {
+//                    super.camera.position.x = 0;
+//                }
+//            }
+//
+//            if (this.npc.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+//                super.camera.position.y = this.npc.getPosition().y; // can change
 //
 //                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
 //                {
@@ -584,6 +645,8 @@ public class LevelOneScreen extends GameScreen
                 }
             }
             super.camera.update();
+
+
             return;
         }
     }

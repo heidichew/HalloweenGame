@@ -8,8 +8,6 @@ public abstract class Enemy implements Actor
 
     public enum EnemyState {IDLE, ALIVE, ATTACK, DYING, DEAD, MOVE, JUMP, CHASE}
 
-    public enum ENEMY_DIRECTION {LEFT, RIGHT};
-
     //if you have a getter and setter method of each one it should become all private
 
     private Vector2 start_xy = null;  // The starting position of the enemy in the game world

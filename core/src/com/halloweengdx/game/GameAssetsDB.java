@@ -33,6 +33,24 @@ public class GameAssetsDB
     protected Texture L1_background;
     protected Texture menu_background;
 
+    // Player Texture
+    protected Texture[] playerIdleTexture;
+    protected Texture[] playerRunTexture;
+    protected Texture[] playerJumpStartTexture;
+    protected Texture[] playerJumpLoopTexture;
+    protected Texture[] playerDieTexture;
+    protected Texture[] playerHurtTexture;
+    protected Texture[] playerAttackTexture;
+    protected Texture[] playerFallTexture;
+
+    //NPC
+
+    protected Texture[] pumpkin_Idle_Texture;
+    protected Texture[] pumpkin_Idle_Blink_Texture;
+
+    protected Texture[] vampire_Idle_Texture;
+    protected Texture[] vampire_Idle_Blink_Texture;
+
     //Enemy
     protected Texture[] bat_enemy_idle_texture;
     protected Texture[] bat_enemy_flying_texture;
@@ -50,15 +68,6 @@ public class GameAssetsDB
 
     protected Texture[] enemy_dead_texture;
 
-    // Player Texture
-    protected Texture[] playerIdleTexture;
-    protected Texture[] playerRunTexture;
-    protected Texture[] playerJumpStartTexture;
-    protected Texture[] playerJumpLoopTexture;
-    protected Texture[] playerDieTexture;
-    protected Texture[] playerHurtTexture;
-    protected Texture[] playerAttackTexture;
-    protected Texture[] playerFallTexture;
 
     //Music
     protected Music menu_music;
@@ -96,6 +105,20 @@ public class GameAssetsDB
         this.menu_play = new Texture(Gdx.files.internal("button/play_button.png"));
         this.menu_exit =  new Texture(Gdx.files.internal("button/exit_button.png"));
 
+        this.playerDieTexture = new Texture[15];
+        this.playerRunTexture = new Texture[12];
+        this.playerAttackTexture = new Texture[12];
+        this.playerHurtTexture = new Texture[12];
+        this.playerFallTexture = new Texture[6];
+        this.playerJumpLoopTexture = new Texture[6];
+        this.playerJumpStartTexture = new Texture[6];
+
+        this.pumpkin_Idle_Texture = new Texture[18];
+        this.pumpkin_Idle_Blink_Texture = new Texture[18];
+
+        this.vampire_Idle_Texture = new Texture[18];
+        this.vampire_Idle_Blink_Texture = new Texture[18];
+
         this.bat_enemy_idle_texture = new Texture[18];
         this.bat_enemy_flying_texture = new Texture[18];
         this.bat_enemy_attacking_texture = new Texture[18];
@@ -112,16 +135,15 @@ public class GameAssetsDB
 
         this.enemy_dead_texture = new Texture[10];
 
-        this.playerDieTexture = new Texture[15];
-        this.playerRunTexture = new Texture[12];
-        this.playerAttackTexture = new Texture[12];
-        this.playerHurtTexture = new Texture[12];
-        this.playerFallTexture = new Texture[6];
-        this.playerJumpLoopTexture = new Texture[6];
-        this.playerJumpStartTexture = new Texture[6];
 
         for(int i=0; i<18; i++)
         {
+            this.pumpkin_Idle_Texture[i] = new Texture(Gdx.files.internal("npc/Pumpkin Head Guy/Idle/Idle_0"+i+".png"));
+            this.pumpkin_Idle_Blink_Texture[i] = new Texture(Gdx.files.internal("npc/Pumpkin Head Guy/Idle Blinking/Idle Blinking_0"+i+".png"));
+
+            this.vampire_Idle_Texture[i] = new Texture(Gdx.files.internal("npc/Vampire/Idle/Idle_0"+i+".png"));
+            this.vampire_Idle_Blink_Texture[i] = new Texture(Gdx.files.internal("npc/Vampire/Idle Blinking/Idle Blinking_0"+i+".png"));
+
             this.bat_enemy_idle_texture[i] = new Texture(Gdx.files.internal("enemies/bat-monster/Idle/skeleton-Idle_"+ i +".png"));
             this.bat_enemy_flying_texture[i] = new Texture(Gdx.files.internal("enemies/bat-monster/Fly/skeleton-Fly_"+ i +".png"));
             this.bat_enemy_attacking_texture[i] = new Texture(Gdx.files.internal("enemies/bat-monster/Attack/skeleton-Attack_"+ i +".png"));
