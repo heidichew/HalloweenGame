@@ -402,7 +402,7 @@ public class Player implements Actor
 
     public Rectangle getCollider() { return collider; }
 
-    public Weapon getWeapon(){ return weapon ; }
+    public Weapon getWeapon(){ return weapon;}
 
     public Sprite getSprite() { return playerSprite; }
 

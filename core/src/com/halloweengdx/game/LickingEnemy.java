@@ -276,6 +276,7 @@ public class LickingEnemy extends Enemy {
 
                 if(super.getPosition().y < this.environment.getTileHeight()*2)
                 {
+                    super.setScore(0);
                     super.setState(EnemyState.DYING);
                 }
                 else
@@ -337,7 +338,8 @@ public class LickingEnemy extends Enemy {
 
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         super.dispose();
 
     }

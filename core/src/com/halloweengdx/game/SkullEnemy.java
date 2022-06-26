@@ -33,7 +33,7 @@ public class SkullEnemy extends Enemy
     private float moving_speed;
 
     //environment
-    TiledMapTileLayer environment;
+    private TiledMapTileLayer environment;
 
     private int skullWidth;
     private int skullHeight;
@@ -42,7 +42,6 @@ public class SkullEnemy extends Enemy
     private boolean turn_head;
 
     private float scale;
-
 
 
     /**
@@ -220,7 +219,7 @@ public class SkullEnemy extends Enemy
             System.out.println(super.getStartPosition().y - skullHeight/2);
 
 
-            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD)
+            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD && super.getTargetPlayer().getState() != Player.PlayerState.DYING )
                     && (super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange() * 128))
                     && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
                     && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - this.skullHeight/2

@@ -18,10 +18,10 @@ public class BatEnemy extends Enemy{
     private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
 
     // Animations for bat enemy
-    private Animation moveAnimation = null;
-    private Animation idleAnimation = null;
-    private Animation dyingAnimation = null;
-    private Animation attackAnimation = null;
+    private Animation moveAnimation;
+    private Animation idleAnimation;
+    private Animation dyingAnimation;
+    private Animation attackAnimation;
 
     private float moving_state;
     private float idle_state;
@@ -35,7 +35,7 @@ public class BatEnemy extends Enemy{
     private boolean onHold = false;
 
     //environment
-    TiledMapTileLayer environment;
+    private TiledMapTileLayer environment;
 
 
     private int batWidth;
@@ -182,18 +182,6 @@ public class BatEnemy extends Enemy{
             } else {
                 distance_y = -(this.moving_speed / 2) * delta;
             }
-
-    /*        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
-                for (int xc = 0; xc < this.environment.getWidth(); xc++) {
-                    if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
-                        System.out.print("*");
-                    else if (this.environment.getCell(xc, yc) == null)
-                        System.out.print(".");
-                    else
-                        System.out.print("1");
-                }
-                System.out.println(" " + yc);
-            }*/
 
             if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD)
                     &&(super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
@@ -363,8 +351,9 @@ public class BatEnemy extends Enemy{
     }
 
     @Override
-    public void dispose() {
-
+    public void dispose()
+    {
+        super.dispose();
     }
 
 }
