@@ -140,6 +140,8 @@ public class Button {
             //Touch coordinates have origin in top-left instead of bottom left
             if (touchX >= x && touchX <= x + w && h2 - touchY >= y && h2 - touchY <= y + h) {
                 isDown = true;
+            }else{
+                isDown = false;
             }
         }
     }

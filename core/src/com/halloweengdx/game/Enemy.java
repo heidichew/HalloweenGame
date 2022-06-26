@@ -69,5 +69,13 @@ public abstract class Enemy implements Actor
 
     public int getScore() { return score; }
 
+    public void setScore(int new_score)
+    {
+        if(new_score >=0)
+        {
+            this.score = new_score;
+        }
+    }
+
     public int getPatrolRange() {return  patrol_range;}
 }

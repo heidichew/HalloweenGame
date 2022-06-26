@@ -33,16 +33,15 @@ public class SkullEnemy extends Enemy
     private float moving_speed;
 
     //environment
-    TiledMapTileLayer environment;
+    private TiledMapTileLayer environment;
 
     private int skullWidth;
     private int skullHeight;
 
     // create collider
-    private boolean turn_head = false;
+    private boolean turn_head;
 
-    private float scale = 1f;
-
+    private float scale;
 
 
     /**
@@ -53,7 +52,7 @@ public class SkullEnemy extends Enemy
      * @param environment
      * @param patrol_range
      */
-    public SkullEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range)
+    public SkullEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range, boolean boss)
     {
         super(player, start_xy, start_xy, 50, patrol_range);
 
@@ -70,15 +69,27 @@ public class SkullEnemy extends Enemy
 
         this.moving_speed = 128f;
 
-        this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
-        this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
-        this.jumpingAnimation = new Animation(0.2f, texture_assets.skull_enemy_jumping_texture);
-        this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
-        this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
+        this.turn_head = false;
+
+        if(boss)
+        {
+            this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
+            this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
+            this.jumpingAnimation = new Animation(0.2f, texture_assets.skull_enemy_jumping_texture);
+            this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
+            this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
 
 
-        this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
-        this.skullHeight = texture_assets.skull_enemy_walking_texture[0].getHeight();
+            this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
+            this.skullHeight = texture_assets.skull_enemy_walking_texture[0].getHeight();
+
+            this.scale = 1.2f;
+
+        }
+        else
+        {
+
+        }
 
         super.setState(EnemyState.MOVE);
     }
@@ -189,7 +200,8 @@ public class SkullEnemy extends Enemy
                     }
                 }
 
-                if (super.getState() == EnemyState.MOVE || super.getState() == EnemyState.CHASE) {
+                if (super.getState() == EnemyState.MOVE || super.getState() == EnemyState.CHASE)
+                {
 
                     if (turn_head) {
                         distance_x = -(this.moving_speed) * delta;
@@ -203,26 +215,35 @@ public class SkullEnemy extends Enemy
                 super.setState(EnemyState.IDLE);
             }
 
+            System.out.println(super.getTargetPlayer().getPosition().y);
+            System.out.println(super.getStartPosition().y - skullHeight/2);
 
-            if ((super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange() * 128))
+
+            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD && super.getTargetPlayer().getState() != Player.PlayerState.DYING )
+                    && (super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange() * 128))
                     && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
-                    && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() >= super.getStartPosition().y
-                    && super.getTargetPlayer().getPosition().y < super.getStartPosition().y + skullHeight / 2) {
+                    && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - this.skullHeight/2
+                    && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() < super.getStartPosition().y + skullHeight) {
                 super.setState(EnemyState.CHASE);
+                this.texture_assets.danger_zone_music.play();
+                this.texture_assets.l1_music.pause();
 
             } else {
                 if (super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK) {
                     super.setState(EnemyState.MOVE);
+                    this.texture_assets.danger_zone_music.stop();
+                    this.texture_assets.l1_music.play();
                 }
             }
 
             if (super.getState() == EnemyState.CHASE) {
+
                 distance_x *= 2;
 
                 if (super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() + 25f)) >= 0) {
                     turn_head = true;
 
-                } else if (super.getPosition().x - super.getTargetPlayer().getPosition().x - ((super.getTargetPlayer().getSprite().getWidth() - 335f) / 2) < 0) {
+                } else if (super.getPosition().x - super.getTargetPlayer().getPosition().x + this.getTargetPlayer().getSprite().getWidth()/2 < 0) {
                     turn_head = false;
 
                 } else {
@@ -230,14 +251,15 @@ public class SkullEnemy extends Enemy
                     this.attack_state += delta;
                     super.setState(EnemyState.ATTACK);
 
+                    this.texture_assets.skull_hit.play();
                     if(this.attack_state >= this.attackAnimation.getAnimationDuration())
                     {
+                        this.texture_assets.skull_hit.stop();
                         super.getTargetPlayer().setState(Player.PlayerState.HURT);
                         this.attack_state = 0.0f;
                     }
 
                 }
-
 
             }
 

@@ -18,10 +18,10 @@ public class BatEnemy extends Enemy{
     private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
 
     // Animations for bat enemy
-    private Animation moveAnimation = null;
-    private Animation idleAnimation = null;
-    private Animation dyingAnimation = null;
-    private Animation attackAnimation = null;
+    private Animation moveAnimation;
+    private Animation idleAnimation;
+    private Animation dyingAnimation;
+    private Animation attackAnimation;
 
     private float moving_state;
     private float idle_state;
@@ -35,7 +35,7 @@ public class BatEnemy extends Enemy{
     private boolean onHold = false;
 
     //environment
-    TiledMapTileLayer environment;
+    private TiledMapTileLayer environment;
 
 
     private int batWidth;
@@ -183,26 +183,20 @@ public class BatEnemy extends Enemy{
                 distance_y = -(this.moving_speed / 2) * delta;
             }
 
-    /*        for (int yc = 0; yc < this.environment.getHeight(); yc++) {
-                for (int xc = 0; xc < this.environment.getWidth(); xc++) {
-                    if ((int)(this.getPosition().x / 128) == xc && (int)(this.getPosition().y / 128) == yc)
-                        System.out.print("*");
-                    else if (this.environment.getCell(xc, yc) == null)
-                        System.out.print(".");
-                    else
-                        System.out.print("1");
-                }
-                System.out.println(" " + yc);
-            }*/
-
-            if ((super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
-                    && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
-                    && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - ((super.getPatrolRange()) * 128)) {
+            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD)
+                    &&(super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
+                    && (super.getTargetPlayer().getPosition().x >= super.getStartPosition().x - (super.getPatrolRange() * 128))
+                    && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - ((super.getPatrolRange()) * 128))
+            {
+                this.texture_assets.l1_music.pause();
+                this.texture_assets.danger_zone_music.play();
                 super.setState(EnemyState.CHASE);
 
             } else {
                 if (super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK) {
                     super.setState(EnemyState.MOVE);
+                    this.texture_assets.danger_zone_music.stop();
+                    this.texture_assets.l1_music.play();
                 }
             }
 
@@ -218,7 +212,7 @@ public class BatEnemy extends Enemy{
                     distance_y = 0;
                 }
 
-                distance_x *= 1.05;
+                distance_x *= 2;
 
                 if ((super.getPosition().x) - (super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth() + 40f) >= 0) {
                     turn = true;
@@ -234,9 +228,11 @@ public class BatEnemy extends Enemy{
                 {
                     this.attack_state += delta;
                     super.setState(EnemyState.ATTACK);
+                    this.texture_assets.bat_hit.play();
 
                     if (this.attack_state >= attackAnimation.getAnimationDuration())
                     {
+                        this.texture_assets.bat_hit.stop();
                         super.getTargetPlayer().setState(Player.PlayerState.HURT);
                         this.attack_state = 0.0f;
                     }
@@ -355,8 +351,9 @@ public class BatEnemy extends Enemy{
     }
 
     @Override
-    public void dispose() {
-
+    public void dispose()
+    {
+        super.dispose();
     }
 
 }

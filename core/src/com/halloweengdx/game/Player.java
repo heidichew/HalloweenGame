@@ -10,12 +10,13 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Player implements Actor
 {
+    GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
     public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, JUMP_START, JUMPING, FALL_START, FALLING, HURT, DYING, DEAD}
 
     public enum PlayerDirection {LEFT, RIGHT}
 
-    public static final float GRAVITY = 20f;        // The gravity to apply to user after jumping
+    public static final float GRAVITY = 3f;        // The gravity to apply to user after jumping
     public static final float MOVING_SPEED = 20f;
     public static final float INITIAL_JUMP_SPEED = 3f;
     public static final float MAX_JUMP_SPEED = 20f;
@@ -35,6 +36,8 @@ public class Player implements Actor
     private Sprite playerSprite;
 
     private Texture currentFrame;
+
+    float tmp = 0.0f;
 
     // Animation
     private Animation idleAnimation = null;
@@ -197,6 +200,7 @@ public class Player implements Actor
 
             prevState = state;
             state = PlayerState.JUMPING;
+
         }else if(state == PlayerState.FALL_START){
             if(curDirection == PlayerDirection.LEFT){
                 velocity.x = -JUMP_X_SPEED;
@@ -210,10 +214,12 @@ public class Player implements Actor
         else if(state == PlayerState.HURT){
 
             currentFrame = (Texture) hurtAnimation.getKeyFrame(delta, true);
+
         }else if(state == PlayerState.DYING) {
 
             // Make sure the animation only play once and stop at last frame of the animation
             if (dieAnimation.isAnimationFinished(dieTime)) {
+                this.gameAssetsDB.player_fall_down.play();
                 prevState = state;
                 state = PlayerState.DEAD;
             } else {
@@ -326,6 +332,7 @@ public class Player implements Actor
     }
 
     private void jump(float delta){
+        tmp += delta;
         if (state == PlayerState.DEAD || state == PlayerState.DYING){
             return;
         }
@@ -395,7 +402,7 @@ public class Player implements Actor
 
     public Rectangle getCollider() { return collider; }
 
-    public Weapon getWeapon(){ return weapon ; }
+    public Weapon getWeapon(){ return weapon;}
 
     public Sprite getSprite() { return playerSprite; }
 

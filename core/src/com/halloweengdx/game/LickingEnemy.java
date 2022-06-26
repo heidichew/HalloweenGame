@@ -154,16 +154,6 @@ public class LickingEnemy extends Enemy {
         float distance_x;
         float distance_y;
 
-//        if(((super.getTargetPlayer().position.x + super.getTargetPlayer().getSprite().getWidth()/2 < (super.getPosition().x) + 5f)
-//                && (super.getTargetPlayer().position.x + super.getTargetPlayer().getSprite().getWidth()/2 >= (super.getPosition().x) - 5f))
-//                && (super.getTargetPlayer().position.y < super.getPosition().y + 128)
-//                && (super.getTargetPlayer().getPosition().y >= super.getPosition().y - 128))
-//        {
-//            System.out.println("in here");
-//            super.setState(EnemyState.DEAD);
-//            super.getTargetPlayer().setState(Player.PlayerState.DEAD);
-//        }
-
         if(super.getState() == EnemyState.DYING || super.getState() == EnemyState.DEAD)
         {
             this.dying_state += delta;
@@ -177,18 +167,26 @@ public class LickingEnemy extends Enemy {
         else
         {
 
-            if ((super.getTargetPlayer().position.y < super.getPosition().y + 128f)
-                    && (super.getTargetPlayer().getPosition().y >= super.getPosition().y - 128f)) {
+            if ( (super.getTargetPlayer().getPosition().y >= super.getPosition().y -128f)
+                    &&(super.getTargetPlayer().getPosition().y < super.getPosition().y + (lickingHeight * scale))) {
                 if (super.getPosition().x + (lickingWidth * scale) - 160f > super.getTargetPlayer().getPosition().x &&
                         super.getPosition().x + (lickingWidth * scale) <= super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth()) {
                     System.out.println(this.getTargetPlayer().getState());
                     System.out.println("Player Y" + super.getTargetPlayer().getPosition().y);
                     System.out.println("enemy y" + (super.getPosition().y + lickingHeight / 2));
-                    if (super.getTargetPlayer().getState() == Player.PlayerState.FALLING && super.getTargetPlayer().getPosition().y > super.getPosition().y + ((lickingHeight / 2) * scale)) {
+                    // need to change the other way round
+                    if (super.getTargetPlayer().getState() == Player.PlayerState.FALLING
+                            && super.getTargetPlayer().getPosition().y >= Math.round((super.getPosition().y + lickingHeight) / 128) + 1)
+                    {
+                        this.texture_assets.enemy_dead.play();
                         super.setState(EnemyState.DYING);
-                    } else {
-                        super.setState(EnemyState.DYING);
-                        super.getTargetPlayer().setState(Player.PlayerState.HURT);
+
+                    }
+                    else
+                    {
+                        this.texture_assets.licking_hit.play();
+                        //super.setState(EnemyState.DYING);
+                        //super.getTargetPlayer().setState(Player.PlayerState.HURT);
                     }
                 }
             }
@@ -252,6 +250,7 @@ public class LickingEnemy extends Enemy {
                 }
                 // If not, is there a block underneath?
                 else if (this.environment.getCell(mapCurrentX, mapFutureY - 1) != null) {
+                    ;
                     onGround = true;
                 }
 
@@ -274,7 +273,17 @@ public class LickingEnemy extends Enemy {
                 super.setState(EnemyState.JUMP);
                 distance_y = (float) (-(this.moving_speed) * 2.5 * delta);
             } else {
-                super.setState(EnemyState.MOVE);
+
+                if(super.getPosition().y < this.environment.getTileHeight()*2)
+                {
+                    super.setScore(0);
+                    super.setState(EnemyState.DYING);
+                }
+                else
+                {
+                    super.setState(EnemyState.MOVE);
+                }
+
             }
 
             Gdx.app.log("", environment.getWidth() + "");
@@ -298,7 +307,7 @@ public class LickingEnemy extends Enemy {
                     // We have a hit. Can't go left, and need to move up to the right of the block if not already there.
                     distance_x = 0;
                     super.setPosition(new Vector2((mapFutureX + 1) * 128, super.getPosition().y));
-                    turn_head = !turn_head;
+                    turn_head = true;
                 }
 
                 mapFutureX = (int) (Math.floor((super.getPosition().x + distance_x + (this.lickingWidth * this.scale)) / environment.getTileWidth()));
@@ -308,16 +317,19 @@ public class LickingEnemy extends Enemy {
                     // We have a hit. Can't go right, and need to move to the left of the block if not already there.
                     distance_x = 0;
                     super.setPosition(new Vector2(mapFutureX * 128 - (this.lickingWidth * this.scale) - 5, super.getPosition().y));
-                    turn_head = !turn_head;
+                    turn_head = false;
                 }
                 tempY += 128;
             }
 
-            if (super.getPosition().x + distance_x >= (this.environment.getWidth() * 128) - (lickingWidth / 2) ||
-                    super.getPosition().x + distance_x <= (0 + (lickingWidth / 2) - 120f)) // using graphic pixel
+            if (super.getPosition().x + distance_x >= (this.environment.getWidth() * 128) - (lickingWidth / 2))
             {
-                turn_head = !turn_head; // no side bar so this may work
+                turn_head = false; // no side bar so this may work
 
+            }
+            else if(super.getPosition().x + distance_x <= (0 + (lickingWidth / 2) - 120f)) // using graphic pixel)
+            {
+                turn_head = true;
             }
 
             super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
@@ -326,7 +338,8 @@ public class LickingEnemy extends Enemy {
 
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         super.dispose();
 
     }
