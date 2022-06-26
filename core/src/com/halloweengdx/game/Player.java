@@ -65,6 +65,10 @@ public class Player implements Actor
 
     private Rectangle collider;
 
+    private Reward receivedReward;
+
+    private boolean isRewarded;
+
     /**
      * The constructor for creating an instance of this class
      * @param x The starting x position to place the player
@@ -83,6 +87,10 @@ public class Player implements Actor
         prevDirection = curDirection;
 
         isFlipLeft = false;
+
+        this.receivedReward = null;
+
+        this.isRewarded = false;
 
         create();
     }
@@ -150,7 +158,6 @@ public class Player implements Actor
 
     public void update(float delta)
     {
-
         currentFrame = null;
         createAnimation();
 
@@ -161,6 +168,14 @@ public class Player implements Actor
             if(idleAnimation != null) currentFrame = (Texture) idleAnimation.getKeyFrame(delta, true);
         }else{
             isOnGround = false;
+        }
+
+        if(this.isRewarded == false)
+        {
+            if(this.receivedReward != null)
+            {
+                this.receivedReward = null;
+            }
         }
 
         if(state == PlayerState.MOVELEFT){
@@ -372,10 +387,32 @@ public class Player implements Actor
         }
     }
 
+    public boolean receiveReward(Reward reward)
+    {
+        this.receivedReward = reward;
+        this.isRewarded = true;
+        return true;
+    }
+
+    public Reward openReward()
+    {
+        Reward tmpReward = this.receivedReward;
+        if(this.receivedReward!=null)
+        {
+            this.isRewarded = false;
+            return tmpReward;
+        }
+        return null;
+    }
+
+    public boolean isRewarded()
+    {
+        return this.isRewarded;
+    }
+
     public void dispose(){
 
     }
-
 
     // Getters and Setters
 
