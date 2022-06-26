@@ -123,6 +123,12 @@ public class LevelOneScreen extends GameScreen
 
         this.respawnTime = 0;
 
+        if(this.gameAssetsDB.game_over.isPlaying())
+        {
+            this.gameAssetsDB.game_over.stop();
+            this.gameAssetsDB.l1_music.play();
+        }
+
         create();
     }
 
@@ -250,11 +256,8 @@ public class LevelOneScreen extends GameScreen
                     }
                 }
 
-                if(!this.gameAssetsDB.satire.isPlaying())
-                {
-                    this.gameAssetsDB.l1_music.stop();
-                   this.gameAssetsDB.game_over.play();
-                }
+                this.gameAssetsDB.l1_music.stop();
+                this.gameAssetsDB.game_over.play();
 
                 super.restartButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.restartButton.isDown)
@@ -485,7 +488,7 @@ public class LevelOneScreen extends GameScreen
                         this.respawnTime += 1;
 
                         if(this.respawnTime >= RESPAWN_TIME){
-                            super.health -= 5;
+                            super.health -= 1;
 
                             if(super.health >= 1){
                                 // Reset camera position

@@ -183,7 +183,7 @@ public class BatEnemy extends Enemy{
                 distance_y = -(this.moving_speed / 2) * delta;
             }
 
-            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD)
+            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD && super.getTargetPlayer().getState() != Player.PlayerState.DYING)
                     &&(super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
                     && (super.getTargetPlayer().getPosition().x >= super.getStartPosition().x - (super.getPatrolRange() * 128))
                     && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - ((super.getPatrolRange()) * 128))
