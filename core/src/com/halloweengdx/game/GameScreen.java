@@ -99,8 +99,13 @@ public abstract class GameScreen implements Screen {
 
         // Setup resume button
         resumeButton = new Button((w/2) - (buttonSize*3f)/2, h/2 - (buttonSize * 0.5f), buttonSize*3f, buttonSize, "Resume");
+
+        //Restart and Exit
         restartButton = new Button((w/2) - (buttonSize*3f)/2, h/2 - (buttonSize * 0.5f) - 60f, buttonSize*3f, buttonSize, "Restart");
         exitButton = new Button((w/2) - (buttonSize*3f)/2, h/2 - (buttonSize * 0.5f) - 360f, buttonSize*3f, buttonSize, "Exit");
+
+        //New Level
+        this.newLevelButton = new Button((w/2) - (buttonSize*3f)/2, h/2 - (buttonSize * 0.5f) - 60f, buttonSize*3f, buttonSize, "Next Level ->");
 
         // Font
         font = new BitmapFont();

@@ -30,7 +30,9 @@ public class GameAssetsDB
 
     // Screen
     protected TiledMap tiledMap_L1;
+    protected TiledMap tiledMap_L2;
     protected Texture L1_background;
+    protected Texture L2_background;
     protected Texture menu_background;
 
     // Player Texture
@@ -98,8 +100,10 @@ public class GameAssetsDB
         this.pauseTexture = new Texture(Gdx.files.internal("button/pause_button_round.png"));
 
         this.tiledMap_L1 = new TmxMapLoader().load("TileMap/tile_map_level01.tmx");
+        this.tiledMap_L2 = new TmxMapLoader().load("TileMap/tile_map_level02.tmx");
 
         this.L1_background = new Texture(Gdx.files.internal("background/L1_background.png"));
+        this.L2_background = new Texture(Gdx.files.internal("background/L2_background.png"));
 
         this.menu_background = new Texture(Gdx.files.internal("background/menu_background.png"));
         this.menu_play = new Texture(Gdx.files.internal("button/play_button.png"));
@@ -250,6 +254,12 @@ public class GameAssetsDB
         //Texture
         for(int i=0; i<18; i++)
         {
+            this.pumpkin_Idle_Texture[i].dispose();
+            this.pumpkin_Idle_Blink_Texture[i].dispose();
+
+            this.vampire_Idle_Texture[i].dispose();
+            this.vampire_Idle_Blink_Texture[i].dispose();
+
             this.bat_enemy_idle_texture[i].dispose();
             this.bat_enemy_flying_texture[i].dispose();
             this.bat_enemy_attacking_texture[i].dispose();
