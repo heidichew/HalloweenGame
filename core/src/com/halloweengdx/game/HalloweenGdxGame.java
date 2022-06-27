@@ -15,13 +15,13 @@ public class HalloweenGdxGame extends Game {
 	public static MenuScreen menuScreen;
 	// The class with the game level
 	public static LevelOneScreen gameScreenOne;
-	//public static LevelTwoScreen gameScreenTwo;
+	public static LevelTwoScreen gameScreenTwo;
 
 
 	@Override
 	public void create () {
 		gameScreenOne = new LevelOneScreen(this);
-		//gameScreenTwo = new LevelTwoScreen(this);
+		gameScreenTwo = new LevelTwoScreen(this);
 		menuScreen = new MenuScreen(this);
 		// Change screens to the menu
 		setScreen(menuScreen);

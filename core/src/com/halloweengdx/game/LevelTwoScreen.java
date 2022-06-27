@@ -2,28 +2,21 @@ package com.halloweengdx.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.graphics.GL20;;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LevelOneScreen extends GameScreen
+public class LevelTwoScreen extends GameScreen
 {
+
     public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 600);
     public final static Vector2 CHECKPOINT_TWO = new Vector2(3800, 600);
     public final static float RESPAWN_TIME = 20;
-
-    //core Game
-    private HalloweenGdxGame game;
 
     //assets
     private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
@@ -49,32 +42,34 @@ public class LevelOneScreen extends GameScreen
     private boolean shouldMove;
     private boolean shouldFall;
 
+
     //NPC
     private NPC npc;
 
     //Enemy
     private List<Enemy> enemies;
 
-
-    public LevelOneScreen(HalloweenGdxGame game){
+    public LevelTwoScreen(HalloweenGdxGame game)
+    {
         super(game);
-        this.game = game;
         newGame();
+
     }
 
-    public void create(){
-
+    @Override
+    public void create()
+    {
         super.create();
 
         //initialise
-        this.tiledMapRenderer = new OrthogonalTiledMapRenderer(gameAssetsDB.tiledMap_L1);
+        this.tiledMapRenderer = new OrthogonalTiledMapRenderer(gameAssetsDB.tiledMap_L2);
 
-        this.tileLayer = (TiledMapTileLayer) gameAssetsDB.tiledMap_L1.getLayers().get("BaseLayer");
+        this.tileLayer = (TiledMapTileLayer) gameAssetsDB.tiledMap_L2.getLayers().get("BaseLayer");
 
         this.shouldMove = false;
         this.shouldFall = false;
 
-        this.collisionMap = new boolean[60][20];
+        this.collisionMap = new boolean[80][20];
 
         // real stuff
         // Create player
@@ -82,7 +77,7 @@ public class LevelOneScreen extends GameScreen
         this.player = new Player((int)(1500), (int)(600));
         // player = new Player((int)(128*36), (int)(128*11)); // , y = 1100 (platform 2)
 
-        this.npc = new NPC(this.player, (this.tileLayer.getTileWidth() * 45) - 20f, (this.tileLayer.getTileHeight()*13) + 50f, NPC.NPC_TYPE.Vampire);
+        this.npc = null;
 
         for (int y = 0; y < this.tileLayer.getHeight(); y++) {
             for (int x = 0; x < this.tileLayer.getWidth(); x ++) {
@@ -93,21 +88,8 @@ public class LevelOneScreen extends GameScreen
             }
         }
 
-        // work out tile height
+        //Enemy
         this.enemies = new ArrayList<Enemy>();
-
-        this.enemies.add(new BatEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 35, 30f + this.tileLayer.getTileHeight() * 12), this.tileLayer, 3));
-
-        this.enemies.add(new LickingEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  (this.tileLayer.getHeight() - 5) * 128), this.tileLayer, 0));
-
-        this.enemies.add(new LickingEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 54,  (this.tileLayer.getHeight() - 6) * 128), this.tileLayer, 0));
-
-        this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 5, true));
-
     }
 
     public void newGame(){
@@ -126,20 +108,13 @@ public class LevelOneScreen extends GameScreen
 
         this.respawnTime = 0;
 
-        if(this.gameAssetsDB.game_over.isPlaying())
-        {
-            this.gameAssetsDB.game_over.stop();
-            this.gameAssetsDB.l1_music.play();
-        }
+//        if(this.gameAssetsDB.game_over.isPlaying())
+//        {
+//            this.gameAssetsDB.game_over.stop();
+//            this.gameAssetsDB.l1_music.play();
+//        }
 
         create();
-    }
-
-    @Override
-    public void show() {
-        this.gameAssetsDB.l1_music.play();
-        this.gameAssetsDB.l1_music.setVolume(0.5f);
-
     }
 
     @Override
@@ -152,7 +127,7 @@ public class LevelOneScreen extends GameScreen
 
         super.bgBatch.setProjectionMatrix(camera.combined);
         super.bgBatch.begin();
-        super.bgBatch.draw(gameAssetsDB.L1_background, 0,0, 60*128, 20*128);
+        super.bgBatch.draw(this.gameAssetsDB.L2_background, 0,0, 80*128, 20*128);
         super.bgBatch.end();
 
         if(super.camera != null){
@@ -199,8 +174,7 @@ public class LevelOneScreen extends GameScreen
             super.attackButton.draw(super.uiBatch);
 
             super.pauseButton.draw(super.uiBatch);
-        }else if(super.gameState == GameState.PAUSE){
-
+        } else if(super.gameState == GameState.PAUSE) {
             super.resumeButton.draw(super.uiBatch);
             super.exitButton.draw(super.uiBatch);
         }
@@ -211,17 +185,15 @@ public class LevelOneScreen extends GameScreen
         }
         else if(super.gameState == GameState.WIN)
         {
-            super.newLevelButton.draw(super.uiBatch);
             super.exitButton.draw(super.uiBatch);
         }
-
 
         super.uiBatch.end();
     }
 
     @Override
-    public void update() {
-
+    public void update()
+    {
         //Touch Input Info
         boolean checkTouch = Gdx.input.isTouched();
         int touchX = Gdx.input.getX();
@@ -232,15 +204,14 @@ public class LevelOneScreen extends GameScreen
 
             case PAUSE:
             {
-                this.gameAssetsDB.l1_music.pause();
+                //this.gameAssetsDB.l1_music.pause();
 
                 // Check if the user press the resume button
                 super.resumeButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.resumeButton.isDown){
                     super.resumePressed = true;
                     super.gameState = GameState.PLAYING;
-                    this.gameAssetsDB.l1_music.play();
-                    super.resumePressed = false;
+                    //this.gameAssetsDB.l1_music.play(); need to change music
                 }
 
                 //else if(resumePressed){
@@ -251,7 +222,7 @@ public class LevelOneScreen extends GameScreen
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
-                    dispose();
+                    this.dispose();
                     Gdx.app.exit();
                     System.exit(-1);
 
@@ -261,11 +232,13 @@ public class LevelOneScreen extends GameScreen
 
             case WIN:
             {
-                super.newLevelButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
-                if(super.newLevelButton.isDown)
+                for(int i=this.enemies.size() -1; i>=0; i--)
                 {
-                    this.game.setScreen(HalloweenGdxGame.gameScreenTwo);
+                    this.enemies.get(i).setState(Enemy.EnemyState.DEAD);
+                    this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
                 }
+
+                this.player.update(Gdx.graphics.getDeltaTime());
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
@@ -276,7 +249,7 @@ public class LevelOneScreen extends GameScreen
 
                 }
 
-                break;
+                return;
 
             }
 
@@ -290,13 +263,10 @@ public class LevelOneScreen extends GameScreen
                     }
                 }
 
-                this.gameAssetsDB.l1_music.stop();
-                this.gameAssetsDB.game_over.play();
-
                 super.restartButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.restartButton.isDown)
                 {
-                    newGame();
+                    this.newGame();
                 }
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
@@ -402,7 +372,7 @@ public class LevelOneScreen extends GameScreen
 //                    }
                     x = Math.round((this.player.getPosition().x)/ 128) + 1;
 
-                   // y = (int)Math.floor(player.getPosition().y / 128f);
+                    // y = (int)Math.floor(player.getPosition().y / 128f);
 
                     System.out.println("Here y");
                     System.out.println(player.getPosition().y);
@@ -421,7 +391,7 @@ public class LevelOneScreen extends GameScreen
 //                    }
 
                     boolean shouldFall = false;
-                    if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
+                    if(x >= 0 && x < 80 &&  y >= 0 && y < 20){
                         if(this.collisionMap[x][y] == true){
                             System.out.println("blocked fall");
                             shouldFall = false;
@@ -463,7 +433,7 @@ public class LevelOneScreen extends GameScreen
 //                    y = Math.round((player.getPosition().y - (player.PLAYER_HEIGHT * 0.35f) - 10) / 120);
 
                     boolean stopJump = false;
-                    if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
+                    if(x >= 0 && x < 80 &&  y >= 0 && y < 20){
                         if(this.collisionMap[x][y] == true){
                             System.out.println("should stop jump");
                             stopJump = true;
@@ -497,7 +467,7 @@ public class LevelOneScreen extends GameScreen
                     y = Math.round((this.player.getPosition().y / 128));
 
                     boolean fall = false;
-                    if(x >= 0 && x < 60 &&  y >= 0 && y < 20){
+                    if(x >= 0 && x < 80 &&  y >= 0 && y < 20){
                         if(collisionMap[x][y] == true){
                             System.out.println("should not fall");
                             fall = false;
@@ -658,7 +628,7 @@ public class LevelOneScreen extends GameScreen
             }
 
             if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
-                super.camera.position.y = player.getPosition().y - 60f;
+                super.camera.position.y = player.getPosition().y - 100f;
             }else{
                 if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
                 {
@@ -678,8 +648,23 @@ public class LevelOneScreen extends GameScreen
 
             return;
         }
+
     }
 
+    @Override
+    public void show()
+    {
+        this.newGame();
+
+    }
+
+
+    @Override
+    public void hide()
+    {
+        //stop music
+
+    }
 
     @Override
     public void resize(int width, int height) {
@@ -692,28 +677,13 @@ public class LevelOneScreen extends GameScreen
     }
 
     @Override
-    public void resume() {
+    public void resume()
+    {
 
     }
 
     @Override
-    public void hide()
-    {
-        gameAssetsDB.l1_music.stop();
-
-    }
-
-    @Override
-    public void dispose()
-    {
+    public void dispose() {
         super.dispose();
-
-        this.player.dispose();
-
-        for(Enemy e: enemies)
-        {
-            e.dispose();
-        }
-
     }
 }

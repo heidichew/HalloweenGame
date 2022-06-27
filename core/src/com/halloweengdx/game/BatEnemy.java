@@ -151,6 +151,7 @@ public class BatEnemy extends Enemy{
             this.dying_state += delta;
             if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
             {
+                this.texture_assets.enemy_dead.play();
                 this.dying_state = 0.0f;
                 this.setState(EnemyState.DEAD);
             }
