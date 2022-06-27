@@ -46,7 +46,6 @@ public class GameAssetsDB
     protected Texture[] playerFallTexture;
 
     //NPC
-
     protected Texture[] pumpkin_Idle_Texture;
     protected Texture[] pumpkin_Idle_Blink_Texture;
 
@@ -60,7 +59,6 @@ public class GameAssetsDB
 
     protected Texture[] skull_enemy_idle_texture;
     protected Texture[] skull_enemy_walking_texture;
-    protected Texture[] skull_enemy_jumping_texture;
     protected Texture[] skull_enemy_dead_texture;
     protected Texture[] skull_enemy_hurt_texture;
     protected Texture[] skull_enemy_attacking_texture;
@@ -70,6 +68,14 @@ public class GameAssetsDB
 
     protected Texture[] enemy_dead_texture;
 
+    protected Texture[] necromancer_idle_texture;
+    protected Texture[] necromancer_attack_ground_texture;
+    protected Texture[] necromancer_hurt_texture;
+    protected Texture[] necromancer_dead_texture;
+
+    protected Texture[] necromancer_child_move_texture;
+    protected Texture[] necromancer_child_attack_texture;
+    protected Texture[] necromancer_child_dying_texture;
 
     //Music
     protected Music menu_music;
@@ -129,7 +135,6 @@ public class GameAssetsDB
 
         this.skull_enemy_idle_texture = new Texture[12];
         this.skull_enemy_walking_texture = new Texture[18];
-        this.skull_enemy_jumping_texture = new Texture[5];
         this.skull_enemy_hurt_texture = new Texture[12];
         this.skull_enemy_dead_texture = new Texture[15];
         this.skull_enemy_attacking_texture = new Texture[12];
@@ -138,6 +143,15 @@ public class GameAssetsDB
         this.licking_enemy_jumping = new Texture[18];
 
         this.enemy_dead_texture = new Texture[10];
+
+        this.necromancer_idle_texture = new Texture[10];
+        this.necromancer_attack_ground_texture = new Texture[10];
+        this.necromancer_hurt_texture = new Texture[10];
+        this.necromancer_dead_texture = new Texture[10];
+
+        this.necromancer_child_move_texture = new Texture[10];
+        this.necromancer_child_attack_texture = new Texture[10];
+        this.necromancer_child_dying_texture = new Texture[10];
 
 
         for(int i=0; i<18; i++)
@@ -160,15 +174,15 @@ public class GameAssetsDB
 
         for(int i=0; i<15; i++)
         {
-            playerDieTexture[i] = new Texture(Gdx.files.internal("player/dying/dying_"+ i +".png"));
+            this.playerDieTexture[i] = new Texture(Gdx.files.internal("player/dying/dying_"+ i +".png"));
             this.skull_enemy_dead_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Dying/Dying_0"+ i +".png"));
         }
 
         for(int i=0; i<12; i++)
         {
-            playerRunTexture[i] = new Texture(Gdx.files.internal("player/running/running_"+ i +".png"));
-            playerAttackTexture[i] = new Texture(Gdx.files.internal("player/throwing/throwing_"+ i +".png"));
-            playerHurtTexture[i] = new Texture(Gdx.files.internal("player/hurt/hurt_"+ i +".png"));
+            this.playerRunTexture[i] = new Texture(Gdx.files.internal("player/running/running_"+ i +".png"));
+            this.playerAttackTexture[i] = new Texture(Gdx.files.internal("player/throwing/throwing_"+ i +".png"));
+            this.playerHurtTexture[i] = new Texture(Gdx.files.internal("player/hurt/hurt_"+ i +".png"));
             this.skull_enemy_idle_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Idle Blink/Idle Blink_0"+ i +".png"));
             this.skull_enemy_hurt_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Hurt/Hurt_0"+ i +".png"));
             this.skull_enemy_attacking_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Attacking/Attacking_0"+ i +".png"));
@@ -176,21 +190,27 @@ public class GameAssetsDB
 
         for(int i =0; i<10; i++)
         {
-            this.enemy_dead_texture[i] = new Texture(Gdx.files.internal("enemies/Death Sprite/skeleton-animation_"+i+".png"));
+            this.enemy_dead_texture[i] = new Texture(Gdx.files.internal("enemies/death_sprite/skeleton-animation_"+i+".png"));
+
+            this.necromancer_idle_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__IDLE_00"+i+".png"));
+            this.necromancer_attack_ground_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__ATTACK_02_00"+i+".png"));
+            this.necromancer_hurt_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__HURT_00"+i+".png"));
+            this.necromancer_dead_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__DIE_00"+i+".png"));
+
+            this.necromancer_child_move_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer_child/Skeleton_03__RUN_00"+i+".png"));
+            this.necromancer_child_attack_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer_child/Skeleton_03__ATTACK_00"+i+".png"));
+            this.necromancer_child_dying_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer_child/Skeleton_03__DIE_00"+i+".png"));
+
+
         }
 
         for(int i = 0; i < 6; i++)
         {
-            playerFallTexture[i] = new Texture(Gdx.files.internal("player/falling/falling_"+ i +".png"));
-            playerJumpStartTexture[i] = new Texture(Gdx.files.internal("player/jump_start/jump_"+ i +".png"));
-            playerJumpLoopTexture[i] = new Texture(Gdx.files.internal("player/jump/jumping_"+ i +".png"));
+            this.playerFallTexture[i] = new Texture(Gdx.files.internal("player/falling/falling_"+ i +".png"));
+            this.playerJumpStartTexture[i] = new Texture(Gdx.files.internal("player/jump_start/jump_"+ i +".png"));
+            this.playerJumpLoopTexture[i] = new Texture(Gdx.files.internal("player/jump/jumping_"+ i +".png"));
         }
 
-        for(int i=0; i<5; i++)
-        {
-          this.skull_enemy_jumping_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Jump Loop/Jump Loop_00"+ i +".png"));
-
-        }
 
         this.menu_music = Gdx.audio.newMusic(Gdx.files.internal("music/Ghost_Stories_by_Steve_Oxen.mp3"));
         menu_music.setLooping(true);
@@ -298,11 +318,6 @@ public class GameAssetsDB
             this.playerJumpLoopTexture[i].dispose();
         }
 
-        for(int i=0; i<5; i++)
-        {
-            this.skull_enemy_jumping_texture[i].dispose();
-
-        }
 
         //Music
         this.menu_music.dispose();

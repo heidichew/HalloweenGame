@@ -106,7 +106,7 @@ public class LevelOneScreen extends GameScreen
                 new Vector2(0f + this.tileLayer.getTileWidth() * 54,  (this.tileLayer.getHeight() - 6) * 128), this.tileLayer, 0));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 5, true));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 5, SkullEnemy.Skull_TYPE.BOSS));
 
     }
 
