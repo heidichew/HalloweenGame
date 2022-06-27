@@ -254,6 +254,12 @@ public class GameAssetsDB
         //Texture
         for(int i=0; i<18; i++)
         {
+            this.pumpkin_Idle_Texture[i].dispose();
+            this.pumpkin_Idle_Blink_Texture[i].dispose();
+
+            this.vampire_Idle_Texture[i].dispose();
+            this.vampire_Idle_Blink_Texture[i].dispose();
+
             this.bat_enemy_idle_texture[i].dispose();
             this.bat_enemy_flying_texture[i].dispose();
             this.bat_enemy_attacking_texture[i].dispose();

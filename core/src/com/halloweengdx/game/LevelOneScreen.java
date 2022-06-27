@@ -699,7 +699,9 @@ public class LevelOneScreen extends GameScreen
     @Override
     public void hide()
     {
-        gameAssetsDB.l1_music.stop();
+        this.gameAssetsDB.l1_music.stop();
+        this.gameAssetsDB.danger_zone_music.stop();
+        this.gameAssetsDB.game_over.stop();
 
     }
 
