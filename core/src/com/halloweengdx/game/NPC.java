@@ -71,7 +71,7 @@ public class NPC implements Actor
 
         this.reward = new Reward(Reward.RewardType.LIVE, LIVE_REWARD);
 
-        this.npcState = NPC_STATE.Appear;
+        this.npcState = NPC_STATE.Hide;
 
         if(npcType == NPC_TYPE.Pumpkin)
         {
