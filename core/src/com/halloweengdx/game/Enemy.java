@@ -35,7 +35,6 @@ public abstract class Enemy implements Actor
         this.position = new Vector2(position);
         this.score = score;
         this.patrol_range = patrol_range;
-        //texture [...]Game
     }
 
     @Override

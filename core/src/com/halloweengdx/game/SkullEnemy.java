@@ -11,18 +11,22 @@ import java.util.Random;
 
 public class SkullEnemy extends Enemy
 {
+    public enum Skull_TYPE
+    {
+        Normal,
+        BOSS
+
+    }
     private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
 
     private Animation idleAnimation = null;
     private Animation moveAnimation = null;
     private Animation dyingAnimation = null;
     private Animation attackAnimation = null;
-    private Animation jumpingAnimation = null;
     private Animation hurtingAnimation = null;
 
     private float idle_state;
     private float moving_state;
-    private float jumping_state;
     private float dying_state;
     private float attack_state;
     private float hurting_state;
@@ -43,6 +47,8 @@ public class SkullEnemy extends Enemy
 
     private float scale;
 
+    private Skull_TYPE skullType;
+
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
@@ -52,7 +58,7 @@ public class SkullEnemy extends Enemy
      * @param environment
      * @param patrol_range
      */
-    public SkullEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range, boolean boss)
+    public SkullEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range, Skull_TYPE skullType)
     {
         super(player, start_xy, start_xy, 50, patrol_range);
 
@@ -60,7 +66,6 @@ public class SkullEnemy extends Enemy
 
         this.idle_state = 0;
         this.moving_state = 0;
-        this.jumping_state = 0;
         this.dying_state = 0;
         this.attack_state = 0;
         this.hurting_state = 0;
@@ -71,23 +76,39 @@ public class SkullEnemy extends Enemy
 
         this.turn_head = false;
 
-        if(boss)
+        this.skullType = skullType;
+
+        switch (this.skullType)
         {
-            this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
-            this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
-            this.jumpingAnimation = new Animation(0.2f, texture_assets.skull_enemy_jumping_texture);
-            this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
-            this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
+            case BOSS:
+
+                this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
+                this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
+                this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
+                this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
+
+                this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
+                this.skullHeight = texture_assets.skull_enemy_walking_texture[0].getHeight();
+
+                this.scale = 1.2f;
+
+                break;
 
 
-            this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
-            this.skullHeight = texture_assets.skull_enemy_walking_texture[0].getHeight();
+            case Normal:
 
-            this.scale = 1.2f;
+                this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
+                this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
+                this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
+                this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
 
-        }
-        else
-        {
+                this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
+                this.skullHeight = texture_assets.skull_enemy_walking_texture[0].getHeight();
+
+                this.scale = 0.95f;
+
+                break;
+
 
         }
 
@@ -113,17 +134,6 @@ public class SkullEnemy extends Enemy
                         move_texture.getWidth(),  move_texture.getHeight(),
                         this.scale,this.scale,
                         0, 0, 0, (int)move_texture.getWidth(), (int) move_texture.getHeight(), turn_head, false);
-
-                break;
-
-            case JUMP:
-                Texture jump_texture = (Texture) this.jumpingAnimation.getKeyFrame(this.jumping_state, true);
-                batch.draw(jump_texture,
-                        super.getPosition().x - (jump_texture.getWidth() / 2.0f), super.getPosition().y - (jump_texture.getHeight() / 2.0f),
-                        jump_texture.getWidth() / 2.0f, jump_texture.getHeight() / 2.0f,
-                        jump_texture.getWidth(),  jump_texture.getHeight(),
-                        0.8f,0.8f,
-                        0, 0, 0, (int)jump_texture.getWidth(), (int) jump_texture.getHeight(), turn_head, false);
 
                 break;
 
@@ -182,7 +192,6 @@ public class SkullEnemy extends Enemy
         else
         {
             this.moving_state += delta;
-            this.jumping_state += delta;
             this.idle_state += delta;
 
             this.turnHeadTimer += delta;

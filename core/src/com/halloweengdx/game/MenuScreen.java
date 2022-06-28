@@ -88,6 +88,7 @@ public class MenuScreen implements Screen {
 
         if (this.playButton.isDown){
             this.game.setScreen(HalloweenGdxGame.gameScreenOne);
+            //this.game.setScreen(HalloweenGdxGame.gameScreenTwo);
             System.out.println("pressed play");
         }
     }
