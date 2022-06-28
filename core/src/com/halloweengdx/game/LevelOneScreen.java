@@ -97,16 +97,16 @@ public class LevelOneScreen extends GameScreen
         this.enemies = new ArrayList<Enemy>();
 
         this.enemies.add(new BatEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 35, 30f + this.tileLayer.getTileHeight() * 12), this.tileLayer, 3));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 35, 30f + this.tileLayer.getTileHeight() * 12), this.tileLayer, 50 ,3));
 
         this.enemies.add(new LickingEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  (this.tileLayer.getHeight() - 5) * 128), this.tileLayer, 0));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  (this.tileLayer.getHeight() - 5) * 128), this.tileLayer, 50, 0));
 
         this.enemies.add(new LickingEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 54,  (this.tileLayer.getHeight() - 6) * 128), this.tileLayer, 0));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 54,  (this.tileLayer.getHeight() - 6) * 128), this.tileLayer, 50, 0));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 5, SkullEnemy.Skull_TYPE.BOSS));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 100,5, SkullEnemy.Skull_TYPE.BOSS));
 
     }
 
@@ -338,6 +338,18 @@ public class LevelOneScreen extends GameScreen
                     }
                 }
 
+                if(this.gameAssetsDB.danger_zone_music.isPlaying())
+                {
+                    this.gameAssetsDB.l1_music.pause();
+                }
+                else
+                {
+                    if(this.gameAssetsDB.l1_music.isPlaying() == false)
+                    {
+                        this.gameAssetsDB.l1_music.play();
+                    }
+                }
+
                 //Poll user for input
                 super.moveLeftButton.update(checkTouch, touchX, touchY);
                 super.moveRightButton.update(checkTouch, touchX, touchY);
@@ -529,8 +541,11 @@ public class LevelOneScreen extends GameScreen
                     this.player.isHurt = false;
                     this.player.setState(Player.PlayerState.HURT);
                     this.gameAssetsDB.player_hurt.play();
-                    if(super.health >= 1){
-                        if (this.respawnTime + RESPAWN_TIME < System.currentTimeMillis()) {
+                    if(super.health >= 1)
+                    {
+                        //never in
+                        if (this.respawnTime + RESPAWN_TIME < System.currentTimeMillis())
+                        {
                             super.health -= 1;
 
                             if(super.health >= 1){
@@ -547,7 +562,7 @@ public class LevelOneScreen extends GameScreen
                                 }
 
                                 this.player.setState(Player.PlayerState.ALIVE);
-                                this.respawnTime = System.currentTimeMillis();
+                                //this.respawnTime = System.currentTimeMillis();
                             }
                         }
                     }else{
@@ -577,7 +592,7 @@ public class LevelOneScreen extends GameScreen
 
                 }
 
-                if(super.gameScore >= 50)  //Need to change to higher
+                if(super.gameScore >= 100)
                 {
                     super.gameState = GameState.WIN;
                 }
@@ -589,24 +604,24 @@ public class LevelOneScreen extends GameScreen
 
 
 //            // Move camera with bat
-//            if (this.enemies.get(2).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-//                super.camera.position.x = this.enemies.get(2).getPosition().x + 600;
+//            if (this.enemies.get(3).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+//                super.camera.position.x = this.enemies.get(3).getPosition().x + 600;
 //
-//                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
+//                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
 //                {
-//                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
+//                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2);
 //                }
 //                else if(super.camera.position.x <= 0)
 //                {
 //                    super.camera.position.x = 0;
 //                }
 //            }
-//            if (this.enemies.get(2).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-//                super.camera.position.y = this.enemies.get(2).getPosition().y; // can change
+//            if (this.enemies.get(3).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+//                super.camera.position.y = this.enemies.get(3).getPosition().y; // can change
 //
-//                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+//                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
 //                {
-//                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+//                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
 //                }
 //                else if(super.camera.position.y <= 0)
 //                {
@@ -702,7 +717,6 @@ public class LevelOneScreen extends GameScreen
         this.gameAssetsDB.l1_music.stop();
         this.gameAssetsDB.danger_zone_music.stop();
         this.gameAssetsDB.game_over.stop();
-
     }
 
     @Override

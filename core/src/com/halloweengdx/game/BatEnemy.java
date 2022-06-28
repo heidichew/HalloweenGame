@@ -1,21 +1,14 @@
 package com.halloweengdx.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector2;
 
-import org.w3c.dom.Text;
-
-import java.util.Random;
-
 public class BatEnemy extends Enemy{
 
-    private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
+    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
     // Animations for bat enemy
     private Animation moveAnimation;
@@ -54,8 +47,8 @@ public class BatEnemy extends Enemy{
      * @param player   The player that the enemy instance can kill in the game world
      * @param start_xy The stating position to place the enemy instance
      */
-    public BatEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range) {
-        super(player, start_xy, start_xy, 50, patrol_range);
+    public BatEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int score, int patrol_range) {
+        super(player, start_xy, start_xy, score, patrol_range);
 
         this.environment = environment;
 
@@ -68,15 +61,15 @@ public class BatEnemy extends Enemy{
         this.moving_speed = 128f;
 
         //animation
-        this.moveAnimation = new Animation(0.05f,this.texture_assets.bat_enemy_flying_texture);
-        this.idleAnimation = new Animation(0.1f, this.texture_assets.bat_enemy_idle_texture);
-        this.attackAnimation = new Animation(0.03f, this.texture_assets.bat_enemy_attacking_texture);
-        this.dyingAnimation = new Animation(0.05f, this.texture_assets.enemy_dead_texture);
+        this.moveAnimation = new Animation(0.05f,this.gameAssetsDB.bat_enemy_flying_texture);
+        this.idleAnimation = new Animation(0.1f, this.gameAssetsDB.bat_enemy_idle_texture);
+        this.attackAnimation = new Animation(0.03f, this.gameAssetsDB.bat_enemy_attacking_texture);
+        this.dyingAnimation = new Animation(0.05f, this.gameAssetsDB.enemy_dead_texture);
 
         //loading texture from db
 
-        this.batWidth = this.texture_assets.bat_enemy_idle_texture[0].getWidth();
-        this.batHeight = this.texture_assets.bat_enemy_idle_texture[0].getHeight();
+        this.batWidth = this.gameAssetsDB.bat_enemy_idle_texture[0].getWidth();
+        this.batHeight = this.gameAssetsDB.bat_enemy_idle_texture[0].getHeight();
 
         super.setState(EnemyState.MOVE);
 
@@ -151,7 +144,7 @@ public class BatEnemy extends Enemy{
             this.dying_state += delta;
             if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
             {
-                this.texture_assets.enemy_dead.play();
+                this.gameAssetsDB.enemy_dead.play();
                 this.dying_state = 0.0f;
                 this.setState(EnemyState.DEAD);
             }
@@ -189,15 +182,13 @@ public class BatEnemy extends Enemy{
                     && (super.getTargetPlayer().getPosition().x >= super.getStartPosition().x - (super.getPatrolRange() * 128))
                     && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - ((super.getPatrolRange()) * 128))
             {
-                this.texture_assets.l1_music.pause();
-                this.texture_assets.danger_zone_music.play();
+                this.gameAssetsDB.danger_zone_music.play();
                 super.setState(EnemyState.CHASE);
 
             } else {
                 if (super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK) {
                     super.setState(EnemyState.MOVE);
-                    this.texture_assets.danger_zone_music.stop();
-                    this.texture_assets.l1_music.play();
+                    this.gameAssetsDB.danger_zone_music.stop();
                 }
             }
 
@@ -229,11 +220,11 @@ public class BatEnemy extends Enemy{
                 {
                     this.attack_state += delta;
                     super.setState(EnemyState.ATTACK);
-                    this.texture_assets.bat_hit.play();
+                    this.gameAssetsDB.bat_hit.play();
 
                     if (this.attack_state >= attackAnimation.getAnimationDuration())
                     {
-                        this.texture_assets.bat_hit.stop();
+                        this.gameAssetsDB.bat_hit.stop();
                         super.getTargetPlayer().setState(Player.PlayerState.HURT);
                         this.attack_state = 0.0f;
                     }
@@ -260,7 +251,7 @@ public class BatEnemy extends Enemy{
                 }
 
                 //change position of y
-                if (super.getPosition().y + distance_y >= (environment.getHeight() - 7) * 128) {
+                if (super.getPosition().y + distance_y >= (environment.getHeight() - 1) * 128) {
                     rise = false;
                 }
             }
@@ -299,6 +290,7 @@ public class BatEnemy extends Enemy{
                     distance_y = 0;
                     rise = true;
                 }
+
                 tempX += 128;
 
             }

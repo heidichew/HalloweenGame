@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class LickingEnemy extends Enemy {
 
-    private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
+    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
     private Animation idleAnimation = null;
     private Animation moveAnimation = null;
@@ -48,8 +48,8 @@ public class LickingEnemy extends Enemy {
      * @param environment
      * @param patrol_range
      */
-    public LickingEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range) {
-        super(player, start_xy, start_xy, 50, patrol_range);
+    public LickingEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment,int score, int patrol_range) {
+        super(player, start_xy, start_xy, score, patrol_range);
 
         this.environment = environment;
 
@@ -62,15 +62,15 @@ public class LickingEnemy extends Enemy {
         this.moving_speed = 350f;
 
         //this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
-        this.moveAnimation = new Animation(0.03f, texture_assets.licking_enemy_walking);
-        this.jumpingAnimation = new Animation(0.2f, texture_assets.licking_enemy_jumping);
-        this.dyingAnimation = new Animation(0.05f, texture_assets.enemy_dead_texture);
+        this.moveAnimation = new Animation(0.03f, gameAssetsDB.licking_enemy_walking);
+        this.jumpingAnimation = new Animation(0.2f, gameAssetsDB.licking_enemy_jumping);
+        this.dyingAnimation = new Animation(0.05f, gameAssetsDB.enemy_dead_texture);
 //        this.dieAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
 //        this.attackAnimation = new Animation(0.1f, texture_assets.skull_enemy_attacking_texture);
 
 
-        this.lickingWidth = (int)Math.round(texture_assets.licking_enemy_walking[0].getWidth());
-        this.lickingHeight = (int) Math.round(texture_assets.licking_enemy_walking[0].getHeight());
+        this.lickingWidth = (int)Math.round(gameAssetsDB.licking_enemy_walking[0].getWidth());
+        this.lickingHeight = (int) Math.round(gameAssetsDB.licking_enemy_walking[0].getHeight());
 
 
         super.setState(EnemyState.MOVE);
@@ -179,14 +179,14 @@ public class LickingEnemy extends Enemy {
                             && (super.getTargetPlayer().getPosition().y >= super.getPosition().y + (lickingHeight * scale) - 100f))
                     {
                         super.setState(EnemyState.DYING);
-                        this.texture_assets.enemy_dead.play();
+                        this.gameAssetsDB.enemy_dead.play();
 
                     }
                     else
                     {
                         super.getTargetPlayer().isHurt = true;
                         super.setScore(0);
-                        this.texture_assets.licking_hit.play();
+                        this.gameAssetsDB.licking_hit.play();
                         super.setState(EnemyState.DYING);
                         super.getTargetPlayer().setState(Player.PlayerState.HURT);
                     }

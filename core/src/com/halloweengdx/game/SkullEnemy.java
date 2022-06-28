@@ -1,6 +1,5 @@
 package com.halloweengdx.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -17,7 +16,7 @@ public class SkullEnemy extends Enemy
         BOSS
 
     }
-    private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
+    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
     private Animation idleAnimation = null;
     private Animation moveAnimation = null;
@@ -58,9 +57,9 @@ public class SkullEnemy extends Enemy
      * @param environment
      * @param patrol_range
      */
-    public SkullEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment, int patrol_range, Skull_TYPE skullType)
+    public SkullEnemy(Player player, Vector2 start_xy, TiledMapTileLayer environment,int score, int patrol_range, Skull_TYPE skullType)
     {
-        super(player, start_xy, start_xy, 50, patrol_range);
+        super(player, start_xy, start_xy, score, patrol_range);
 
         this.environment = environment;
 
@@ -82,13 +81,13 @@ public class SkullEnemy extends Enemy
         {
             case BOSS:
 
-                this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
-                this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
-                this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
-                this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
+                this.idleAnimation = new Animation(0.2f, gameAssetsDB.skull_boss_enemy_idle_texture);
+                this.moveAnimation = new Animation(0.05f, gameAssetsDB.skull_boss_enemy_walking_texture);
+                this.dyingAnimation = new Animation(0.12f, gameAssetsDB.skull_boss_enemy_dead_texture);
+                this.attackAnimation = new Animation(0.05f, gameAssetsDB.skull_boss_enemy_attacking_texture);
 
-                this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
-                this.skullHeight = texture_assets.skull_enemy_walking_texture[0].getHeight();
+                this.skullWidth = gameAssetsDB.skull_boss_enemy_walking_texture[0].getWidth();
+                this.skullHeight = gameAssetsDB.skull_boss_enemy_walking_texture[0].getHeight();
 
                 this.scale = 1.2f;
 
@@ -97,13 +96,13 @@ public class SkullEnemy extends Enemy
 
             case Normal:
 
-                this.idleAnimation = new Animation(0.2f, texture_assets.skull_enemy_idle_texture);
-                this.moveAnimation = new Animation(0.05f, texture_assets.skull_enemy_walking_texture);
-                this.dyingAnimation = new Animation(0.05f, texture_assets.skull_enemy_dead_texture);
-                this.attackAnimation = new Animation(0.05f, texture_assets.skull_enemy_attacking_texture);
+                this.idleAnimation = new Animation(0.2f, gameAssetsDB.skull_enemy_idle_texture);
+                this.moveAnimation = new Animation(0.05f, gameAssetsDB.skull_enemy_walking_texture);
+                this.dyingAnimation = new Animation(0.12f, gameAssetsDB.skull_enemy_dead_texture);
+                this.attackAnimation = new Animation(0.05f, gameAssetsDB.skull_enemy_attacking_texture);
 
-                this.skullWidth = texture_assets.skull_enemy_walking_texture[0].getWidth();
-                this.skullHeight = texture_assets.skull_enemy_walking_texture[0].getHeight();
+                this.skullWidth = gameAssetsDB.skull_enemy_walking_texture[0].getWidth();
+                this.skullHeight = gameAssetsDB.skull_enemy_walking_texture[0].getHeight();
 
                 this.scale = 0.95f;
 
@@ -162,7 +161,7 @@ public class SkullEnemy extends Enemy
             case DYING:
                 Texture dying_texture = (Texture) this.dyingAnimation.getKeyFrame(this.dying_state, true);
                 batch.draw(dying_texture,
-                        super.getPosition().x - (dying_texture.getWidth() / 2.0f), super.getPosition().y - (dying_texture.getHeight() / 2.0f),
+                        super.getPosition().x - (dying_texture.getWidth() / 2.0f), super.getPosition().y - (dying_texture.getHeight() / 2.0f) - 15f,
                         0, 0,
                         dying_texture.getWidth(),  dying_texture.getHeight(),
                         this.scale,this.scale,
@@ -183,7 +182,7 @@ public class SkullEnemy extends Enemy
             this.dying_state += delta;
             if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
             {
-                this.texture_assets.enemy_dead.play();
+                this.gameAssetsDB.enemy_dead.play();
                 this.dying_state = 0.0f;
                 this.setState(EnemyState.DEAD);
             }
@@ -235,14 +234,12 @@ public class SkullEnemy extends Enemy
                     && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - this.skullHeight/2
                     && super.getTargetPlayer().getPosition().y + super.getTargetPlayer().getSprite().getHeight() < super.getStartPosition().y + skullHeight) {
                 super.setState(EnemyState.CHASE);
-                this.texture_assets.danger_zone_music.play();
-                this.texture_assets.l1_music.pause();
+                this.gameAssetsDB.danger_zone_music.play();
 
             } else {
                 if (super.getState() == EnemyState.CHASE || super.getState() == EnemyState.ATTACK) {
                     super.setState(EnemyState.MOVE);
-                    this.texture_assets.danger_zone_music.stop();
-                    this.texture_assets.l1_music.play();
+                    this.gameAssetsDB.danger_zone_music.stop();
                 }
             }
 
@@ -261,10 +258,11 @@ public class SkullEnemy extends Enemy
                     this.attack_state += delta;
                     super.setState(EnemyState.ATTACK);
 
-                    this.texture_assets.skull_hit.play();
+                    this.gameAssetsDB.skull_hit.play();
                     if(this.attack_state >= this.attackAnimation.getAnimationDuration())
                     {
-                        this.texture_assets.skull_hit.stop();
+                        this.gameAssetsDB.skull_hit.stop();
+                        super.getTargetPlayer().isHurt = true;
                         super.getTargetPlayer().setState(Player.PlayerState.HURT);
                         this.attack_state = 0.0f;
                     }
