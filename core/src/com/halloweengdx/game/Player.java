@@ -63,6 +63,8 @@ public class Player implements Actor
     private boolean isFlipLeft = false;
     private boolean fallStraight = false;
 
+    public boolean isHurt;
+
     private Rectangle collider;
 
     private Reward receivedReward;
@@ -104,6 +106,8 @@ public class Player implements Actor
         playerSprite.translate(position.x, position.y);
 
         createAnimation();
+
+        this.isHurt = false;
 
         // Collider
         collider = new Rectangle(position.x, position.y, playerSprite.getWidth(), playerSprite.getHeight());

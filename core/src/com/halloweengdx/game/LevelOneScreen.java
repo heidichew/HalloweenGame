@@ -20,7 +20,7 @@ public class LevelOneScreen extends GameScreen
 {
     public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 600);
     public final static Vector2 CHECKPOINT_TWO = new Vector2(3800, 600);
-    public final static float RESPAWN_TIME = 20;
+    public final static float RESPAWN_TIME = 1000;
 
     //core Game
     private HalloweenGdxGame game;
@@ -44,7 +44,7 @@ public class LevelOneScreen extends GameScreen
 
     private boolean[][] collisionMap;
 
-    private float respawnTime;
+    private long respawnTime;
 
     private boolean shouldMove;
     private boolean shouldFall;
@@ -106,7 +106,7 @@ public class LevelOneScreen extends GameScreen
                 new Vector2(0f + this.tileLayer.getTileWidth() * 54,  (this.tileLayer.getHeight() - 6) * 128), this.tileLayer, 0));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 5, true));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 5, SkullEnemy.Skull_TYPE.BOSS));
 
     }
 
@@ -525,13 +525,12 @@ public class LevelOneScreen extends GameScreen
                     }
                 }
 
-                if(this.player.getState() == Player.PlayerState.HURT){
-
+                if(this.player.getState() == Player.PlayerState.HURT || this.player.isHurt){
+                    this.player.isHurt = false;
+                    this.player.setState(Player.PlayerState.HURT);
                     this.gameAssetsDB.player_hurt.play();
                     if(super.health >= 1){
-                        this.respawnTime += 1;
-
-                        if(this.respawnTime >= RESPAWN_TIME){
+                        if (this.respawnTime + RESPAWN_TIME < System.currentTimeMillis()) {
                             super.health -= 1;
 
                             if(super.health >= 1){
@@ -541,13 +540,14 @@ public class LevelOneScreen extends GameScreen
                                 super.camera.update();
 
                                 if(this.player.getPosition().x <= CHECKPOINT_TWO.x){
+
                                     this.player.setPosition(CHECKPOINT_ONE);
                                 }else{
                                     this.player.setPosition(CHECKPOINT_TWO);
                                 }
 
                                 this.player.setState(Player.PlayerState.ALIVE);
-                                this.respawnTime = 0;
+                                this.respawnTime = System.currentTimeMillis();
                             }
                         }
                     }else{
