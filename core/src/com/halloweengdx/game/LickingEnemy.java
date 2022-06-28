@@ -184,6 +184,7 @@ public class LickingEnemy extends Enemy {
                     }
                     else
                     {
+                        super.getTargetPlayer().isHurt = true;
                         super.setScore(0);
                         this.texture_assets.licking_hit.play();
                         super.setState(EnemyState.DYING);

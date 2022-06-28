@@ -70,6 +70,7 @@ public class GameAssetsDB
 
     protected Texture[] necromancer_idle_texture;
     protected Texture[] necromancer_attack_ground_texture;
+    protected Texture[] necromancer_attack_ground_texture_2;
     protected Texture[] necromancer_hurt_texture;
     protected Texture[] necromancer_dead_texture;
 
@@ -146,6 +147,7 @@ public class GameAssetsDB
 
         this.necromancer_idle_texture = new Texture[10];
         this.necromancer_attack_ground_texture = new Texture[10];
+        this.necromancer_attack_ground_texture_2 = new Texture[10];
         this.necromancer_hurt_texture = new Texture[10];
         this.necromancer_dead_texture = new Texture[10];
 
@@ -194,6 +196,7 @@ public class GameAssetsDB
 
             this.necromancer_idle_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__IDLE_00"+i+".png"));
             this.necromancer_attack_ground_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__ATTACK_02_00"+i+".png"));
+            this.necromancer_attack_ground_texture_2[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__ATTACK_01_00"+i+".png"));
             this.necromancer_hurt_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__HURT_00"+i+".png"));
             this.necromancer_dead_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer/Necromancer_03__DIE_00"+i+".png"));
 

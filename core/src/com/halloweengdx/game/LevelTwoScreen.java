@@ -92,7 +92,7 @@ public class LevelTwoScreen extends GameScreen
         this.enemies = new ArrayList<Enemy>();
 
         this.enemies.add(new NecromancerBoss(
-                this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 5));
+                this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6));
     }
 
     public void newGame(){
@@ -147,6 +147,7 @@ public class LevelTwoScreen extends GameScreen
         //Apply camera to spritebatch and draw player
         super.batch.setProjectionMatrix(camera.combined);
         super.batch.begin();
+
 
         if(this.npc!=null)
         {
@@ -562,31 +563,31 @@ public class LevelTwoScreen extends GameScreen
 
 
 //            // Move camera with bat
-            if (this.enemies.get(0).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-                super.camera.position.x = this.enemies.get(0).getPosition().x + 600;
-
-                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
-                {
-                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2);
-                }
-                else if(super.camera.position.x <= 0)
-                {
-                    super.camera.position.x = 0;
-                }
-            }
-            if (this.enemies.get(0).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-                super.camera.position.y = this.enemies.get(0).getPosition().y; // can change
-
-                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
-                {
-                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
-                }
-                else if(super.camera.position.y <= 0)
-                {
-                    super.camera.position.y = 0;
-                }
-            }
-            super.camera.update();
+//            if (this.enemies.get(0).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+//                super.camera.position.x = this.enemies.get(0).getPosition().x + 600;
+//
+//                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
+//                {
+//                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2);
+//                }
+//                else if(super.camera.position.x <= 0)
+//                {
+//                    super.camera.position.x = 0;
+//                }
+//            }
+//            if (this.enemies.get(0).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+//                super.camera.position.y = this.enemies.get(0).getPosition().y; // can change
+//
+//                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+//                {
+//                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+//                }
+//                else if(super.camera.position.y <= 0)
+//                {
+//                    super.camera.position.y = 0;
+//                }
+//            }
+//            super.camera.update();
 
 //            if (this.npc.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
 //                super.camera.position.x = this.npc.getPosition().x + 600;
@@ -616,37 +617,37 @@ public class LevelTwoScreen extends GameScreen
 //            super.camera.update();
 
             // Move camera with the player
-//            if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
-//                super.camera.position.x = player.getPosition().x + 200f;
-//
-//                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2) + 100f)
-//                {
-//                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2 + 100f);
-//                }
-//                else if(super.camera.position.x <= 0 + Gdx.graphics.getWidth()/2 - 100f)
-//                {
-//                    super.camera.position.x = 0 + Gdx.graphics.getWidth()/2 - 100f ;
-//                }
-//
-//            }
-//
-//            if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
-//                super.camera.position.y = player.getPosition().y - 100f;
-//            }else{
-//                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
-//                {
-//                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
-//                }
-//                else if(super.camera.position.y <= 0)
-//                {
-//                    super.camera.position.y = 0;
-//                }
-//                else
-//                {
-//                    super.camera.position.y = 715f;
-//                }
-//            }
-//            super.camera.update();
+            if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
+                super.camera.position.x = player.getPosition().x + 200f;
+
+                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2) + 100f)
+                {
+                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2 + 100f);
+                }
+                else if(super.camera.position.x <= 0 + Gdx.graphics.getWidth()/2 - 100f)
+                {
+                    super.camera.position.x = 0 + Gdx.graphics.getWidth()/2 - 100f ;
+                }
+
+            }
+
+            if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
+                super.camera.position.y = player.getPosition().y - 100f;
+            }else{
+                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+                {
+                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+                }
+                else if(super.camera.position.y <= 0)
+                {
+                    super.camera.position.y = 0;
+                }
+                else
+                {
+                    super.camera.position.y = 715f;
+                }
+            }
+            super.camera.update();
 
 
             return;
