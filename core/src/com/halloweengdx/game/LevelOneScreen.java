@@ -615,51 +615,22 @@ public class LevelOneScreen extends GameScreen
 //            }
 //            super.camera.update();
 
-//            if (this.npc.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-//                super.camera.position.x = this.npc.getPosition().x + 600;
-//
-//                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
-//                {
-//                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
-//                }
-//                else if(super.camera.position.x <= 0)
-//                {
-//                    super.camera.position.x = 0;
-//                }
-//            }
-//
-//            if (this.npc.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-//                super.camera.position.y = this.npc.getPosition().y; // can change
-//
-//                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
-//                {
-//                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
-//                }
-//                else if(super.camera.position.y <= 0)
-//                {
-//                    super.camera.position.y = 0;
-//                }
-//            }
-//            super.camera.update();
+            if (this.npc.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+                super.camera.position.x = this.npc.getPosition().x + 600;
 
-            // Move camera with the player
-            if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
-                super.camera.position.x = player.getPosition().x + 200f;
-
-                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2) + 100f)
+                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
                 {
-                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2 + 100f);
+                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2);
                 }
-                else if(super.camera.position.x <= 0 + Gdx.graphics.getWidth()/2 - 100f)
+                else if(super.camera.position.x <= 0)
                 {
-                    super.camera.position.x = 0 + Gdx.graphics.getWidth()/2 - 100f ;
+                    super.camera.position.x = 0;
                 }
-
             }
 
-            if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
-                super.camera.position.y = player.getPosition().y - 60f;
-            }else{
+            if (this.npc.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+                super.camera.position.y = this.npc.getPosition().y; // can change
+
                 if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
                 {
                     super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
@@ -668,12 +639,41 @@ public class LevelOneScreen extends GameScreen
                 {
                     super.camera.position.y = 0;
                 }
-                else
-                {
-                    super.camera.position.y = 715f;
-                }
             }
             super.camera.update();
+
+//            // Move camera with the player
+//            if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
+//                super.camera.position.x = player.getPosition().x + 200f;
+//
+//                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2) + 100f)
+//                {
+//                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2 + 100f);
+//                }
+//                else if(super.camera.position.x <= 0 + Gdx.graphics.getWidth()/2 - 100f)
+//                {
+//                    super.camera.position.x = 0 + Gdx.graphics.getWidth()/2 - 100f ;
+//                }
+//
+//            }
+//
+//            if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
+//                super.camera.position.y = player.getPosition().y - 60f;
+//            }else{
+//                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+//                {
+//                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+//                }
+//                else if(super.camera.position.y <= 0)
+//                {
+//                    super.camera.position.y = 0;
+//                }
+//                else
+//                {
+//                    super.camera.position.y = 715f;
+//                }
+//            }
+//            super.camera.update();
 
 
             return;
