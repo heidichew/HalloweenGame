@@ -93,6 +93,22 @@ public class LevelTwoScreen extends GameScreen
 
         this.enemies.add(new NecromancerBoss(
                 this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6));
+
+        this.enemies.add(new SkullEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 36,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 50,6, SkullEnemy.Skull_TYPE.Normal));
+
+        this.enemies.add(new SkullEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 55,  this.tileLayer.getTileHeight() * 7), this.tileLayer, 50,3, SkullEnemy.Skull_TYPE.Normal));
+
+        this.enemies.add(new BatEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 70, 30f + this.tileLayer.getTileHeight() * 17), this.tileLayer, 50 ,3));
+
+        this.enemies.add(new BatEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 45, 30f + this.tileLayer.getTileHeight() * 18), this.tileLayer, 50 ,3));
+
+        this.enemies.add(new SkullEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  this.tileLayer.getTileHeight() * 15), this.tileLayer, 100,4, SkullEnemy.Skull_TYPE.BOSS));
+
     }
 
     public void newGame(){
@@ -307,8 +323,8 @@ public class LevelTwoScreen extends GameScreen
                     this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
                     if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
                     {
-                        super.gameScore+=this.enemies.get(i).getScore();
-                        this.enemies.remove(i);
+                        //super.gameScore+=this.enemies.get(i).getScore();
+                        //this.enemies.remove(i);
                     }
                 }
 
@@ -551,7 +567,7 @@ public class LevelTwoScreen extends GameScreen
 
                 }
 
-                if(super.gameScore >= 50)  //Need to change to higher
+                if(super.gameScore >= 500)  //Need to change to higher
                 {
                     super.gameState = GameState.WIN;
                 }
@@ -562,9 +578,9 @@ public class LevelTwoScreen extends GameScreen
             this.player.update(stateTime);
 
 
-//            // Move camera with bat
-//            if (this.enemies.get(0).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-//                super.camera.position.x = this.enemies.get(0).getPosition().x + 600;
+////            // Move camera with bat
+//            if (this.enemies.get(5).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+//                super.camera.position.x = this.enemies.get(5).getPosition().x + 600;
 //
 //                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
 //                {
@@ -575,8 +591,8 @@ public class LevelTwoScreen extends GameScreen
 //                    super.camera.position.x = 0;
 //                }
 //            }
-//            if (this.enemies.get(0).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-//                super.camera.position.y = this.enemies.get(0).getPosition().y; // can change
+//            if (this.enemies.get(5).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+//                super.camera.position.y = this.enemies.get(5).getPosition().y; // can change
 //
 //                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
 //                {
@@ -658,6 +674,7 @@ public class LevelTwoScreen extends GameScreen
     @Override
     public void show()
     {
+        this.gameAssetsDB.l2_music.play();
         this.newGame();
 
     }
@@ -666,7 +683,7 @@ public class LevelTwoScreen extends GameScreen
     @Override
     public void hide()
     {
-        //stop music
+        this.gameAssetsDB.l2_music.stop();
 
     }
 
@@ -676,7 +693,8 @@ public class LevelTwoScreen extends GameScreen
     }
 
     @Override
-    public void pause() {
+    public void pause()
+    {
 
     }
 
@@ -687,7 +705,15 @@ public class LevelTwoScreen extends GameScreen
     }
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         super.dispose();
+
+        this.player.dispose();
+
+        for(Enemy e: enemies)
+        {
+            e.dispose();
+        }
     }
 }

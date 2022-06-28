@@ -60,8 +60,12 @@ public class GameAssetsDB
     protected Texture[] skull_enemy_idle_texture;
     protected Texture[] skull_enemy_walking_texture;
     protected Texture[] skull_enemy_dead_texture;
-    protected Texture[] skull_enemy_hurt_texture;
     protected Texture[] skull_enemy_attacking_texture;
+
+    protected Texture[] skull_boss_enemy_idle_texture;
+    protected Texture[] skull_boss_enemy_walking_texture;
+    protected Texture[] skull_boss_enemy_dead_texture;
+    protected Texture[] skull_boss_enemy_attacking_texture;
 
     protected Texture[] licking_enemy_walking;
     protected Texture[] licking_enemy_jumping;
@@ -81,6 +85,7 @@ public class GameAssetsDB
     //Music
     protected Music menu_music;
     protected Music l1_music;
+    protected Music l2_music;
     protected Music danger_zone_music;
     protected Music game_over;
     protected Music satire;
@@ -136,9 +141,13 @@ public class GameAssetsDB
 
         this.skull_enemy_idle_texture = new Texture[12];
         this.skull_enemy_walking_texture = new Texture[18];
-        this.skull_enemy_hurt_texture = new Texture[12];
         this.skull_enemy_dead_texture = new Texture[15];
         this.skull_enemy_attacking_texture = new Texture[12];
+
+        this.skull_boss_enemy_idle_texture = new Texture[12];
+        this.skull_boss_enemy_walking_texture = new Texture[18];
+        this.skull_boss_enemy_dead_texture = new Texture[15];
+        this.skull_boss_enemy_attacking_texture = new Texture[12];
 
         this.licking_enemy_walking = new Texture[18];
         this.licking_enemy_jumping = new Texture[18];
@@ -170,6 +179,8 @@ public class GameAssetsDB
 
             this.skull_enemy_walking_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Walking/Walking_0"+ i +".png"));
 
+            this.skull_boss_enemy_walking_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 03/PNG Sequences/Walking/Walking_0"+ i +".png"));
+
             this.licking_enemy_walking[i] = new Texture(Gdx.files.internal("enemies/licking-monster/Walk/skeleton-Walk_"+i+".png"));
             this.licking_enemy_jumping[i] = new Texture(Gdx.files.internal("enemies/licking-monster/Jump/skeleton-Jump_"+i+".png"));
         }
@@ -178,6 +189,8 @@ public class GameAssetsDB
         {
             this.playerDieTexture[i] = new Texture(Gdx.files.internal("player/dying/dying_"+ i +".png"));
             this.skull_enemy_dead_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Dying/Dying_0"+ i +".png"));
+
+            this.skull_boss_enemy_dead_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 03/PNG Sequences/Dying/Dying_0"+ i +".png"));
         }
 
         for(int i=0; i<12; i++)
@@ -185,9 +198,12 @@ public class GameAssetsDB
             this.playerRunTexture[i] = new Texture(Gdx.files.internal("player/running/running_"+ i +".png"));
             this.playerAttackTexture[i] = new Texture(Gdx.files.internal("player/throwing/throwing_"+ i +".png"));
             this.playerHurtTexture[i] = new Texture(Gdx.files.internal("player/hurt/hurt_"+ i +".png"));
+
             this.skull_enemy_idle_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Idle Blink/Idle Blink_0"+ i +".png"));
-            this.skull_enemy_hurt_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Hurt/Hurt_0"+ i +".png"));
             this.skull_enemy_attacking_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 01/PNG Sequences/Attacking/Attacking_0"+ i +".png"));
+
+            this.skull_boss_enemy_idle_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 03/PNG Sequences/Idle Blink/Idle Blink_0"+ i +".png"));
+            this.skull_boss_enemy_attacking_texture[i] = new Texture(Gdx.files.internal("enemies/skull_monster/PNG/Skull 03/PNG Sequences/Attacking/Attacking_0"+ i +".png"));
         }
 
         for(int i =0; i<10; i++)
@@ -220,6 +236,9 @@ public class GameAssetsDB
 
         this.l1_music = Gdx.audio.newMusic(Gdx.files.internal("music/Dancing_Skeletons_by_Steve_Oxen.mp3"));
         this.l1_music.setLooping(true);
+
+        this.l2_music = Gdx.audio.newMusic(Gdx.files.internal("music/Haunted_Carnival_by_Steve_Oxen.mp3"));
+        this.l2_music.setLooping(true);
 
         this.danger_zone_music = Gdx.audio.newMusic(Gdx.files.internal("music/Danger-Zone_SIPML_J.mp3"));
         this.danger_zone_music.setLooping(true);
@@ -288,6 +307,7 @@ public class GameAssetsDB
             this.bat_enemy_attacking_texture[i].dispose();
 
             this.skull_enemy_walking_texture[i].dispose();
+            this.skull_boss_enemy_walking_texture[i].dispose();
 
             this.licking_enemy_walking[i].dispose();
             this.licking_enemy_jumping[i].dispose();
@@ -297,6 +317,7 @@ public class GameAssetsDB
         {
             this.playerDieTexture[i].dispose();
             this.skull_enemy_dead_texture[i].dispose();
+            this.skull_boss_enemy_dead_texture[i].dispose();
         }
 
         for(int i=0; i<12; i++)
@@ -305,13 +326,25 @@ public class GameAssetsDB
             this.playerAttackTexture[i].dispose();
             this.playerHurtTexture[i].dispose();
             this.skull_enemy_idle_texture[i].dispose();
-            this.skull_enemy_hurt_texture[i].dispose();
+            this.skull_boss_enemy_idle_texture[i].dispose();
             this.skull_enemy_attacking_texture[i].dispose();
+            this.skull_boss_enemy_attacking_texture[i].dispose();
         }
 
         for(int i =0; i<10; i++)
         {
             this.enemy_dead_texture[i].dispose();
+
+            this.necromancer_idle_texture[i].dispose();
+            this.necromancer_attack_ground_texture[i].dispose();
+            this.necromancer_attack_ground_texture_2[i].dispose();
+            this.necromancer_hurt_texture[i].dispose();
+            this.necromancer_dead_texture[i].dispose();
+
+            this.necromancer_child_move_texture[i].dispose();
+            this.necromancer_child_attack_texture[i].dispose();
+            this.necromancer_child_dying_texture[i].dispose();
+
         }
 
         for(int i = 0; i < 6; i++)
@@ -325,6 +358,7 @@ public class GameAssetsDB
         //Music
         this.menu_music.dispose();
         this.l1_music.dispose();
+        this.l2_music.dispose();
         this.danger_zone_music.dispose();
         this.game_over.dispose();
         this.satire.dispose();
