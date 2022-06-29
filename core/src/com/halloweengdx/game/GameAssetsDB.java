@@ -94,6 +94,8 @@ public class GameAssetsDB
     protected Music licking_hit;
     protected Music enemy_dead;
 
+    protected Music give_heart;
+
 
 
     private GameAssetsDB()
@@ -243,6 +245,7 @@ public class GameAssetsDB
 
         this.enemy_dead = Gdx.audio.newMusic(Gdx.files.internal("music/mixkit-enemy_get_kill.wav"));
 
+        this.give_heart = Gdx.audio.newMusic(Gdx.files.internal("music/give_heart.wav"));
     }
 
     public static GameAssetsDB getInstance()
@@ -337,6 +340,8 @@ public class GameAssetsDB
         this.bat_hit.dispose();
         this.licking_hit.dispose();
         this.enemy_dead.dispose();
+
+        this.give_heart.dispose();
     }
 
 

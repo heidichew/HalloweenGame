@@ -1,5 +1,6 @@
 package com.halloweengdx.game;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -56,6 +57,8 @@ public class NPC implements Actor
     private boolean left_turn;
 
     private float scale;
+
+    private Music give_heart_sound = GameAssetsDB.getInstance().give_heart;
 
 
     public NPC(Player target_player, float x, float y, NPC_TYPE npcType)
@@ -157,7 +160,9 @@ public class NPC implements Actor
                     {
                         if(this.reward!=null)
                         {
-                           this.npcState = NPC_STATE.GIVE_REWARD;
+                            this.left_turn = true;
+                            this.npcState = NPC_STATE.GIVE_REWARD;
+                            this.give_heart_sound.play();
                         }
 
                     }
@@ -178,6 +183,7 @@ public class NPC implements Actor
                     {
                         if(this.giveRewardAnimation.isAnimationFinished(give_reward_state))
                         {
+
                             this.targetPlayer.receiveReward(this.reward);
                             this.give_reward_state = 0.0f;
 
