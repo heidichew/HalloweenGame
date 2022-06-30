@@ -1,15 +1,23 @@
 package com.halloweengdx.game;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.Texture;
+
 public class Reward
 {
-    public enum RewardType {LIVE, SCORE}
+    private GameAssetsDB reward_assets = GameAssetsDB.getInstance();
+
+    public enum RewardType {LIFE, SCORE}
 
     private int value;
 
     private  RewardType rewardType;
 
+    public Texture life_texture;
+
     public Reward (RewardType rewardType, int value)
     {
+        life_texture = this.reward_assets.lifeTexture;
         this.rewardType = rewardType;
         this.value = value;
     }
