@@ -81,7 +81,7 @@ public class NPC implements Actor
         this.target_heart = new Vector2(50, Gdx.graphics.getHeight() - 60f);
 
         this.deltaX = this.start_heart.x - this.target_heart.x;
-        this.deltaY = this.target_heart.y - this.start_heart.y;
+        this.deltaY = this.start_heart.y - this.target_heart.y;
 
         double mag = Math.sqrt( deltaX*deltaX + deltaY*deltaY );
 
@@ -195,18 +195,29 @@ public class NPC implements Actor
 
                 if(this.targetPlayer.getPosition().dst(this.current_position) <= npc_width){
 
-                    if(this.giveRewardAnimation.isAnimationFinished(give_reward_state) )
-                    {
-                        this.give_reward_state = 0.0f;
-                        this.reward = null;
-                        this.npcState = NPC_STATE.Appear;
-                        this.left_turn = false;
-                    }
 
-                    if(this.start_heart.y >= this.target_heart.y) {
+                    System.out.println("start x:" + start_heart.x);
+                    System.out.println("target x:" + target_heart.x);
+                    System.out.println("start y:" + start_heart.y);
+                    System.out.println("target y:" + target_heart.y);
+
+                    if(this.start_heart.x >= this.target_heart.x) {
                         this.start_heart.x -= deltaX;
                         this.start_heart.y -= deltaY;
+
                     }
+
+                    else{
+                        if(this.giveRewardAnimation.isAnimationFinished(give_reward_state) )
+                        {
+                            this.give_reward_state = 0.0f;
+                            this.reward = null;
+                            this.npcState = NPC_STATE.Appear;
+                            this.left_turn = false;
+                        }
+                    }
+
+
                 }
                 break;
         }
