@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class BatEnemy extends Enemy{
@@ -40,6 +41,7 @@ public class BatEnemy extends Enemy{
 
     private float scale = 0.7f;
 
+    private Rectangle collider;
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
@@ -71,11 +73,14 @@ public class BatEnemy extends Enemy{
         this.batWidth = this.gameAssetsDB.bat_enemy_idle_texture[0].getWidth();
         this.batHeight = this.gameAssetsDB.bat_enemy_idle_texture[0].getHeight();
 
+        // Create collider
+        collider = new Rectangle(super.getPosition().x - (batWidth / 2.0f), super.getPosition().y - (batHeight / 2.0f), this.batWidth * this.scale, this.batHeight * this.scale);
+
         super.setState(EnemyState.MOVE);
 
     }
 
-    @Override
+        @Override
     public void reset() {
 
     }
@@ -177,7 +182,7 @@ public class BatEnemy extends Enemy{
                 distance_y = -(this.moving_speed / 2) * delta;
             }
 
-            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD && super.getTargetPlayer().getState() != Player.PlayerState.DYING)
+            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.HURTING && super.getTargetPlayer().getState() != Player.PlayerState.HURT_END && super.getTargetPlayer().getState() != Player.PlayerState.DEAD && super.getTargetPlayer().getState() != Player.PlayerState.DYING)
                     &&(super.getTargetPlayer().getPosition().x < super.getStartPosition().x + (super.getPatrolRange() * 128))
                     && (super.getTargetPlayer().getPosition().x >= super.getStartPosition().x - (super.getPatrolRange() * 128))
                     && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - ((super.getPatrolRange()) * 128))
@@ -341,6 +346,9 @@ public class BatEnemy extends Enemy{
 
             super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
         }
+
+        // Update the collider position to match the bat enemy's position
+        collider.setPosition(new Vector2(super.getPosition().x - (batWidth / 2.0f), super.getPosition().y - (batHeight / 2.0f)));
     }
 
     @Override
@@ -349,4 +357,8 @@ public class BatEnemy extends Enemy{
         super.dispose();
     }
 
+    @Override
+    public Rectangle getCollider() {
+        return collider;
+    }
 }

@@ -4,12 +4,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.Random;
 
 public class SkullEnemy extends Enemy
 {
+    // not needed??
     public enum Skull_TYPE
     {
         Normal,
@@ -48,6 +50,7 @@ public class SkullEnemy extends Enemy
 
     private Skull_TYPE skullType;
 
+    private Rectangle collider;
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
@@ -112,6 +115,9 @@ public class SkullEnemy extends Enemy
         }
 
         super.setState(EnemyState.MOVE);
+
+        // Create a collider
+        collider = new Rectangle(super.getPosition().x - 200f, super.getPosition().y, skullWidth * this.scale, skullHeight * this.scale);
     }
 
     @Override
@@ -228,7 +234,7 @@ public class SkullEnemy extends Enemy
             System.out.println(super.getStartPosition().y - skullHeight/2);
 
 
-            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD && super.getTargetPlayer().getState() != Player.PlayerState.DYING )
+            if ((super.getTargetPlayer().getState() != Player.PlayerState.HURT && super.getTargetPlayer().getState() != Player.PlayerState.DEAD && super.getTargetPlayer().getState() != Player.PlayerState.DYING)
                     && (super.getTargetPlayer().getPosition().x <= super.getStartPosition().x + (super.getPatrolRange() * 128))
                     && (super.getTargetPlayer().getPosition().x > super.getStartPosition().x - (super.getPatrolRange() * 128))
                     && super.getTargetPlayer().getPosition().y >= super.getStartPosition().y - this.skullHeight/2
@@ -266,9 +272,7 @@ public class SkullEnemy extends Enemy
                         super.getTargetPlayer().setState(Player.PlayerState.HURT);
                         this.attack_state = 0.0f;
                     }
-
                 }
-
             }
 
             int mapCurrentY = (int) (Math.round(super.getPosition().y / environment.getTileHeight()));
@@ -300,7 +304,6 @@ public class SkullEnemy extends Enemy
                         getTurn = true;
                     }
                 }
-
             }
 
 
@@ -312,11 +315,19 @@ public class SkullEnemy extends Enemy
 
             super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
         }
+
+        // Set the collider position
+        collider.setPosition(new Vector2(super.getPosition().x - 200, super.getPosition().y));
     }
 
 
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    @Override
+    public Rectangle getCollider() {
+        return collider;
     }
 }

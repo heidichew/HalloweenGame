@@ -4,23 +4,25 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class Player implements Actor
 {
-    GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
-
-    public enum PlayerState {ALIVE, ATTACK, MOVELEFT, MOVERIGHT, JUMP_START, JUMPING, FALL_START, FALLING, HURT, DYING, DEAD}
+    public enum PlayerState {ALIVE, ATTACK, ATTACKING, MOVELEFT, MOVERIGHT, JUMP_START, JUMPING, FALL_START, FALLING, HURT, HURTING, HURT_END, DYING, DEAD}
 
     public enum PlayerDirection {LEFT, RIGHT}
 
-    public static final float GRAVITY = 3f;        // The gravity to apply to user after jumping
+    public static final float GRAVITY = 20f;            // The gravity to apply to user after jumping
     public static final float MOVING_SPEED = 20f;
     public static final float INITIAL_JUMP_SPEED = 3f;
     public static final float MAX_JUMP_SPEED = 20f;
     public static final float JUMP_X_SPEED = 10f;
+    public static final int INITIAL_LIFE = 5;
+    public static final float CEILING_HEIGHT = 2200f;   // The max height allow to jump to prevent jump over the ceiling
 
     public static final float PLAYER_WIDTH = 300f;
     public static final float PLAYER_HEIGHT = 300f;
@@ -49,27 +51,34 @@ public class Player implements Actor
     private Animation fallAnimation = null;
     private Animation hurtAnimation = null;
 
-    private Vector2 start_position;     // The player's starting position when the game start
-    protected Vector2 position;           // The player's current position
-    private Vector2 velocity;           // The player's current velocity (for falling and jumping)
+    private Vector2 start_position;         // The player's starting position when the game start
+    protected Vector2 position;             // The player's current position
+    private Vector2 velocity;               // The player's current velocity (for falling and jumping)
 
-    private Weapon weapon  = null;      // The weapon instance (the player's weapon)
+    private Weapon weapon  = null;          // The weapon instance (the player's weapon)
 
+    // Float for animation
     private float jumpStartTime = 0f;
     private float dieTime = 0f;
-    private float jumpYForce;            // record jump force to enable smooth falling
+    private float hurtTime = 0f;
+    private float attackTime = 0;
+
+    private float jumpYForce;               // record jump force to enable smooth falling
+
+    private int health;
 
     private boolean isOnGround = false;
     private boolean isFlipLeft = false;
-    private boolean fallStraight = false;
 
-    public boolean isHurt;
+    public boolean isHurt; // not needed
 
     private Rectangle collider;
 
     private Reward receivedReward;
 
     private boolean isRewarded;
+
+    private ArrayList<Weapon> weapons;
 
     /**
      * The constructor for creating an instance of this class
@@ -90,9 +99,10 @@ public class Player implements Actor
 
         isFlipLeft = false;
 
-        this.receivedReward = null;
+        receivedReward = null;
+        isRewarded = false;
 
-        this.isRewarded = false;
+        health = INITIAL_LIFE;
 
         create();
     }
@@ -107,7 +117,9 @@ public class Player implements Actor
 
         createAnimation();
 
-        this.isHurt = false;
+        weapons = new ArrayList<Weapon>();
+
+        //this.isHurt = false; // not needed
 
         // Collider
         collider = new Rectangle(position.x, position.y, playerSprite.getWidth(), playerSprite.getHeight());
@@ -131,20 +143,36 @@ public class Player implements Actor
             if(GameAssetsDB.getInstance().playerFallTexture != null & fallAnimation == null)
                 fallAnimation = new Animation(0.033f, GameAssetsDB.getInstance().playerFallTexture);
             if(GameAssetsDB.getInstance().playerAttackTexture != null & attackAnimation == null)
-                attackAnimation = new Animation(0.033f, GameAssetsDB.getInstance().playerAttackTexture);
+                attackAnimation = new Animation(0.01f, GameAssetsDB.getInstance().playerAttackTexture);
         }
     }
 
+    // Reset the player state when the restart button is clicked
     public void reset()
     {
+        health = INITIAL_LIFE;
+        position = new Vector2(start_position.x, start_position.y);
+        velocity = new Vector2(0,0);
 
+        prevState = PlayerState.ALIVE;
+        state = PlayerState.ALIVE;
+
+        curDirection = PlayerDirection.RIGHT;
+        prevDirection = curDirection;
+
+        isFlipLeft = false;
+
+        receivedReward = null;
+        isRewarded = false;
     }
 
     public void draw (SpriteBatch batch){
 
-//        if (weapon != null){
-//            batch.draw(weapon.getTexture(), weapon.getPosition().x, weapon.getPosition().y);
-//        }
+        for(Weapon w:weapons){
+            if(w.getState() == Weapon.WeaponState.ACTIVE){
+                w.draw(batch);
+            }
+        }
 
         if(curDirection == PlayerDirection.LEFT && !isFlipLeft){
             playerSprite.flip(true, false);
@@ -155,8 +183,6 @@ public class Player implements Actor
         }
 
         playerSprite.draw(batch);
-
-
     }
 
 
@@ -165,9 +191,15 @@ public class Player implements Actor
         currentFrame = null;
         createAnimation();
 
+        // Remove inactive weapon
+        removeInvalidWeapon();
+        // Update weapon state
+        for(Weapon w:weapons){
+            w.update(delta);
+        }
+
         if(state == PlayerState.ALIVE){
             //isOnGround = true;
-            //fallStraight = false;
             velocity.x = 0;
             if(idleAnimation != null) currentFrame = (Texture) idleAnimation.getKeyFrame(delta, true);
         }else{
@@ -229,16 +261,14 @@ public class Player implements Actor
 
             prevState = state;
             state = PlayerState.FALLING;
-        }
-        else if(state == PlayerState.HURT){
-
-            currentFrame = (Texture) hurtAnimation.getKeyFrame(delta, true);
-
+        }else if(state == PlayerState.HURT){
+            hurtTime = 0;
+            state = PlayerState.HURTING;
         }else if(state == PlayerState.DYING) {
 
             // Make sure the animation only play once and stop at last frame of the animation
             if (dieAnimation.isAnimationFinished(dieTime)) {
-                this.gameAssetsDB.player_fall_down.play();
+                GameAssetsDB.getInstance().player_fall_down.play();
                 prevState = state;
                 state = PlayerState.DEAD;
             } else {
@@ -247,11 +277,16 @@ public class Player implements Actor
             }
         }else if(state == PlayerState.DEAD){
             currentFrame = (Texture) dieAnimation.getKeyFrame(dieTime);
+        }else if(state == PlayerState.HURT_END){
+            currentFrame = (Texture) hurtAnimation.getKeyFrame(hurtTime);
+        }else if(state == PlayerState.ATTACK){
+            GameAssetsDB.getInstance().player_attack.play();
+            state = PlayerState.ATTACKING;
         }
 
         if(state == PlayerState.JUMPING){
 
-            if(velocity.y < 20f && position.y < 2000f){
+            if(velocity.y < 20f && position.y < CEILING_HEIGHT){
                 jump(delta);
             }else{
                 velocity.y = 0f;
@@ -274,16 +309,41 @@ public class Player implements Actor
             prevState = state;
             //state = PlayerState.ALIVE;
         }else if(state == PlayerState.FALLING){
-            if(position.y <= 15){
-                position.y = 15;
+//            if(position.y <= 15){
+//                position.y = 15;
+//
+//                prevState = state;
+//                state = PlayerState.HURT;
+//            }else{
+//                fall(delta);
+//            }
 
-                prevState = state;
-                state = PlayerState.HURT;
-            }else{
-                fall(delta);
-            }
-
+            fall(delta);
             currentFrame = (Texture) fallAnimation.getKeyFrame(delta, true);
+        }else if(state == PlayerState.HURTING){
+            if (hurtAnimation.isAnimationFinished(hurtTime)) {
+                prevState = state;
+                if(health > 0) {
+                    health -= 1;
+                    state = PlayerState.HURT_END;
+                }else{
+                    state = PlayerState.DYING;
+                }
+                currentFrame = (Texture) hurtAnimation.getKeyFrame(hurtTime);
+            } else {
+                GameAssetsDB.getInstance().player_hurt.play();
+                currentFrame = (Texture) hurtAnimation.getKeyFrame(hurtTime);
+                hurtTime += 0.01f;
+            }
+        }else if(state == PlayerState.ATTACKING){
+            currentFrame = (Texture) attackAnimation.getKeyFrame(attackTime);
+            if (attackAnimation.isAnimationFinished(attackTime)) {
+                attackTime = 0;
+                spawnWeapon();
+                state = PlayerState.ALIVE;
+            }else{
+                attackTime += 0.01f;
+            }
         }
 
         // Update animation frame
@@ -298,6 +358,18 @@ public class Player implements Actor
 
         // Update the collider position to follow the player instance
         collider.setPosition(position);
+    }
+
+    private void spawnWeapon(){
+        Weapon newWeapon = null;
+
+        if(curDirection == PlayerDirection.LEFT){
+            newWeapon = new Weapon(this, position.x - 200f, position.y + 50f, Weapon.WeaponDirection.LEFT);
+        }else{
+            newWeapon = new Weapon(this, position.x + 200f, position.y + 50f, Weapon.WeaponDirection.RIGHT);
+        }
+        if(newWeapon != null) weapons.add(newWeapon);
+        System.out.println("creating weapon");
     }
 
     private void moveLeft(float delta){
@@ -336,16 +408,8 @@ public class Player implements Actor
             state = PlayerState.HURT;
         }
 
-
-        if(position.y > 1300){
-            if(velocity.x < 0){
-                velocity.x = -10;
-            }else{
-                velocity.x = 10;
-            }
-        }
         float x = velocity.x + position.x;
-        if(x > 0 && position.y > 300){
+        if(position.y > 400){
             position.x = x;
         }
     }
@@ -359,7 +423,7 @@ public class Player implements Actor
 //        float y = position.y;
 //        y += GRAVITY * 0.6f;
 //
-//        if(y < 2000f){
+//        if(y < CEILING_HEIGHT){
 //            this.position.y += y;
 //        }
 
@@ -372,7 +436,7 @@ public class Player implements Actor
 
         float x = velocity.x + position.x;
 
-        if(y < 2000f){
+        if(y < CEILING_HEIGHT){
             if(x > 0){
                 position = new Vector2(position.x + velocity.x, y);
             }else{
@@ -380,14 +444,24 @@ public class Player implements Actor
             }
         }else{
             if(x > 0){
-                position = new Vector2(position.x + velocity.x, 2000);
+                position = new Vector2(position.x + velocity.x, 2300);
             }else{
-                position = new Vector2(0, 2000);
+                position = new Vector2(0, 2300);
             }
         }
 
-        if(position.y > 2000){
-            position.y = 2000;
+        if(position.y > 2300){
+            position.y = 2300;
+        }
+    }
+
+    private void removeInvalidWeapon()
+    {
+        for(int i = weapons.size() - 1; i>=0; i--)
+        {
+            if(weapons.get(i).getState() == Weapon.WeaponState.DEAD){
+                weapons.remove(i);
+            }
         }
     }
 
@@ -457,11 +531,16 @@ public class Player implements Actor
 
     public void setVelocity(float x, float y) { this.velocity = new Vector2(x, y); }
 
-//    public boolean isFallStraight() {
-//        return fallStraight;
-//    }
-
-   // public void setFallStraight(boolean shouldFallStraight){ fallStraight = shouldFallStraight; }
-
     public PlayerState getPreviousState(){ return prevState; }
+
+    public int getHealth() { return health; }
+
+    // Increase the player health
+    public boolean incrementHealth(int newHealth)
+    {
+        health += newHealth;
+        return true;
+    }
+
+    public ArrayList<Weapon> getWeapons(){ return weapons; }
 }

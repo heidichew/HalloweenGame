@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.Random;
@@ -43,6 +44,8 @@ public class NecromancerBoss extends Enemy
     private NecromancerChild child;
 
     private float attack_timer;
+
+    private Rectangle collider;
 
 
     /**
@@ -84,6 +87,9 @@ public class NecromancerBoss extends Enemy
 
         this.child = null;
         this.shortRange = false;
+
+        // Create collider
+        collider = new Rectangle(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f), this.necromancerWidth * this.scale, this.necromancerHeight * this.scale);
     }
 
     @Override
@@ -246,11 +252,19 @@ public class NecromancerBoss extends Enemy
                     }
             }
         }
+
+        // Update the collider position to match the bat enemy's position
+        collider.setPosition(new Vector2(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f)));
     }
 
 
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    @Override
+    public Rectangle getCollider() {
+        return this.collider;
     }
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class LickingEnemy extends Enemy {
@@ -39,6 +40,7 @@ public class LickingEnemy extends Enemy {
 
     private float scale = 0.5f;
 
+    private Rectangle collider;
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
@@ -72,8 +74,10 @@ public class LickingEnemy extends Enemy {
         this.lickingWidth = (int)Math.round(gameAssetsDB.licking_enemy_walking[0].getWidth());
         this.lickingHeight = (int) Math.round(gameAssetsDB.licking_enemy_walking[0].getHeight());
 
-
         super.setState(EnemyState.MOVE);
+
+        // Create collider
+        collider = new Rectangle(super.getPosition().x, super.getPosition().y, this.lickingWidth * this.scale, this.lickingHeight * this.scale);
 
 
 
@@ -171,9 +175,9 @@ public class LickingEnemy extends Enemy {
                     &&(super.getTargetPlayer().getPosition().y < super.getPosition().y + (lickingHeight * scale))) {
                 if (super.getPosition().x + (lickingWidth * scale) - 160f > super.getTargetPlayer().getPosition().x &&
                         super.getPosition().x + (lickingWidth * scale) <= super.getTargetPlayer().getPosition().x + super.getTargetPlayer().getSprite().getWidth()) {
-                    System.out.println(this.getTargetPlayer().getState());
-                    System.out.println("Player Y" + super.getTargetPlayer().getPosition().y);
-                    System.out.println("enemy y" + (super.getPosition().y + lickingHeight / 2));
+                    //System.out.println(this.getTargetPlayer().getState());
+                    //System.out.println("Player Y" + super.getTargetPlayer().getPosition().y);
+                    //System.out.println("enemy y" + (super.getPosition().y + lickingHeight / 2));
                     // need to change the other way round
                     if ((super.getTargetPlayer().getState() == Player.PlayerState.FALLING)
                             && (super.getTargetPlayer().getPosition().y >= super.getPosition().y + (lickingHeight * scale) - 100f))
@@ -184,7 +188,6 @@ public class LickingEnemy extends Enemy {
                     }
                     else
                     {
-                        super.getTargetPlayer().isHurt = true;
                         super.setScore(0);
                         this.gameAssetsDB.licking_hit.play();
                         super.setState(EnemyState.DYING);
@@ -336,13 +339,18 @@ public class LickingEnemy extends Enemy {
 
             super.setPosition(new Vector2(super.getPosition().x + distance_x, super.getPosition().y + distance_y));
         }
-    }
 
+        collider.setPosition(super.getPosition());
+    }
 
     @Override
     public void dispose()
     {
         super.dispose();
+    }
 
+    @Override
+    public Rectangle getCollider() {
+        return collider;
     }
 }

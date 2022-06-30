@@ -45,6 +45,9 @@ public class GameAssetsDB
     protected Texture[] playerAttackTexture;
     protected Texture[] playerFallTexture;
 
+    // Player Weapon Texture
+    protected Texture weaponTexture;
+
     //NPC
     protected Texture[] pumpkin_Idle_Texture;
     protected Texture[] pumpkin_Idle_Blink_Texture;
@@ -99,28 +102,8 @@ public class GameAssetsDB
     protected Music licking_hit;
     protected Music enemy_dead;
 
-
-
     private GameAssetsDB()
     {
-        this.buttonSquareTexture = new Texture("button/button_square_blue.png");
-        this.buttonSquareDownTexture = new Texture("button/button_square_beige.png");
-        this.buttonLongTexture = new Texture("button/button_long_blue.png");
-        this.buttonLongDownTexture = new Texture("button/button_long_beige.png");
-
-        this.lifeTexture = new Texture("ui/life.png");
-        this.pauseTexture = new Texture(Gdx.files.internal("button/pause_button_round.png"));
-
-        this.tiledMap_L1 = new TmxMapLoader().load("TileMap/tile_map_level01.tmx");
-        this.tiledMap_L2 = new TmxMapLoader().load("TileMap/tile_map_level02.tmx");
-
-        this.L1_background = new Texture(Gdx.files.internal("background/L1_background.png"));
-        this.L2_background = new Texture(Gdx.files.internal("background/L2_background.png"));
-
-        this.menu_background = new Texture(Gdx.files.internal("background/menu_background.png"));
-        this.menu_play = new Texture(Gdx.files.internal("button/play_button.png"));
-        this.menu_exit =  new Texture(Gdx.files.internal("button/exit_button.png"));
-
         this.playerDieTexture = new Texture[15];
         this.playerRunTexture = new Texture[12];
         this.playerAttackTexture = new Texture[12];
@@ -164,7 +147,27 @@ public class GameAssetsDB
         this.necromancer_child_attack_texture = new Texture[10];
         this.necromancer_child_dying_texture = new Texture[10];
 
+        // General UI and game level related textures
+        this.buttonSquareTexture = new Texture("button/button_square_blue.png");
+        this.buttonSquareDownTexture = new Texture("button/button_square_beige.png");
+        this.buttonLongTexture = new Texture("button/button_long_blue.png");
+        this.buttonLongDownTexture = new Texture("button/button_long_beige.png");
 
+        this.lifeTexture = new Texture("ui/life.png");
+        this.pauseTexture = new Texture(Gdx.files.internal("button/pause_button_round.png"));
+
+        this.tiledMap_L1 = new TmxMapLoader().load("TileMap/tile_map_level01.tmx");
+        this.tiledMap_L2 = new TmxMapLoader().load("TileMap/tile_map_level02.tmx");
+
+        this.L1_background = new Texture(Gdx.files.internal("background/L1_background.png"));
+        this.L2_background = new Texture(Gdx.files.internal("background/L2_background.png"));
+
+        // Menu Screen
+        this.menu_background = new Texture(Gdx.files.internal("background/menu_background_2.png"));
+        this.menu_play = new Texture(Gdx.files.internal("button/play_button.png"));
+        this.menu_exit =  new Texture(Gdx.files.internal("button/exit_button.png"));
+
+        // Player, Enemy and NPC textures
         for(int i=0; i<18; i++)
         {
             this.pumpkin_Idle_Texture[i] = new Texture(Gdx.files.internal("npc/Pumpkin Head Guy/Idle/Idle_0"+i+".png"));
@@ -219,8 +222,6 @@ public class GameAssetsDB
             this.necromancer_child_move_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer_child/Skeleton_03__RUN_00"+i+".png"));
             this.necromancer_child_attack_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer_child/Skeleton_03__ATTACK_00"+i+".png"));
             this.necromancer_child_dying_texture[i] = new Texture(Gdx.files.internal("enemies/boss_necromancer/necromancer_child/Skeleton_03__DIE_00"+i+".png"));
-
-
         }
 
         for(int i = 0; i < 6; i++)
@@ -230,7 +231,10 @@ public class GameAssetsDB
             this.playerJumpLoopTexture[i] = new Texture(Gdx.files.internal("player/jump/jumping_"+ i +".png"));
         }
 
+        weaponTexture = new Texture(Gdx.files.internal("player/sword.png"));
 
+
+        // Music
         this.menu_music = Gdx.audio.newMusic(Gdx.files.internal("music/Ghost_Stories_by_Steve_Oxen.mp3"));
         menu_music.setLooping(true);
 
@@ -276,7 +280,6 @@ public class GameAssetsDB
 
     public void dispose()
     {
-
         //Button
         this.menu_play.dispose();
         this.menu_exit.dispose();
