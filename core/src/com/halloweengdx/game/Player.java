@@ -70,8 +70,6 @@ public class Player implements Actor
     private boolean isOnGround = false;
     private boolean isFlipLeft = false;
 
-    public boolean isHurt; // not needed
-
     private Rectangle collider;
 
     private Reward receivedReward;

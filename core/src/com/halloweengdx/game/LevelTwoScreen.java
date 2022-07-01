@@ -79,25 +79,22 @@ public class LevelTwoScreen extends GameScreen
         this.enemies = new ArrayList<Enemy>();
 
         this.enemies.add(new NecromancerBoss(
-                this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6));
-        // Set necromancer as final boss
-        Enemy finalBoss = enemies.get(enemies.size() - 1);
-        finalBoss.setFinalBoss(true);
+                this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6, true));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 36,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 50,6, SkullEnemy.Skull_TYPE.Normal));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 36,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 50,6, false));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 55,  this.tileLayer.getTileHeight() * 7), this.tileLayer, 50,3, SkullEnemy.Skull_TYPE.Normal));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 55,  this.tileLayer.getTileHeight() * 7), this.tileLayer, 50,3, false));
 
         this.enemies.add(new BatEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 70, 30f + this.tileLayer.getTileHeight() * 17), this.tileLayer, 50 ,3));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 70, 30f + this.tileLayer.getTileHeight() * 17), this.tileLayer, 50 ,3, false));
 
         this.enemies.add(new BatEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 45, 30f + this.tileLayer.getTileHeight() * 18), this.tileLayer, 50 ,3));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 45, 30f + this.tileLayer.getTileHeight() * 18), this.tileLayer, 50 ,3, false));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  this.tileLayer.getTileHeight() * 15), this.tileLayer, 50,4, SkullEnemy.Skull_TYPE.BOSS));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  this.tileLayer.getTileHeight() * 15), this.tileLayer, 50,4, true));
     }
 
     public void newGame()
@@ -105,7 +102,8 @@ public class LevelTwoScreen extends GameScreen
         super.newGame();
 
         create();
-        player.reset();
+
+        this.player.reset();
     }
 
     @Override
@@ -184,19 +182,28 @@ public class LevelTwoScreen extends GameScreen
     }
 
     @Override
-    public void update() {
+    public void update()
+    {
 
-        // Update player regardless the state
-        player.update(stateTime);
+        if(super.gameState == GameState.PLAYING || super.gameState == GameState.WIN)
+        {
+            // Update player regardless the state
+            player.update(stateTime);
 
-        // Remove enemy regardless the state
-        for(int i=this.enemies.size() -1; i>=0; i--){
-            this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
-            if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+            // Remove enemy regardless the state
+            for(int i=this.enemies.size() -1; i>=0; i--)
             {
-                this.enemies.remove(i);
+                this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
+
+                if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+                {
+                    this.enemies.remove(i);
+                }
+
             }
+
         }
+
 
         //Update Game State based on input
         switch (gameState) {
@@ -258,13 +265,14 @@ public class LevelTwoScreen extends GameScreen
                 super.restartButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.restartButton.isDown)
                 {
+                    GameAssetsDB.getInstance().game_over.stop();
                     newGame();
                 }
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
-                    dispose();
+                    this.dispose();
                     Gdx.app.exit();
                     System.exit(-1);
                 }
@@ -273,6 +281,8 @@ public class LevelTwoScreen extends GameScreen
 
             case PLAYING:
             {
+
+
                 // Check if the user press the pause button
                 super.pauseButton.update(Gdx.input.isTouched(), Gdx.input.getX(), Gdx.input.getY());
                 if (super.pauseButton.isDown)
@@ -306,15 +316,26 @@ public class LevelTwoScreen extends GameScreen
                 for(Enemy e:enemies){
                     for (Weapon w:player.getWeapons()){
                         if(e.getCollider() != null && (e.getState() != Enemy.EnemyState.DYING || e.getState() != Enemy.EnemyState.DEAD)){
-                            if(w.getState() == Weapon.WeaponState.ACTIVE && w.getCollider().overlaps(e.getCollider())){
-                                gameScore += e.getScore();
+                            if(w.getState() == Weapon.WeaponState.ACTIVE && w.getCollider().overlaps(e.getCollider()))
+                            {
+
+                                e.setState(Enemy.EnemyState.DYING);
+
+                                super.gameScore += e.getScore();
+
                                 //System.out.println("Enemy score:" + e.getScore());
 
                                 // If the player kill the final boss, the player win
-                                if(e.isFinalBoss()){
-                                    gameState = GameState.WIN;
+                                if(e.isFinalBoss() && e instanceof NecromancerBoss )
+                                {
+                                    NecromancerBoss tmp = (NecromancerBoss) e;
+
+                                    if(tmp.getState() == Enemy.EnemyState.DYING && tmp.getLive() <= 1)
+                                    {
+                                        this.gameState = GameState.WIN;
+                                    }
                                 }
-                                e.setState(Enemy.EnemyState.DYING);
+
                                 w.setState(Weapon.WeaponState.DEAD);
                             }
                         }
@@ -701,6 +722,7 @@ public class LevelTwoScreen extends GameScreen
     public void hide()
     {
         GameAssetsDB.getInstance().l2_music.stop();
+        this.gameScore = 0;
     }
 
     @Override
