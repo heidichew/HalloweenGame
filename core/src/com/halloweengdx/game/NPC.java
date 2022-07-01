@@ -78,15 +78,15 @@ public class NPC implements Actor
         this.start_position = new Vector2(x,y);
 
         this.start_heart = new Vector2(this.current_position.x + 100f,this.current_position.y + 300f);
-        this.target_heart = new Vector2(50, Gdx.graphics.getHeight() - 60f);
+        this.target_heart = new Vector2(2000, 1900);
 
         this.deltaX = this.start_heart.x - this.target_heart.x;
         this.deltaY = this.start_heart.y - this.target_heart.y;
 
-        double mag = Math.sqrt( deltaX*deltaX + deltaY*deltaY );
+        double dist = Math.sqrt( deltaX*deltaX + deltaY*deltaY );
 
-        this.deltaX = (float) (deltaX / mag * HEART_SPEED);
-        this.deltaY = (float) (deltaY / mag * HEART_SPEED);
+        this.deltaX = (float) (deltaX / dist * HEART_SPEED);
+        this.deltaY = (float) (deltaY / dist * HEART_SPEED);
 
         this.npyType = npcType;
 
@@ -142,7 +142,7 @@ public class NPC implements Actor
                 break;
 
             case GIVE_REWARD:
-                Texture giveRewardTexture = (Texture) this.giveRewardAnimation.getKeyFrame(give_reward_state, true);
+                Texture giveRewardTexture = (Texture) this.giveRewardAnimation.getKeyFrame(give_reward_state);
 
                 batch.draw(giveRewardTexture,
                         this.current_position.x, this.current_position.y,
@@ -151,6 +151,7 @@ public class NPC implements Actor
                         0.4f,0.4f,
                         0,0,0, (int)giveRewardTexture.getWidth(), (int)giveRewardTexture.getHeight(), this.left_turn, false);
                 batch.draw(reward.life_texture, start_heart.x, start_heart.y);
+
 
                 break;
 
@@ -193,32 +194,22 @@ public class NPC implements Actor
 
                 this.give_reward_state += delta;
 
-                if(this.targetPlayer.getPosition().dst(this.current_position) <= npc_width){
-
-
-                    System.out.println("start x:" + start_heart.x);
-                    System.out.println("target x:" + target_heart.x);
-                    System.out.println("start y:" + start_heart.y);
-                    System.out.println("target y:" + target_heart.y);
-
-                    if(this.start_heart.x >= this.target_heart.x) {
-                        this.start_heart.x -= deltaX;
-                        this.start_heart.y -= deltaY;
-
-                    }
-
-                    else{
-                        if(this.giveRewardAnimation.isAnimationFinished(give_reward_state) )
-                        {
-                            this.give_reward_state = 0.0f;
-                            this.reward = null;
-                            this.npcState = NPC_STATE.Appear;
-                            this.left_turn = false;
-                        }
-                    }
-
+                if(this.start_heart.x >= this.target_heart.x) {
+                    this.start_heart.x -= this.deltaX ;
+                    this.start_heart.y += this.deltaY ;
 
                 }
+
+                else{
+                    if(this.giveRewardAnimation.isAnimationFinished(give_reward_state) )
+                    {
+                        this.give_reward_state = 0.0f;
+                        this.reward = null;
+                        this.npcState = NPC_STATE.Appear;
+                        this.left_turn = false;
+                    }
+                }
+
                 break;
         }
     }
