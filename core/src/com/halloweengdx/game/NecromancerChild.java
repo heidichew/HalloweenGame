@@ -207,7 +207,6 @@ public class NecromancerChild extends Enemy
                         this.attack_state =0.0f;
                         if(this.attack_pos != null && super.getTargetPlayer().getPosition().dst(attack_pos) < 100f)
                         {
-                            super.getTargetPlayer().isHurt = true;
                             super.getTargetPlayer().setState(Player.PlayerState.HURT);
                         }
                         super.setState(EnemyState.DYING);

@@ -243,7 +243,6 @@ public class NecromancerBoss extends Enemy
                         {
                             if(super.getPosition().dst(super.getTargetPlayer().getPosition()) < 400f)
                             {
-                                super.getTargetPlayer().isHurt = true;
                                 super.getTargetPlayer().setState(Player.PlayerState.HURT);
                             }
                             this.attack_ground_state_2 = 0.0f;

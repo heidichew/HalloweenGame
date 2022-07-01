@@ -56,10 +56,15 @@ public abstract class GameScreen implements Screen {
 
     protected long jumpPressedTime;
     protected float attackPressedTime = 0;
+    protected int jumpPressed = 0;
 
-    public static final long LONG_JUMP_PRESS = 200l;
     public static final float ATTACK_PRESS_COOLDOWN = 40;
-    public final static float RESPAWN_TIME = 100; // not using
+    public static final float JUMP_PRESS_COOLDOWN = 120;
+
+    protected boolean[][] collisionMap;
+
+    protected int aliveFall;
+    protected boolean skipCheckState = false;
 
     public GameScreen(HalloweenGdxGame game) {
 
@@ -123,13 +128,18 @@ public abstract class GameScreen implements Screen {
         gameState = GameState.PLAYING;
         stateTime = 0;
         gameScore = 0;
+
         attackPressedTime = 0;
         jumpPressedTime = 0;
+        jumpPressed = 0;
 
         isAttackHeld = false;
         isJumpHeld = false;
         isRightHeld = false;
         isLeftHeld = false;
+
+        aliveFall = 0;
+        skipCheckState = false;
     }
 
     abstract public void update();
@@ -168,5 +178,6 @@ public abstract class GameScreen implements Screen {
 
         this.game.dispose();
     };
+
 
 }

@@ -291,7 +291,7 @@ public class LickingEnemy extends Enemy {
 
             }
 
-            Gdx.app.log("", environment.getWidth() + "");
+            //Gdx.app.log("", environment.getWidth() + "");
 
             // Checking for collision on X
 
