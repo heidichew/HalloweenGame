@@ -8,16 +8,20 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 import org.w3c.dom.Text;
 
+/**
+ * Game Assets Database
+ * Run with Singleton pattern
+ */
 public class GameAssetsDB
 {
-    //Singleton pattern whole game only have on DB
-
+    /**
+     * Singleton pattern whole game only have on DB
+     */
     private static GameAssetsDB assetsDB = null;
-    // Texture variable declare
-    // PS: Make it public so don't need to have a lot of getter and setter
-    // The game will run much more quicker if we load all the texture when startup.
 
-    //Button
+    /**
+     * Button
+     */
     protected Texture menu_play;
     protected Texture menu_exit;
 
@@ -28,14 +32,18 @@ public class GameAssetsDB
     protected Texture lifeTexture;
     protected Texture pauseTexture;
 
-    // Screen
+    /**
+     * Screen
+     */
     protected TiledMap tiledMap_L1;
     protected TiledMap tiledMap_L2;
     protected Texture L1_background;
     protected Texture L2_background;
     protected Texture menu_background;
 
-    // Player Texture
+    /**
+     * Player Texture
+     */
     protected Texture[] playerIdleTexture;
     protected Texture[] playerRunTexture;
     protected Texture[] playerJumpStartTexture;
@@ -45,17 +53,23 @@ public class GameAssetsDB
     protected Texture[] playerAttackTexture;
     protected Texture[] playerFallTexture;
 
-    // Player Weapon Texture
+    /**
+     * Player weapon texture
+     */
     protected Texture weaponTexture;
 
-    //NPC
+    /**
+     * Npc
+     */
     protected Texture[] pumpkin_Idle_Texture;
     protected Texture[] pumpkin_Idle_Blink_Texture;
 
     protected Texture[] vampire_Idle_Texture;
     protected Texture[] vampire_Idle_Blink_Texture;
 
-    //Enemy
+    /**
+     * Enemies
+     */
     protected Texture[] bat_enemy_idle_texture;
     protected Texture[] bat_enemy_flying_texture;
     protected Texture[] bat_enemy_attacking_texture;
@@ -85,7 +99,9 @@ public class GameAssetsDB
     protected Texture[] necromancer_child_attack_texture;
     protected Texture[] necromancer_child_dying_texture;
 
-    //Music
+    /**
+     * Music
+     */
     protected Music menu_music;
     protected Music l1_music;
     protected Music l2_music;
@@ -106,6 +122,7 @@ public class GameAssetsDB
 
     private GameAssetsDB()
     {
+        //player
         this.playerDieTexture = new Texture[15];
         this.playerRunTexture = new Texture[12];
         this.playerAttackTexture = new Texture[12];
@@ -114,12 +131,16 @@ public class GameAssetsDB
         this.playerJumpLoopTexture = new Texture[6];
         this.playerJumpStartTexture = new Texture[6];
 
+        this.weaponTexture = new Texture(Gdx.files.internal("player/sword.png"));
+
+        //Npc
         this.pumpkin_Idle_Texture = new Texture[18];
         this.pumpkin_Idle_Blink_Texture = new Texture[18];
 
         this.vampire_Idle_Texture = new Texture[18];
         this.vampire_Idle_Blink_Texture = new Texture[18];
 
+        // enemies
         this.bat_enemy_idle_texture = new Texture[18];
         this.bat_enemy_flying_texture = new Texture[18];
         this.bat_enemy_attacking_texture = new Texture[18];
@@ -170,8 +191,7 @@ public class GameAssetsDB
         this.menu_exit =  new Texture(Gdx.files.internal("button/exit_button.png"));
 
 
-
-        // Player, Enemy and NPC textures
+        // Player, Enemy and NPC textures load
         for(int i=0; i<18; i++)
         {
             this.pumpkin_Idle_Texture[i] = new Texture(Gdx.files.internal("npc/Pumpkin Head Guy/Idle/Idle_0"+i+".png"));
@@ -235,10 +255,7 @@ public class GameAssetsDB
             this.playerJumpLoopTexture[i] = new Texture(Gdx.files.internal("player/jump/jumping_"+ i +".png"));
         }
 
-        weaponTexture = new Texture(Gdx.files.internal("player/sword.png"));
-
-
-        // Music
+        // Music and sound effect
         this.menu_music = Gdx.audio.newMusic(Gdx.files.internal("music/Ghost_Stories_by_Steve_Oxen.mp3"));
         menu_music.setLooping(true);
 
@@ -273,6 +290,10 @@ public class GameAssetsDB
         this.give_heart = Gdx.audio.newMusic(Gdx.files.internal("music/give_heart.wav"));
     }
 
+    /**
+     * Get the GameAssets Database (Singleton)
+     * @return GameAssets
+     */
     public static GameAssetsDB getInstance()
     {
         if(assetsDB == null)
@@ -283,6 +304,9 @@ public class GameAssetsDB
         return  assetsDB;
     }
 
+    /**
+     * Dispose all texture when game is exit
+     */
     public void dispose()
     {
         //Button
@@ -301,7 +325,10 @@ public class GameAssetsDB
         this.L1_background.dispose();
         this.menu_background.dispose();
 
-        //Texture
+        // Player weapon texture
+        this.weaponTexture.dispose();
+
+        //PLayer, enemies, npc texture dispose
         for(int i=0; i<18; i++)
         {
             this.pumpkin_Idle_Texture[i].dispose();

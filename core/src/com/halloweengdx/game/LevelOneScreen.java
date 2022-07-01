@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 public class LevelOneScreen extends GameScreen
@@ -23,9 +24,6 @@ public class LevelOneScreen extends GameScreen
 
     public final static int MAP_WIDTH = 60;
     public final static int MAP_HEIGHT = 20;
-
-    //core Game
-    private HalloweenGdxGame game;
 
     //assets
     private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
@@ -57,13 +55,14 @@ public class LevelOneScreen extends GameScreen
     private List<Enemy> enemies;
 
 
-    public LevelOneScreen(HalloweenGdxGame game){
+    public LevelOneScreen(HalloweenGdxGame game)
+    {
         super(game);
-        this.game = game;
         newGame();
     }
 
-    public void create(){
+    public void create()
+    {
 
         super.create();
 
@@ -94,19 +93,17 @@ public class LevelOneScreen extends GameScreen
         this.enemies = new ArrayList<Enemy>();
 
         this.enemies.add(new BatEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 35, 30f + this.tileLayer.getTileHeight() * 12), this.tileLayer, 50 ,3));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 35, 30f + this.tileLayer.getTileHeight() * 12), this.tileLayer, 50 ,3, false));
 
         this.enemies.add(new LickingEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  (this.tileLayer.getHeight() - 5) * 128), this.tileLayer, 50, 0));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  (this.tileLayer.getHeight() - 5) * 128), this.tileLayer, 50, 0, false));
 
         this.enemies.add(new LickingEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 54,  (this.tileLayer.getHeight() - 6) * 128), this.tileLayer, 50, 0));
-
+                new Vector2(0f + this.tileLayer.getTileWidth() * 54,  (this.tileLayer.getHeight() - 6) * 128), this.tileLayer, 50, 0, false));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 100,5, SkullEnemy.Skull_TYPE.BOSS));
-        Enemy finalBoss = enemies.get(enemies.size() - 1);
-        finalBoss.setFinalBoss(true);
+                new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 100,5, true));
+
     }
 
     public void newGame()
@@ -119,13 +116,14 @@ public class LevelOneScreen extends GameScreen
             this.gameAssetsDB.l1_music.play();
         }
 
-        create();
+        this.create();
 
-        player.reset();
+        this.player.reset();
     }
 
     @Override
-    public void show() {
+    public void show()
+    {
         this.gameAssetsDB.l1_music.play();
         this.gameAssetsDB.l1_music.setVolume(0.5f);
     }
@@ -143,7 +141,8 @@ public class LevelOneScreen extends GameScreen
         super.bgBatch.draw(gameAssetsDB.L1_background, 0,0, 60*128, 20*128);
         super.bgBatch.end();
 
-        if(super.camera != null){
+        if(super.camera != null)
+        {
             super.camera.update();
             this.tiledMapRenderer.setView(camera);
             this.tiledMapRenderer.render();
@@ -210,17 +209,27 @@ public class LevelOneScreen extends GameScreen
     @Override
     public void update() {
 
-        // Update player regardless the state
-        player.update(stateTime);
+        if(super.gameState == GameState.PLAYING || super.gameState == GameState.WIN)
+        {
+            // Update player regardless the state
+            player.update(stateTime);
 
-        // Remove enemy even game end
-        for(int i=this.enemies.size() -1; i>=0; i--){
-            this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
-            if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+            // Remove enemy regardless the state
+            for(int i=this.enemies.size() -1; i>=0; i--)
             {
-                this.enemies.remove(i);
+                this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
+
+                if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+                {
+                    // not all the enemy are kill by the weapon
+                    super.gameScore += this.enemies.get(i).getScore();
+                    this.enemies.remove(i);
+                }
+
             }
+
         }
+
 
         //Update Game State based on input
         switch (gameState) {
@@ -315,32 +324,39 @@ public class LevelOneScreen extends GameScreen
                     this.npc.update(Gdx.graphics.getDeltaTime());
                 }
 
-                if(this.gameAssetsDB.danger_zone_music.isPlaying())
+                if(GameAssetsDB.getInstance().danger_zone_music.isPlaying())
                 {
-                    this.gameAssetsDB.l1_music.pause();
+                    GameAssetsDB.getInstance().l1_music.pause();
                 }
                 else
                 {
-                    if(this.gameAssetsDB.l1_music.isPlaying() == false)
+                    if(GameAssetsDB.getInstance().l1_music.isPlaying() == false)
                     {
-                        this.gameAssetsDB.l1_music.play();
+                        GameAssetsDB.getInstance().l1_music.play();
                     }
                 }
+
 
                 // For game score
                 // Check if the player weapon hit any enemy
                 for(Enemy e:enemies){
                     for (Weapon w:player.getWeapons()){
                         if(e.getCollider() != null && (e.getState() != Enemy.EnemyState.DYING || e.getState() != Enemy.EnemyState.DEAD)){
-                            if(w.getState() == Weapon.WeaponState.ACTIVE && w.getCollider().overlaps(e.getCollider())){
-                                gameScore += e.getScore();
+                            if(w.getState() == Weapon.WeaponState.ACTIVE && w.getCollider().overlaps(e.getCollider()))
+                            {
+                                e.setState(Enemy.EnemyState.DYING);
+
+                                super.gameScore += e.getScore();
+
+                                e.setScore(0);
                                 //System.out.println("Enemy score:" + e.getScore());
 
                                 // If the player kill the final boss, the player win
-                                if(e.isFinalBoss()){
+                                if(e.isFinalBoss())
+                                {
                                     gameState = GameState.WIN;
                                 }
-                                e.setState(Enemy.EnemyState.DYING);
+
                                 w.setState(Weapon.WeaponState.DEAD);
                             }
                         }
@@ -729,6 +745,8 @@ public class LevelOneScreen extends GameScreen
         this.gameAssetsDB.l1_music.stop();
         this.gameAssetsDB.danger_zone_music.stop();
         this.gameAssetsDB.game_over.stop();
+
+        this.gameScore = 0;
     }
 
     @Override

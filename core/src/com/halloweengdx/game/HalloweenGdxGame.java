@@ -21,7 +21,7 @@ public class HalloweenGdxGame extends Game {
 
 	public static ArrayList<GameScreen> gameLevels;
 
-	public int currentLevel = 0;
+	public int currentLevel = 1;
 
 	@Override
 	public void create () {
@@ -39,7 +39,7 @@ public class HalloweenGdxGame extends Game {
 		gameLevels.add(gameScreenOne);
 		gameLevels.add(gameScreenTwo);
 
-		currentLevel = 1;
+		currentLevel = 0;
 
 		// Change screens to the menu
 		setScreen(menuScreen);

@@ -7,96 +7,152 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import java.util.Random;
-
+/**
+ * NecromancerBoss the boss of the level 2 one type of the enemy
+ * @author Adrian
+ */
 public class NecromancerBoss extends Enemy
 {
-    private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
+    /**
+     * Game assets database
+     */
+    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
-    private Animation idleAnimation = null;
-    private Animation attackGroundAnimation = null;
+    /**
+     * Attack cold down timer
+     */
+    private final int ATTACK_COLDOWN = 3;
+
+    /**
+     * Animation
+     */
+    private Animation idleAnimation;
+    private Animation attackGroundAnimation;
     private Animation attackGroundAnimation_2;
-    private Animation hurtAnimation = null;
-    private Animation dyingAnimation = null;
+    private Animation hurtAnimation;
+    private Animation dyingAnimation;
 
+    /**
+     * State timer
+     */
     private float idle_state;
     private float attack_ground_state_2;
     private float attack_ground_state;
     private float hurt_state;
     private float dying_state;
 
+    /**
+     * Attack method
+     */
     private boolean shortRange;
 
-    //environment
+    /**
+     * Render environment
+     */
     private TiledMapTileLayer environment;
 
-    //w and h
+    /**
+     * Width and Height of the texture
+     */
     private int necromancerWidth;
     private int necromancerHeight;
 
-    //scale
+    /**
+     * Render scale
+     */
     private float scale;
 
-    //life
+    /**
+     * live to survive
+     */
     private int live;
 
-    //child
+    /**
+     * Long range attack spawn for the his child
+     */
     private NecromancerChild child;
 
+    /**
+     * Attack timer
+     */
     private float attack_timer;
 
+    /**
+     * Collider
+     */
     private Rectangle collider;
 
 
+
     /**
-     * The constructor to create an enemy that place the enemy at a specific starting position
-     *
-     * @param player       The player that the enemy instance can kill in the game world
-     * @param start_xy     The stating position to place the enemy instance
-     * @param score
-     * @param patrol_range
+     * The constructor to create the necromancer enemy with a specific starting position along with patrol range
+     * @param player target player
+     * @param start_xy starting location
+     * @param environment rendering level
+     * @param score score when get killed
+     * @param patrol_range patrolling range
+     * @param isFinalBoss  Final Boss of the level true or false
      */
-    public NecromancerBoss(Player player, Vector2 start_xy, TiledMapTileLayer environment, int score, int patrol_range)
+    public NecromancerBoss(Player player, Vector2 start_xy, TiledMapTileLayer environment, int score, int patrol_range, boolean isFinalBoss)
     {
-        super(player, start_xy, start_xy, score, patrol_range);
+        // variable / field initialize
 
-        this.idleAnimation = new Animation(0.1f, this.texture_assets.necromancer_idle_texture);
-        this.attackGroundAnimation = new Animation(0.2f, this.texture_assets.necromancer_attack_ground_texture);
-        this.attackGroundAnimation_2 = new Animation(0.1f, this.texture_assets.necromancer_attack_ground_texture_2);
-        this.hurtAnimation = new Animation(0.08f, this.texture_assets.necromancer_hurt_texture);
-        this.dyingAnimation = new Animation(0.15f, this.texture_assets.necromancer_dead_texture);
+        super(player, start_xy, start_xy, score, patrol_range, isFinalBoss);
 
+        // animation
+        this.idleAnimation = new Animation(0.1f, this.gameAssetsDB.necromancer_idle_texture);
+        this.attackGroundAnimation = new Animation(0.2f, this.gameAssetsDB.necromancer_attack_ground_texture);
+        this.attackGroundAnimation_2 = new Animation(0.1f, this.gameAssetsDB.necromancer_attack_ground_texture_2);
+        this.hurtAnimation = new Animation(0.08f, this.gameAssetsDB.necromancer_hurt_texture);
+        this.dyingAnimation = new Animation(0.15f, this.gameAssetsDB.necromancer_dead_texture);
+
+        // state timer
         this.idle_state = 0.0f;
         this.attack_ground_state = 0.0f;
         this.attack_ground_state_2 = 0.0f;
         this.hurt_state = 0.0f;
         this.dying_state = 0.0f;
 
+        // tile layer
         this.environment = environment;
 
+        // live
         this.live = 3;
 
+        // scale
         this.scale = 0.35f;
 
-        this.necromancerWidth = Math.round(this.texture_assets.necromancer_idle_texture[0].getWidth() * this.scale);
-        this.necromancerHeight = Math.round(this.texture_assets.necromancer_idle_texture[0].getHeight() * this.scale);
+        // texture width and height
+        this.necromancerWidth = Math.round(this.gameAssetsDB.necromancer_idle_texture[0].getWidth() * this.scale);
+        this.necromancerHeight = Math.round(this.gameAssetsDB.necromancer_idle_texture[0].getHeight() * this.scale);
 
+        // set the default state to idle
         super.setState(EnemyState.IDLE);
 
-        this.attack_timer = 2.0f; // two second store at the startup
+        // startup two second of attack
+        this.attack_timer = 2.0f;
 
+        // child set to null since no player are in the range at the beginning
         this.child = null;
+
+        // player always come from far right so the short range will be false
         this.shortRange = false;
 
-        // Create collider
+        // collider initialise
         collider = new Rectangle(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f), this.necromancerWidth * this.scale, this.necromancerHeight * this.scale);
     }
 
     @Override
-    public void reset() {
+    public void reset()
+    {
+        // Nothing to reset
 
     }
 
+    /**
+     * Rendering Function for the necromancer enemy render with in different state
+     * @param batch Sprite Batch
+     */
     @Override
     public void draw(SpriteBatch batch)
     {
@@ -132,10 +188,12 @@ public class NecromancerBoss extends Enemy
 
                 if(this.live <= 1)
                 {
+                    // play dying animation if last live being deducted
                     dying_texture = (Texture) this.dyingAnimation.getKeyFrame(this.dying_state, false);
                 }
                 else
                 {
+                    // play hurt if live more than 1
                     dying_texture = (Texture) this.hurtAnimation.getKeyFrame(this.hurt_state, false);
                 }
 
@@ -146,6 +204,7 @@ public class NecromancerBoss extends Enemy
 
         }
 
+        // render the child as well if it is being spawn
         if(this.child != null)
         {
             this.child.draw(batch);
@@ -153,65 +212,85 @@ public class NecromancerBoss extends Enemy
 
     }
 
+    /**
+     * Game loop updating function
+     * update for the necromancer enemy position, stage and action.
+     * @param delta Gdx.graphics.getDeltaTime
+     */
     @Override
     public void update(float delta)
     {
-
+        // detecting for the dying and dead state
         if(this.getState() == EnemyState.DYING || this.getState() == EnemyState.DEAD)
         {
 
-            if(live <= 1)
+            if(live <= 1) // when the enemy only have last live
             {
-                //Here need to play for
+                // control the dying animation
                 this.dying_state += delta;
-                if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
+                this.gameAssetsDB.enemy_dead.play();
+                if(this.dyingAnimation.isAnimationFinished(dying_state))
                 {
                     this.live -= 1;
                     this.dying_state = 0.0f;
                     super.setState(EnemyState.DEAD);
                 }
-
             }
-            else
+            else // when the enemy have liver more than 1
             {
+                // control the hurt animation
                 this.hurt_state += delta;
-                if(this.hurt_state >= this.hurtAnimation.getAnimationDuration())
+                if(this.hurtAnimation.isAnimationFinished(hurt_state))
                 {
                     this.live -= 1;
                     this.hurt_state = 0.0f;
-                    super.setState(EnemyState.DYING);
+                    super.setState(EnemyState.IDLE);
                 }
 
             }
 
 
         }
-        else
+        else // if enemy not dying or dead
         {
+            // update the child if it alive
             if(this.child!=null)
             {
                 this.child.update(delta);
+
+                // if the child is in dead state after update
                 if(this.child.getState() == EnemyState.DEAD)
                 {
+                    // delete the child and set to null
                     this.child = null;
                 }
             }
 
             switch (super.getState())
             {
+                // update in idle state
                 case IDLE:
-                    this.idle_state += delta;
+
+                    this.idle_state += delta; // idle state timer for animation
+
+                    // detecting for the distance of the enemy and the player
                     if(super.getPosition().dst(super.getTargetPlayer().getPosition()) <= this.environment.getTileWidth() * getPatrolRange())
                     {
+                        // player in patrol range
+                        // by default use long range attack calling for cild
                         this.shortRange = false;
+
+                        // if the player too close the enemy
                         if(super.getPosition().dst(super.getTargetPlayer().getPosition()) < 400f)
                         {
+                            // use short range attack
                             shortRange = true;
                         }
 
-                        this.attack_timer +=delta;
+                        this.attack_timer +=delta; // attack state timer for animation
 
-                        if(this.attack_timer >= 5)
+                        // every three second set to the attack state
+                        if(this.attack_timer >= ATTACK_COLDOWN )
                         {
                             super.setState(EnemyState.ATTACK);
                             this.attack_timer = 0;
@@ -222,41 +301,48 @@ public class NecromancerBoss extends Enemy
 
                     break;
 
+                // update in attack state
                 case ATTACK:
 
+                    // if not short range attack calling for child
                     if(this.shortRange == false)
                     {
-                        this.attack_ground_state += delta;
+                        this.attack_ground_state += delta; // long range attack animation timer calling child
 
                         if(this.attackGroundAnimation.isAnimationFinished(this.attack_ground_state))
                         {
                             this.attack_ground_state = 0.0f;
                             this.child = new NecromancerChild(this, super.getTargetPlayer(), new Vector2(super.getPosition().x + 350f, super.getPosition().y - 50f), 0);
-                            super.setState(EnemyState.IDLE);
+                            super.setState(EnemyState.IDLE); // set back to idle when attack animation finish
                         }
                     }
-                    else
+                    else // short range attack
                     {
-                        this.attack_ground_state_2 += delta;
 
+                        this.attack_ground_state_2 += delta; // short range attack timer for animation
+
+                        // when the animation finish
                         if(this.attackGroundAnimation_2.isAnimationFinished(this.attack_ground_state_2))
                         {
+                            // trigger that whether the player still in the short range attack's range
                             if(super.getPosition().dst(super.getTargetPlayer().getPosition()) < 400f)
                             {
-                                super.getTargetPlayer().isHurt = true;
+                                // kill player if yes
                                 super.getTargetPlayer().setState(Player.PlayerState.HURT);
                             }
+
                             this.attack_ground_state_2 = 0.0f;
+
+                            // set back to idle after attack
                             super.setState(EnemyState.IDLE);
                         }
                     }
             }
         }
 
-        // Update the collider position to match the bat enemy's position
-        collider.setPosition(new Vector2(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f)));
+        // Update the collider
+        this.collider.setPosition(new Vector2(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f)));
     }
-
 
     @Override
     public void dispose() {
@@ -266,5 +352,10 @@ public class NecromancerBoss extends Enemy
     @Override
     public Rectangle getCollider() {
         return this.collider;
+    }
+
+    public int getLive()
+    {
+        return this.live;
     }
 }
