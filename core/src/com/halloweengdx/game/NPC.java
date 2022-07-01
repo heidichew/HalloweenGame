@@ -11,7 +11,6 @@ import java.util.Random;
 
 public class NPC implements Actor
 {
-    //What kind of texture you like
     public enum NPC_TYPE
     {
         Vampire,
@@ -69,7 +68,13 @@ public class NPC implements Actor
 
     private Music give_heart_sound = GameAssetsDB.getInstance().give_heart;
 
-
+    /**
+     * The constructor to create NPC
+     * @param target_player player object to get its position for collision detection
+     * @param x The starting x position of NPC
+     * @param y The starting y position of NPC
+     * @param npcType type of NPC specified
+     */
     public NPC(Player target_player, float x, float y, NPC_TYPE npcType)
     {
         this.targetPlayer = target_player;
@@ -77,6 +82,7 @@ public class NPC implements Actor
         this.current_position = new Vector2(x,y);
         this.start_position = new Vector2(x,y);
 
+        //use vector2 variables to calculate the direction the heat forwards
         this.start_heart = new Vector2(this.current_position.x + 100f,this.current_position.y + 300f);
         this.target_heart = new Vector2(2000, 1900);
 
@@ -96,6 +102,7 @@ public class NPC implements Actor
 
         this.npcState = NPC_STATE.Hide;
 
+        //pumpkin animation
         if(npcType == NPC_TYPE.Pumpkin)
         {
             this.idleAnimation = new Animation(0.3f, this.gameAssetsDB.pumpkin_Idle_Texture);
@@ -164,6 +171,7 @@ public class NPC implements Actor
     {
         switch (this.npcState)
         {
+            //NPC appears after 8 seconds
             case Hide:
                 this.appear_timer += delta;
 
@@ -175,14 +183,19 @@ public class NPC implements Actor
 
                 break;
 
+
             case Appear:
                 this.idle_state += delta;
 
+                //If player comes close to the npc position
                 if(this.targetPlayer.getPosition().dst(this.current_position) <= npc_width){
+                    //if there's a reward to give
                     if(this.reward!=null)
                         {
+                            //npc flips its texture and change the state
                             this.left_turn = true;
                             this.npcState = NPC_STATE.GIVE_REWARD;
+                            //reward sound plays and player get 1 heart
                             this.give_heart_sound.play();
                             this.targetPlayer.receiveReward(this.reward);
                         }
@@ -194,12 +207,14 @@ public class NPC implements Actor
 
                 this.give_reward_state += delta;
 
+                //the heart moves its position close to the ui heart already exisiting
                 if(this.start_heart.x >= this.target_heart.x) {
                     this.start_heart.x -= this.deltaX ;
                     this.start_heart.y += this.deltaY ;
 
                 }
 
+                //after the heart arrives, npc changes its state to appear and flip into original texture
                 else{
                     if(this.giveRewardAnimation.isAnimationFinished(give_reward_state) )
                     {
