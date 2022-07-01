@@ -114,7 +114,8 @@ public abstract class Enemy implements Actor
     @Override
     public void dispose()
     {
-        //Do nothing
+        //Nothing to dispose
+        // All the thing will being dispose in the game screen while the game end
     }
 
     /**

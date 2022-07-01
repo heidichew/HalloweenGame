@@ -9,14 +9,30 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.Random;
 
+/**
+ * Npc of the Game
+ * Responsible to give reward to player
+ * @author Daya
+ */
 public class NPC implements Actor
 {
+    /**
+     * Game assets database
+     */
+    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
+
+    /**
+     * Different type of Npc
+     */
     public enum NPC_TYPE
     {
         Vampire,
         Pumpkin
     }
 
+    /**
+     * Npc State
+     */
     public enum NPC_STATE
     {
         Appear,
@@ -25,48 +41,90 @@ public class NPC implements Actor
         Hide
     }
 
-    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
-
-    private float idle_state;
-    private float give_reward_state;
-
-    private float appear_timer;
-
-    private Animation idleAnimation;
-
-    private Animation giveRewardAnimation;
-
-    private final int LIFE_REWARD = 1;
-
-    private final int SCORE_REWARD = 200;
-
+    /**
+     * Position
+     */
     private Vector2 current_position;
     private Vector2 start_position;
     private Vector2 start_heart;
     private Vector2 target_heart;
 
+    /**
+     * Aniamtion
+     */
+    private Animation idleAnimation;
+    private Animation giveRewardAnimation;
+
+    /**
+     * State timer
+     */
+    private float idle_state;
+    private float give_reward_state;
+
+
+    /**
+     * Reward value
+     */
+    private final int LIFE_REWARD = 1;
+
+    private final int SCORE_REWARD = 200;
+
+    /**
+     * Heart movement
+     */
     private float deltaX;
     private float deltaY;
 
-    private float HEART_SPEED = 20f;
+    /**
+     * Heart moving speed
+     */
+    private float HEART_SPEED = 30f;
 
+    /**
+     * Appear timer
+     */
+    private float appear_timer;
 
+    /**
+     * Player
+     */
     private Player targetPlayer;
 
+    /**
+     * Reward
+     */
     private Reward reward;
 
+    /**
+     * Npc Type
+     */
     private NPC_TYPE npyType;
 
+    /**
+     * State of the Npc
+     */
     private NPC_STATE npcState;
 
+    /**
+     * Npc width and height
+     */
     private float npc_width;
     private float npc_height;
 
+    /**
+     * Render flip x
+     */
     private boolean left_turn;
 
+    /**
+     * Render scale
+     */
     private float scale;
 
-    private Music give_heart_sound = GameAssetsDB.getInstance().give_heart;
+    /**
+     * Heart sound
+     */
+    private Music give_heart_sound;
 
     /**
      * The constructor to create NPC
@@ -77,8 +135,10 @@ public class NPC implements Actor
      */
     public NPC(Player target_player, float x, float y, NPC_TYPE npcType)
     {
+        // player
         this.targetPlayer = target_player;
 
+        //position
         this.current_position = new Vector2(x,y);
         this.start_position = new Vector2(x,y);
 
@@ -86,6 +146,7 @@ public class NPC implements Actor
         this.start_heart = new Vector2(this.current_position.x + 100f,this.current_position.y + 300f);
         this.target_heart = new Vector2(2000, 1900);
 
+        // heart movement
         this.deltaX = this.start_heart.x - this.target_heart.x;
         this.deltaY = this.start_heart.y - this.target_heart.y;
 
@@ -106,8 +167,7 @@ public class NPC implements Actor
         if(npcType == NPC_TYPE.Pumpkin)
         {
             this.idleAnimation = new Animation(0.3f, this.gameAssetsDB.pumpkin_Idle_Texture);
-            this.giveRewardAnimation = new Animation(0.4f, this.gameAssetsDB.pumpkin_Idle_Blink_Texture);
-
+            this.giveRewardAnimation = new Animation(0.05f, this.gameAssetsDB.pumpkin_Idle_Blink_Texture);
             this.npc_width = this.gameAssetsDB.pumpkin_Idle_Texture[0].getWidth() * this.scale;
             this.npc_height = this.gameAssetsDB.pumpkin_Idle_Texture[0].getHeight() * this.scale;
         }
@@ -116,22 +176,29 @@ public class NPC implements Actor
         else
         {
             this.idleAnimation = new Animation(0.3f, this.gameAssetsDB.vampire_Idle_Texture);
-            this.giveRewardAnimation = new Animation(0.4f, this.gameAssetsDB.vampire_Idle_Blink_Texture);
+            this.giveRewardAnimation = new Animation(0.05f, this.gameAssetsDB.vampire_Idle_Blink_Texture);
 
             this.npc_width = this.gameAssetsDB.vampire_Idle_Texture[0].getWidth() * this.scale;
             this.npc_height = this.gameAssetsDB.vampire_Idle_Texture[0].getHeight() * this.scale;
         }
 
+        // state timer for animation
         this.idle_state = 0.0f;
 
         this.give_reward_state = 0.0f;
 
         this.appear_timer = 0.0f;
 
-        this.left_turn = false;
+        this.left_turn = true;
+
+        this.give_heart_sound = this.gameAssetsDB.give_heart;
     }
 
 
+    /**
+     * Render function for Npc in different state
+     * @param batch Sprite Batch
+     */
     @Override
     public void draw(SpriteBatch batch)
     {
@@ -149,6 +216,7 @@ public class NPC implements Actor
                 break;
 
             case GIVE_REWARD:
+
                 Texture giveRewardTexture = (Texture) this.giveRewardAnimation.getKeyFrame(give_reward_state);
 
                 batch.draw(giveRewardTexture,
@@ -157,6 +225,8 @@ public class NPC implements Actor
                         giveRewardTexture.getWidth(), giveRewardTexture.getHeight(),
                         0.4f,0.4f,
                         0,0,0, (int)giveRewardTexture.getWidth(), (int)giveRewardTexture.getHeight(), this.left_turn, false);
+
+                // heart render
                 batch.draw(reward.life_texture, start_heart.x, start_heart.y);
 
 
@@ -208,7 +278,8 @@ public class NPC implements Actor
                 this.give_reward_state += delta;
 
                 //the heart moves its position close to the ui heart already exisiting
-                if(this.start_heart.x >= this.target_heart.x) {
+                if(this.start_heart.x >= this.target_heart.x)
+                {
                     this.start_heart.x -= this.deltaX ;
                     this.start_heart.y += this.deltaY ;
 
@@ -216,12 +287,15 @@ public class NPC implements Actor
 
                 //after the heart arrives, npc changes its state to appear and flip into original texture
                 else{
-                    if(this.giveRewardAnimation.isAnimationFinished(give_reward_state) )
+                    this.deltaX = 0;
+                    this.deltaY = 0;
+
+                    this.reward = null;
+
+                    if(this.giveRewardAnimation.isAnimationFinished(give_reward_state))
                     {
                         this.give_reward_state = 0.0f;
-                        this.reward = null;
-                        this.npcState = NPC_STATE.Appear;
-                        this.left_turn = false;
+                        this.npcState = NPC_STATE.Mission_Complete;
                     }
                 }
 
@@ -230,14 +304,20 @@ public class NPC implements Actor
     }
 
     @Override
-    public void dispose() {
-
+    public void dispose()
+    {
+        // Nothing to dispose
+        // dispose are allocated in game screen
     }
 
     @Override
-    public void reset() {
+    public void reset()
+    {
+        // nothing to reset
 
     }
+
+    // Getter and Setter
 
     @Override
     public Vector2 getStartPosition() {

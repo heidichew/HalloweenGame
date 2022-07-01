@@ -390,7 +390,7 @@ public class BatEnemy extends Enemy
 
                 // change position of y
                 // make sure the bat don't fly too high and go over the screen
-                if (super.getPosition().y + distance_y >= (environment.getHeight() - 1) * 128) {
+                if (super.getPosition().y + distance_y >= (environment.getHeight() - 2) * 128) {
                     rise = false;
                 }
             }

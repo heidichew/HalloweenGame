@@ -3,7 +3,6 @@ package com.halloweengdx.game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -16,7 +15,7 @@ public class NecromancerChild extends Enemy
     /**
      * Game assets database
      */
-    private GameAssetsDB texture_assets = GameAssetsDB.getInstance();
+    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
     /**
      * Animation
@@ -76,9 +75,9 @@ public class NecromancerChild extends Enemy
         super(player, start_xy, start_xy, score, 0, false);
 
         // animation
-        this.moveAnimation = new Animation(0.07f, this.texture_assets.necromancer_child_move_texture);
-        this.attackAnimation = new Animation(0.1f, this.texture_assets.necromancer_child_attack_texture);
-        this.dyingAnimation = new Animation(0.2f, this.texture_assets.necromancer_child_dying_texture);
+        this.moveAnimation = new Animation(0.07f, this.gameAssetsDB.necromancer_child_move_texture);
+        this.attackAnimation = new Animation(0.1f, this.gameAssetsDB.necromancer_child_attack_texture);
+        this.dyingAnimation = new Animation(0.2f, this.gameAssetsDB.necromancer_child_dying_texture);
 
         // state timer for animation
         this.move_state = 0.0f;
@@ -92,8 +91,8 @@ public class NecromancerChild extends Enemy
         this.movementSpeed = 350f;
 
         // necromancer child width and height
-        this.necromancerChild_Width = Math.round(this.texture_assets.necromancer_child_move_texture[0].getWidth() * this.scale);
-        this.necromancerChild_Height = Math.round(this.texture_assets.necromancer_child_move_texture[0].getHeight() * this.scale);
+        this.necromancerChild_Width = Math.round(this.gameAssetsDB.necromancer_child_move_texture[0].getWidth() * this.scale);
+        this.necromancerChild_Height = Math.round(this.gameAssetsDB.necromancer_child_move_texture[0].getHeight() * this.scale);
 
         // spawn parent
         this.parent = necromancerBoss;
@@ -185,6 +184,11 @@ public class NecromancerChild extends Enemy
         else
         {
 
+            if(this.parent.getLive() < 1)
+            {
+                super.setState(EnemyState.DYING);
+            }
+
             switch (super.getState())
             {
                 // update for move state
@@ -259,7 +263,7 @@ public class NecromancerChild extends Enemy
                     // detect for the attack animation end
                     if(this.attackAnimation.isAnimationFinished(this.attack_state))
                     {
-                        this.attack_state =0.0f;
+                        this.attack_state = 0.0f;
 
                         // if the player still stand not far away from the attack triggered position the player will dead
                         if(this.attack_pos != null && super.getTargetPlayer().getPosition().dst(attack_pos) < 100f)

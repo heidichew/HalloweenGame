@@ -221,11 +221,6 @@ public class LevelTwoScreen extends GameScreen
                     super.resumePressed = false;
                 }
 
-                //else if(resumePressed){
-//                    gameState = GameState.PLAYING;
-//                    this.gameAssetsDB.l2_music.play();
-//                    resumePressed = false;
-//                }
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
@@ -323,9 +318,6 @@ public class LevelTwoScreen extends GameScreen
 
                                 super.gameScore += e.getScore();
 
-                                //System.out.println("Enemy score:" + e.getScore());
-
-                                // If the player kill the final boss, the player win
                                 if(e.isFinalBoss() && e instanceof NecromancerBoss )
                                 {
                                     NecromancerBoss tmp = (NecromancerBoss) e;
