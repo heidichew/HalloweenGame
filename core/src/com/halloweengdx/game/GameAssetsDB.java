@@ -118,6 +118,8 @@ public class GameAssetsDB
     protected Music licking_hit;
     protected Music enemy_dead;
 
+    protected Music give_heart;
+
     private GameAssetsDB()
     {
         //player
@@ -187,6 +189,7 @@ public class GameAssetsDB
         this.menu_background = new Texture(Gdx.files.internal("background/menu_background_2.png"));
         this.menu_play = new Texture(Gdx.files.internal("button/play_button.png"));
         this.menu_exit =  new Texture(Gdx.files.internal("button/exit_button.png"));
+
 
         // Player, Enemy and NPC textures load
         for(int i=0; i<18; i++)
@@ -284,6 +287,7 @@ public class GameAssetsDB
 
         this.enemy_dead = Gdx.audio.newMusic(Gdx.files.internal("music/mixkit-enemy_get_kill.wav"));
 
+        this.give_heart = Gdx.audio.newMusic(Gdx.files.internal("music/give_heart.wav"));
     }
 
     /**

@@ -552,9 +552,9 @@ public class LevelOneScreen extends GameScreen
 //            if (this.npc.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
 //                super.camera.position.x = this.npc.getPosition().x + 600;
 //
-//                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
+//                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
 //                {
-//                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
+//                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2);
 //                }
 //                else if(super.camera.position.x <= 0)
 //                {
@@ -565,9 +565,9 @@ public class LevelOneScreen extends GameScreen
 //            if (this.npc.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
 //                super.camera.position.y = this.npc.getPosition().y; // can change
 //
-//                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+//                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
 //                {
-//                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+//                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
 //                }
 //                else if(super.camera.position.y <= 0)
 //                {
