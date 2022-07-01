@@ -9,11 +9,13 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+/**
+ * The abstract class for creating a game level
+ * Define common items and basic structure for a game level
+ */
 public abstract class GameScreen implements Screen {
 
     public enum GameState { PLAYING, PAUSE, WIN, FAIL}
-
-    public static final int HEALTH = 5;
 
     protected OrthographicCamera camera;
 
@@ -54,17 +56,20 @@ public abstract class GameScreen implements Screen {
     // Detect if the user press the gameplay controls
     protected boolean isJumpHeld, isRightHeld, isLeftHeld, isAttackHeld;
 
-    protected long jumpPressedTime;
+    protected long jumpPressedTime = 0;
     protected float attackPressedTime = 0;
     protected int jumpPressed = 0;
 
-    public static final float ATTACK_PRESS_COOLDOWN = 40;
-    public static final float JUMP_PRESS_COOLDOWN = 120;
+    public static final float ATTACK_PRESS_COOLDOWN = 40;   // Cool down time for pressing the attack button (prevent the player to throw multiple weapons at a time)
+    public static final float JUMP_PRESS_COOLDOWN = 120;    // Cool down time for jumping, prevent the player jump too high at a time
 
     protected boolean[][] collisionMap;
 
     protected int aliveFall;
     protected boolean skipCheckState = false;
+
+    protected int mapWidth = 0;     // The width of a map in a game level
+    protected int mapHeight = 0;    // The height of a map in a game level
 
     public GameScreen(HalloweenGdxGame game) {
 
@@ -178,6 +183,23 @@ public abstract class GameScreen implements Screen {
 
         this.game.dispose();
     };
+
+    /**
+     * Check if the tile in x and y coordinate is blocked and not null
+     * @param x The x coordinate of the tile which require for checking
+     * @param y The y coordinate of the tile which require for checking
+     * @return TRUE if the tile is blocked else false
+     */
+    public boolean isBlocked (int x, int y){
+        if(x >= 0 && x < mapWidth &&  y >= 0 && y < mapHeight){
+            if(this.collisionMap[x][y] == true){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
+    }
 
 
 }

@@ -9,9 +9,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+/**
+ * The class for creating main menu
+ */
 public class MenuScreen implements Screen {
-
-    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
     private HalloweenGdxGame game;
 
@@ -35,10 +36,9 @@ public class MenuScreen implements Screen {
         this.font.setColor(Color.RED);
         this.font.getData().setScale(10, 10);
 
-        Texture playTexture = this.gameAssetsDB.menu_play;
-        Texture exitTexture = this.gameAssetsDB.menu_exit;
-
-
+        Texture playTexture = GameAssetsDB.getInstance().menu_play;
+        Texture exitTexture = GameAssetsDB.getInstance().menu_exit;
+        
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
 
@@ -63,7 +63,7 @@ public class MenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         this.uiBatch.begin();
-        this.uiBatch.draw(this.gameAssetsDB.menu_background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        this.uiBatch.draw(GameAssetsDB.getInstance().menu_background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         this.font.draw(uiBatch, "Halloween Party", Gdx.graphics.getWidth()/2 - 500f, Gdx.graphics.getHeight() - 150f);
         this.playButton.draw(uiBatch);
         this.exitButton.draw(uiBatch);
@@ -88,7 +88,6 @@ public class MenuScreen implements Screen {
 
         if (this.playButton.isDown){
             this.game.setScreen(HalloweenGdxGame.gameLevels.get(game.currentLevel));
-            System.out.println("pressed play");
         }
     }
 

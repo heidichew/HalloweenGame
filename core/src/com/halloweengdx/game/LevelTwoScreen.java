@@ -14,8 +14,8 @@ import java.util.List;
 public class LevelTwoScreen extends GameScreen
 {
 
-    public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 600);
-    public final static Vector2 CHECKPOINT_TWO = new Vector2(3800, 600);
+    public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 580);
+    public final static Vector2 CHECKPOINT_TWO = new Vector2(9400, 1350);
 
     public final static int MAP_WIDTH = 80;
     public final static int MAP_HEIGHT = 20;
@@ -54,6 +54,9 @@ public class LevelTwoScreen extends GameScreen
 
         this.tileLayer = (TiledMapTileLayer) GameAssetsDB.getInstance().tiledMap_L2.getLayers().get("BaseLayer");
 
+        this.mapWidth = MAP_WIDTH;
+        this.mapHeight = MAP_HEIGHT;
+
         // Create collision map
         this.collisionMap = new boolean[MAP_WIDTH][MAP_HEIGHT];
         for (int y = 0; y < this.tileLayer.getHeight(); y++) {
@@ -65,37 +68,32 @@ public class LevelTwoScreen extends GameScreen
             }
         }
 
-        // real stuff
         // Create player
-        // player = new Player(128 * 36,128 * 11); // 600
-        this.player = new Player((int)CHECKPOINT_ONE.x, (int)CHECKPOINT_TWO.y);
-        // player = new Player((int)(128*36), (int)(128*11)); // , y = 1100 (platform 2)
+        this.player = new Player((int)CHECKPOINT_ONE.x, (int)CHECKPOINT_ONE.y);
 
-        this.npc = null;
+        // Pumpkin NPC
+        this.npc = new NPC(this.player, 4900, 1470, NPC.NPC_TYPE.Pumpkin);
 
         //Enemy
         this.enemies = new ArrayList<Enemy>();
 
         this.enemies.add(new NecromancerBoss(
-                this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6));
-        // Set necromancer as final boss
-        Enemy finalBoss = enemies.get(enemies.size() - 1);
-        finalBoss.setFinalBoss(true);
+                this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6, true));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 36,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 50,6, SkullEnemy.Skull_TYPE.Normal));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 36,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 50,6, false));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 55,  this.tileLayer.getTileHeight() * 7), this.tileLayer, 50,3, SkullEnemy.Skull_TYPE.Normal));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 55,  this.tileLayer.getTileHeight() * 7), this.tileLayer, 50,3, false));
 
         this.enemies.add(new BatEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 70, 30f + this.tileLayer.getTileHeight() * 17), this.tileLayer, 50 ,3));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 70, 30f + this.tileLayer.getTileHeight() * 17), this.tileLayer, 50 ,3, false));
 
         this.enemies.add(new BatEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 45, 30f + this.tileLayer.getTileHeight() * 18), this.tileLayer, 50 ,3));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 45, 30f + this.tileLayer.getTileHeight() * 18), this.tileLayer, 50 ,3, false));
 
         this.enemies.add(new SkullEnemy(this.player,
-                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  this.tileLayer.getTileHeight() * 15), this.tileLayer, 50,4, SkullEnemy.Skull_TYPE.BOSS));
+                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  this.tileLayer.getTileHeight() * 15), this.tileLayer, 50,4, true));
     }
 
     public void newGame()
@@ -103,7 +101,11 @@ public class LevelTwoScreen extends GameScreen
         super.newGame();
 
         create();
-        player.reset();
+
+        // Reset game score to previous level one
+        gameScore = this.game.levelScores.get(0);
+
+        this.player.reset();
     }
 
     @Override
@@ -182,19 +184,28 @@ public class LevelTwoScreen extends GameScreen
     }
 
     @Override
-    public void update() {
+    public void update()
+    {
 
-        // Update player regardless the state
-        player.update(stateTime);
+        if(super.gameState == GameState.PLAYING || super.gameState == GameState.WIN)
+        {
+            // Update player regardless the state
+            player.update(stateTime);
 
-        // Remove enemy regardless the state
-        for(int i=this.enemies.size() -1; i>=0; i--){
-            this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
-            if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+            // Remove enemy regardless the state
+            for(int i=this.enemies.size() -1; i>=0; i--)
             {
-                this.enemies.remove(i);
+                this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
+
+                if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+                {
+                    this.enemies.remove(i);
+                }
+
             }
+
         }
+
 
         //Update Game State based on input
         switch (gameState) {
@@ -212,11 +223,6 @@ public class LevelTwoScreen extends GameScreen
                     super.resumePressed = false;
                 }
 
-                //else if(resumePressed){
-//                    gameState = GameState.PLAYING;
-//                    this.gameAssetsDB.l2_music.play();
-//                    resumePressed = false;
-//                }
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
@@ -232,6 +238,7 @@ public class LevelTwoScreen extends GameScreen
                 super.newLevelButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.newLevelButton.isDown)
                 {
+                    this.game.levelScores.set(this.game.currentLevel, this.gameScore);
                     //super.game.currentLevel += 1;
                     //super.game.setScreen(HalloweenGdxGame.gameLevels.get(super.game.currentLevel));
                 }
@@ -256,13 +263,14 @@ public class LevelTwoScreen extends GameScreen
                 super.restartButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.restartButton.isDown)
                 {
+                    GameAssetsDB.getInstance().game_over.stop();
                     newGame();
                 }
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
-                    dispose();
+                    this.dispose();
                     Gdx.app.exit();
                     System.exit(-1);
                 }
@@ -271,16 +279,13 @@ public class LevelTwoScreen extends GameScreen
 
             case PLAYING:
             {
+
+
                 // Check if the user press the pause button
                 super.pauseButton.update(Gdx.input.isTouched(), Gdx.input.getX(), Gdx.input.getY());
                 if (super.pauseButton.isDown)
                 {
                     super.gameState = GameState.PAUSE;
-                }
-
-                if(this.npc!=null && this.npc.getNpcState() == NPC.NPC_STATE.Mission_Complete)
-                {
-                    this.npc = null;
                 }
 
                 if(this.npc!=null)
@@ -300,24 +305,6 @@ public class LevelTwoScreen extends GameScreen
                     }
                 }
 
-                // Check if the player weapon hit any enemy
-                for(Enemy e:enemies){
-                    for (Weapon w:player.getWeapons()){
-                        if(e.getCollider() != null && (e.getState() != Enemy.EnemyState.DYING || e.getState() != Enemy.EnemyState.DEAD)){
-                            if(w.getState() == Weapon.WeaponState.ACTIVE && w.getCollider().overlaps(e.getCollider())){
-                                gameScore += e.getScore();
-                                //System.out.println("Enemy score:" + e.getScore());
-
-                                // If the player kill the final boss, the player win
-                                if(e.isFinalBoss()){
-                                    gameState = GameState.WIN;
-                                }
-                                e.setState(Enemy.EnemyState.DYING);
-                                w.setState(Weapon.WeaponState.DEAD);
-                            }
-                        }
-                    }
-                }
 
                 gameController();
 
@@ -341,6 +328,32 @@ public class LevelTwoScreen extends GameScreen
                 // Allow the player to jump when the player state is in jump, alive or even fall
                 if(this.player.getState() != Player.PlayerState.HURT && this.player.getState() != Player.PlayerState.HURTING && this.player.getState() != Player.PlayerState.HURT_END && this.player.getState() != Player.PlayerState.DEAD && this.player.getState() != Player.PlayerState.DYING){
 
+                    // Check if the player weapon hit any enemy
+                    for(Enemy e:enemies){
+                        for (Weapon w:player.getWeapons()){
+                            if(e.getCollider() != null && (e.getState() != Enemy.EnemyState.DYING || e.getState() != Enemy.EnemyState.DEAD)){
+                                if(w.getState() == Weapon.WeaponState.ACTIVE && w.getCollider().overlaps(e.getCollider()))
+                                {
+
+                                    e.setState(Enemy.EnemyState.DYING);
+
+                                    super.gameScore += e.getScore();
+
+                                    if(e.isFinalBoss() && e instanceof NecromancerBoss )
+                                    {
+                                        NecromancerBoss tmp = (NecromancerBoss) e;
+
+                                        if(tmp.getState() == Enemy.EnemyState.DYING && tmp.getLive() <= 1)
+                                        {
+                                            this.gameState = GameState.WIN;
+                                        }
+                                    }
+                                    w.setState(Weapon.WeaponState.DEAD);
+                                }
+                            }
+                        }
+                    }
+
                     // If the user press jump
                     if(isJumpHeld){
                         player.setState(Player.PlayerState.JUMP_START);
@@ -362,7 +375,7 @@ public class LevelTwoScreen extends GameScreen
                         super.camera.position.y = player.getPosition().y + 600f;
                         super.camera.update();
 
-                        if(this.player.getPosition().x <= CHECKPOINT_TWO.x){
+                        if(this.player.getPosition().x <= CHECKPOINT_TWO.x && this.player.getPosition().y < 1200){
                             this.player.setPosition(CHECKPOINT_ONE);
                         }else{
                             this.player.setPosition(CHECKPOINT_TWO);
@@ -377,7 +390,6 @@ public class LevelTwoScreen extends GameScreen
                     // Check if the player is walking on a platform
                     x = Math.round((this.player.getPosition().x)/ 128) + 1;
                     y = (int)Math.floor((this.player.getPosition().y) / 128);
-                    //y = Math.round((this.player.getPosition().y + 90) / 128) - 1;
                     boolean bottomBlocked = isBlocked(x, y);
 
                     // Check if the left is blocked
@@ -441,7 +453,7 @@ public class LevelTwoScreen extends GameScreen
                     boolean middleBlocked = isBlocked(x, y);
 
                     x = Math.round((this.player.getPosition().x)/ 128) + 1;
-                    y = Math.round((this.player.getPosition().y - 256) / 128);
+                    y = Math.round((this.player.getPosition().y - 250) / 128);
                     boolean bottomBlocked = isBlocked(x, y);
 
                     if (!middleBlocked && bottomBlocked) {
@@ -481,133 +493,56 @@ public class LevelTwoScreen extends GameScreen
                     GameAssetsDB.getInstance().satire.play();
                     super.gameState = GameState.FAIL;
                 }
-
-                // Double check this
-                if(this.player.isRewarded())
-                {
-                    Reward tmp_reward = this.player.openReward();
-
-                    if(tmp_reward.getRewardType() == Reward.RewardType.SCORE)
-                    {
-                        //super.gameScore += tmp_reward.getValue();
-                    }
-                    else
-                    {
-                        player.incrementHealth();
-                    }
-                }
             }
 
-
-
-//            // Move camera with bat
-//            if (this.enemies.get(3).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-//                super.camera.position.x = this.enemies.get(3).getPosition().x + 600;
-//
-//                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
-//                {
-//                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2);
-//                }
-//                else if(super.camera.position.x <= 0)
-//                {
-//                    super.camera.position.x = 0;
-//                }
-//            }
-//            if (this.enemies.get(3).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-//                super.camera.position.y = this.enemies.get(3).getPosition().y; // can change
-//
-//                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
-//                {
-//                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
-//                }
-//                else if(super.camera.position.y <= 0)
-//                {
-//                    super.camera.position.y = 0;
-//                }
-//            }
-//            super.camera.update();
-
-//            if (this.npc.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-//                super.camera.position.x = this.npc.getPosition().x + 600;
-//
-//                if(super.camera.position.x >= ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2))
-//                {
-//                    super.camera.position.x = ((this.layer.getWidth()*128) - Gdx.graphics.getWidth()/2);
-//                }
-//                else if(super.camera.position.x <= 0)
-//                {
-//                    super.camera.position.x = 0;
-//                }
-//            }
-//
-//            if (this.npc.getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-//                super.camera.position.y = this.npc.getPosition().y; // can change
-//
-//                if(super.camera.position.y >= ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2))
-//                {
-//                    super.camera.position.y = ((this.layer.getHeight()*128) - Gdx.graphics.getHeight()/2);
-//                }
-//                else if(super.camera.position.y <= 0)
-//                {
-//                    super.camera.position.y = 0;
-//                }
-//            }
-//            super.camera.update();
-
-            // Move camera with the player
-            if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
-                super.camera.position.x = player.getPosition().x + 200f;
-
-                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2) + 100f)
-                {
-                    super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2 + 100f);
-                }
-                else if(super.camera.position.x <= 0 + Gdx.graphics.getWidth()/2 - 100f)
-                {
-                    super.camera.position.x = 0 + Gdx.graphics.getWidth()/2 - 100f ;
-                }
-
-            }
-
-            if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
-                super.camera.position.y = player.getPosition().y - 60f;
-            }else{
-                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
-                {
-                    super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
-                }
-                else if(super.camera.position.y <= 0)
-                {
-                    super.camera.position.y = 0;
-                }
-                else
-                {
-                    super.camera.position.y = 715f;
-                }
-            }
-            super.camera.update();
-
+            // Move camera to follow player
+            moveCameraToFollowPlayer();
 
             return;
         }
+
+
     }
 
+
     /**
-     * Check if the tile in x and y coordinate is blocked and not null
-     * @param x The x coordinate of the tile which require for checking
-     * @param y The y coordinate of the tile which require for checking
-     * @return TRUE if the tile is blocked else false
+     * Move camera with the player
      */
-    private boolean isBlocked (int x, int y){
-        if(x >= 0 && x < MAP_WIDTH &&  y >= 0 && y < MAP_HEIGHT){
-            if(this.collisionMap[x][y] == true){
-                return true;
-            }else{
-                return false;
+    private void moveCameraToFollowPlayer(){
+        // Set camera x
+        if (this.player.getPosition().x > (Gdx.graphics.getWidth() / 2) - 600f) {
+            super.camera.position.x = player.getPosition().x + 200f;
+
+            if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2) + 100f)
+            {
+                super.camera.position.x = ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2 + 100f);
+            }
+            else if(super.camera.position.x <= 0 + Gdx.graphics.getWidth()/2 - 100f)
+            {
+                super.camera.position.x = 0 + Gdx.graphics.getWidth()/2 - 100f ;
             }
         }
-        return false;
+
+        // Set camera y
+        if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
+            super.camera.position.y = player.getPosition().y - 60f;
+        }else{
+            if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
+            {
+                super.camera.position.y = ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2);
+            }
+            else if(super.camera.position.y <= 0)
+            {
+                super.camera.position.y = 0;
+            }
+            else
+            {
+                super.camera.position.y = 715f;
+            }
+        }
+        super.camera.update();
     }
+
 
     /**
      * Game controller to detect game play control for playing the game
@@ -660,10 +595,9 @@ public class LevelTwoScreen extends GameScreen
             if(this.jumpPressedTime == 0){
                 this.isJumpHeld = true;
                 this.jumpPressedTime += 1f;
-            }else if(this.jumpPressedTime < (JUMP_PRESS_COOLDOWN/4)){
+            }else if(this.jumpPressedTime < (JUMP_PRESS_COOLDOWN/5.5)){
                 this.isJumpHeld = true;
-            }
-            else{
+            }else{
                 this.isJumpHeld = false;
             }
         }else{
@@ -681,10 +615,10 @@ public class LevelTwoScreen extends GameScreen
         // Detect if the the attack button is pressed
         if(Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN) ||attackButton.isDown){
             if(attackPressedTime == 0) {
-                isAttackHeld = true;
-                attackPressedTime += 1;
+                this.isAttackHeld = true;
+                this.attackPressedTime += 1;
             }else{
-                isAttackHeld = false;
+                this.isAttackHeld = false;
             }
         }else{
             isAttackHeld = false;
@@ -710,6 +644,7 @@ public class LevelTwoScreen extends GameScreen
     public void hide()
     {
         GameAssetsDB.getInstance().l2_music.stop();
+        this.gameScore = 0;
     }
 
     @Override

@@ -8,6 +8,11 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Align;
 
+/**
+ * @Author: Heidi Chew
+ *
+ * The main class for creating button and handling the behaviour of the button
+ */
 public class Button {
 
     float x;    // The x coordinate to place the button on screen

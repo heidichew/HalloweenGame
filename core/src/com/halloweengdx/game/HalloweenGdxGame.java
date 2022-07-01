@@ -10,6 +10,11 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
+/**
+ * Main class of the game
+ * This game class is used to create game levels and main menu screen for the game
+ * @Author: Heidi Chew
+ */
 public class HalloweenGdxGame extends Game {
 
 
@@ -20,13 +25,20 @@ public class HalloweenGdxGame extends Game {
 	private LevelTwoScreen gameScreenTwo;
 
 	public static ArrayList<GameScreen> gameLevels;
+	public static ArrayList<Integer> levelScores;
 
-	public int currentLevel = 0;
+	// The current level
+	public int currentLevel;
 
 	@Override
 	public void create () {
 		// Create main menu screen
 		menuScreen = new MenuScreen(this);
+
+		// Record score for each level
+		levelScores = new ArrayList<Integer>();
+		levelScores.add(0); // Level 1
+		levelScores.add(0); // Level 2
 
 		// Create game menu screen
 		gameScreenOne = new LevelOneScreen(this);
@@ -39,7 +51,8 @@ public class HalloweenGdxGame extends Game {
 		gameLevels.add(gameScreenOne);
 		gameLevels.add(gameScreenTwo);
 
-		currentLevel = 1;
+		// Which level to start with
+		currentLevel = 0;
 
 		// Change screens to the menu
 		setScreen(menuScreen);
@@ -50,6 +63,13 @@ public class HalloweenGdxGame extends Game {
 	public void dispose () {
 		super.dispose();
 
+		GameAssetsDB.getInstance().dispose();
+
+		for(GameScreen level: gameLevels){
+			level.dispose();
+		}
+
+		menuScreen.dispose();
 	}
 
 	@Override

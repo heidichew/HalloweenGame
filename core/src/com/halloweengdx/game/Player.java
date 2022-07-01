@@ -51,7 +51,7 @@ public class Player implements Actor
     public static final float INITIAL_JUMP_SPEED = 3f;  // The player starting jumping speed when the jump button is pressed
     public static final float MAX_JUMP_SPEED = 20f;     // The maximum jump speed to prevent the player to jump too high
     public static final float JUMP_X_SPEED = 10f;       // The speed in x direction when the player jump (e.g, increase the player position by x speed when jump)
-    public static final int INITIAL_LIFE = 5;           // The initial health of the player
+    public static final int MAX_LIFE = 5;           // The initial health of the player
     public static final float CEILING_HEIGHT = 2200f;   // The max height allow to jump to prevent jump over the ceiling
 
     public static final float PLAYER_WIDTH = 300f;      // The player width
@@ -128,7 +128,7 @@ public class Player implements Actor
         receivedReward = null;
         isRewarded = false;
 
-        health = INITIAL_LIFE;
+        health = MAX_LIFE;
 
         create();
     }
@@ -179,7 +179,7 @@ public class Player implements Actor
      */
     public void reset()
     {
-        health = INITIAL_LIFE;
+        health = MAX_LIFE;
         position = new Vector2(start_position.x, start_position.y);
         velocity = new Vector2(0,0);
 
@@ -225,6 +225,7 @@ public class Player implements Actor
     public void update(float delta)
     {
         currentFrame = null;
+
         // If for somewhat reason the animation is not created when the player instance is created
         // Then, create animation
         createAnimation();
@@ -321,6 +322,7 @@ public class Player implements Actor
             setState(PlayerState.ATTACKING);
         }
 
+
         if(state == PlayerState.JUMPING){
 
             // Prevent the player to jump too much and jump over the map
@@ -329,17 +331,6 @@ public class Player implements Actor
             }else{
                 velocity.y = 0f;
             }
-
-//            // Make sure the animation only play once and stop at last frame of the animation
-//            if(jumpStartAnimation != null & jumpAnimation != null) {
-//                if (jumpStartAnimation.isAnimationFinished(jumpStartTime)) {
-//                    currentFrame = (Texture) jumpAnimation.getKeyFrame(delta, true);
-//                    jumpStartTime = 0f;
-//                }else{
-//                    currentFrame = (Texture) jumpStartAnimation.getKeyFrame(jumpStartTime);
-//                    jumpStartTime += 0.03f;
-//                }
-//            }
 
             jumpStartTime = 0f;
             currentFrame = (Texture) jumpAnimation.getKeyFrame(delta, true);
@@ -520,19 +511,13 @@ public class Player implements Actor
     public boolean receiveReward(Reward reward)
     {
         this.receivedReward = reward;
-        this.isRewarded = true;
-        return true;
-    }
 
-    public Reward openReward()
-    {
-        Reward tmpReward = this.receivedReward;
-        if(this.receivedReward!=null)
-        {
-            this.isRewarded = false;
-            return tmpReward;
+        if(!this.isRewarded) {
+            // Prevent the health go over maximum health
+            if(health < MAX_LIFE) health += 1;
+            this.isRewarded = true;
         }
-        return null;
+        return true;
     }
 
     public boolean isRewarded()
@@ -579,13 +564,6 @@ public class Player implements Actor
     public PlayerState getPreviousState(){ return prevState; }
 
     public int getHealth() { return health; }
-
-    // Increase the player health
-    public boolean incrementHealth()
-    {
-        health += 1;
-        return true;
-    }
 
     public ArrayList<Weapon> getWeapons(){ return weapons; }
 }
