@@ -1,6 +1,7 @@
 package com.halloweengdx.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public abstract class Enemy implements Actor
@@ -22,6 +23,7 @@ public abstract class Enemy implements Actor
 
     private int patrol_range = 0;
 
+    private boolean isFinalBoss = false;    // If the enemy is a final boss
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
@@ -33,8 +35,9 @@ public abstract class Enemy implements Actor
         this.start_xy = new Vector2(start_xy.x, start_xy.y);
         this.state = EnemyState.ALIVE;
         this.position = new Vector2(position);
-        this.score = score;
+        this.score = score;  // this is not working
         this.patrol_range = patrol_range;
+        this.isFinalBoss = false;
     }
 
     @Override
@@ -64,15 +67,26 @@ public abstract class Enemy implements Actor
 
     public void setState(EnemyState state) { this.state = state; }
 
-    public int getScore() { return score; }
+    public int getScore() { return this.score; }
 
     public void setScore(int new_score)
     {
-        if(new_score >=0)
+        if(new_score >= 0 )
         {
             this.score = new_score;
         }
     }
 
-    public int getPatrolRange() {return  patrol_range;}
+    public int getPatrolRange() {return patrol_range;}
+
+    abstract public Rectangle getCollider();
+
+    public boolean isFinalBoss() {
+        return this.isFinalBoss;
+    }
+
+    public void setFinalBoss(boolean finalBoss) {
+        this.isFinalBoss = finalBoss;
+    }
+
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class NecromancerChild extends Enemy
@@ -223,5 +224,10 @@ public class NecromancerChild extends Enemy
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    @Override
+    public Rectangle getCollider() {
+        return null;
     }
 }

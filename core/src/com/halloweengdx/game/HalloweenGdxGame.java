@@ -8,24 +8,41 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.util.ArrayList;
+
 public class HalloweenGdxGame extends Game {
 
 
 	// The class with the menu
 	public static MenuScreen menuScreen;
 	// The class with the game level
-	public static LevelOneScreen gameScreenOne;
-	public static LevelTwoScreen gameScreenTwo;
+	private LevelOneScreen gameScreenOne;
+	private LevelTwoScreen gameScreenTwo;
 
+	public static ArrayList<GameScreen> gameLevels;
+
+	public int currentLevel = 0;
 
 	@Override
 	public void create () {
+		// Create main menu screen
+		menuScreen = new MenuScreen(this);
+
+		// Create game menu screen
 		gameScreenOne = new LevelOneScreen(this);
 		gameScreenTwo = new LevelTwoScreen(this);
-		menuScreen = new MenuScreen(this);
+
+		// Initialise the game level array
+		gameLevels = new ArrayList<GameScreen>();
+
+		// Add to array list
+		gameLevels.add(gameScreenOne);
+		gameLevels.add(gameScreenTwo);
+
+		currentLevel = 1;
+
 		// Change screens to the menu
 		setScreen(menuScreen);
-		//setScreen(gameScreenOne);
 	}
 
 

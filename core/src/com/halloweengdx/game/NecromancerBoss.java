@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.Random;
@@ -44,6 +45,8 @@ public class NecromancerBoss extends Enemy
 
     private float attack_timer;
 
+    private Rectangle collider;
+
 
     /**
      * The constructor to create an enemy that place the enemy at a specific starting position
@@ -60,8 +63,8 @@ public class NecromancerBoss extends Enemy
         this.idleAnimation = new Animation(0.1f, this.texture_assets.necromancer_idle_texture);
         this.attackGroundAnimation = new Animation(0.2f, this.texture_assets.necromancer_attack_ground_texture);
         this.attackGroundAnimation_2 = new Animation(0.1f, this.texture_assets.necromancer_attack_ground_texture_2);
-        this.hurtAnimation = new Animation(0.03f, this.texture_assets.necromancer_hurt_texture);
-        this.dyingAnimation = new Animation(0.03f, this.texture_assets.necromancer_dead_texture);
+        this.hurtAnimation = new Animation(0.08f, this.texture_assets.necromancer_hurt_texture);
+        this.dyingAnimation = new Animation(0.15f, this.texture_assets.necromancer_dead_texture);
 
         this.idle_state = 0.0f;
         this.attack_ground_state = 0.0f;
@@ -84,6 +87,9 @@ public class NecromancerBoss extends Enemy
 
         this.child = null;
         this.shortRange = false;
+
+        // Create collider
+        collider = new Rectangle(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f), this.necromancerWidth * this.scale, this.necromancerHeight * this.scale);
     }
 
     @Override
@@ -120,6 +126,23 @@ public class NecromancerBoss extends Enemy
 
                 break;
 
+            case DYING:
+
+                Texture dying_texture;
+
+                if(this.live <= 1)
+                {
+                    dying_texture = (Texture) this.dyingAnimation.getKeyFrame(this.dying_state, false);
+                }
+                else
+                {
+                    dying_texture = (Texture) this.hurtAnimation.getKeyFrame(this.hurt_state, false);
+                }
+
+                batch.draw(dying_texture, super.getPosition().x - this.necromancerWidth/2, super.getPosition().y - this.necromancerHeight/2, this.necromancerWidth, this.necromancerHeight);
+
+                break;
+
 
         }
 
@@ -136,14 +159,31 @@ public class NecromancerBoss extends Enemy
 
         if(this.getState() == EnemyState.DYING || this.getState() == EnemyState.DEAD)
         {
-            //Here need to play for
-            this.dying_state += delta;
-            if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
+
+            if(live <= 1)
             {
-                this.texture_assets.enemy_dead.play();
-                this.dying_state = 0.0f;
-                this.setState(EnemyState.DEAD);
+                //Here need to play for
+                this.dying_state += delta;
+                if(this.dying_state >= this.dyingAnimation.getAnimationDuration())
+                {
+                    this.live -= 1;
+                    this.dying_state = 0.0f;
+                    super.setState(EnemyState.DEAD);
+                }
+
             }
+            else
+            {
+                this.hurt_state += delta;
+                if(this.hurt_state >= this.hurtAnimation.getAnimationDuration())
+                {
+                    this.live -= 1;
+                    this.hurt_state = 0.0f;
+                    super.setState(EnemyState.DYING);
+                }
+
+            }
+
 
         }
         else
@@ -212,11 +252,19 @@ public class NecromancerBoss extends Enemy
                     }
             }
         }
+
+        // Update the collider position to match the bat enemy's position
+        collider.setPosition(new Vector2(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f)));
     }
 
 
     @Override
     public void dispose() {
         super.dispose();
+    }
+
+    @Override
+    public Rectangle getCollider() {
+        return this.collider;
     }
 }

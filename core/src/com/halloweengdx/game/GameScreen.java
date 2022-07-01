@@ -28,7 +28,6 @@ public abstract class GameScreen implements Screen {
 
     protected GameState gameState;         // The game state of this game level
 
-    protected int health;                  // The total health or life that the player have
     protected int gameScore;               // The total score of the player win in the game
 
     //UI Buttons
@@ -47,19 +46,26 @@ public abstract class GameScreen implements Screen {
     protected boolean resumePressed;
 
     private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
-    private HalloweenGdxGame game;
+    protected HalloweenGdxGame game;
 
     private float targetScreenHeight = 1920;
-
     private float targetScreenWidth;
 
+    // Detect if the user press the gameplay controls
+    protected boolean isJumpHeld, isRightHeld, isLeftHeld, isAttackHeld;
+
+    protected long jumpPressedTime;
+    protected float attackPressedTime = 0;
+
+    public static final long LONG_JUMP_PRESS = 200l;
+    public static final float ATTACK_PRESS_COOLDOWN = 40;
+    public final static float RESPAWN_TIME = 100; // not using
 
     public GameScreen(HalloweenGdxGame game) {
 
         this.game = game;
         this.gameScore = 0;
         this.stateTime = 0f;
-        this.health = HEALTH;
     }
 
     public void create(){
@@ -117,7 +123,13 @@ public abstract class GameScreen implements Screen {
         gameState = GameState.PLAYING;
         stateTime = 0;
         gameScore = 0;
-        health = HEALTH;
+        attackPressedTime = 0;
+        jumpPressedTime = 0;
+
+        isAttackHeld = false;
+        isJumpHeld = false;
+        isRightHeld = false;
+        isLeftHeld = false;
     }
 
     abstract public void update();

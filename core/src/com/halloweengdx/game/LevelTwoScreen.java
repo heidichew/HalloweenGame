@@ -16,10 +16,12 @@ public class LevelTwoScreen extends GameScreen
 
     public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 600);
     public final static Vector2 CHECKPOINT_TWO = new Vector2(3800, 600);
-    public final static float RESPAWN_TIME = 20;
 
-    //assets
-    private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
+    public final static int MAP_WIDTH = 80;
+    public final static int MAP_HEIGHT = 20;
+
+    // The spike's y position after falling into a pit
+    public final static float SPIKE_TRAP_Y = 15;
 
     //tileMap Render
     private TiledMapRenderer tiledMapRenderer;
@@ -30,18 +32,7 @@ public class LevelTwoScreen extends GameScreen
     // Player
     private Player player;
 
-    private boolean isJumpHeld, isRightHeld, isLeftHeld, isAttackHeld;
-
-    public static final long LONG_JUMP_PRESS = 200l;
-    private long jumpPressedTime;
-
     private boolean[][] collisionMap;
-
-    private float respawnTime;
-
-    private boolean shouldMove;
-    private boolean shouldFall;
-
 
     //NPC
     private NPC npc;
@@ -53,7 +44,6 @@ public class LevelTwoScreen extends GameScreen
     {
         super(game);
         newGame();
-
     }
 
     @Override
@@ -62,23 +52,12 @@ public class LevelTwoScreen extends GameScreen
         super.create();
 
         //initialise
-        this.tiledMapRenderer = new OrthogonalTiledMapRenderer(gameAssetsDB.tiledMap_L2);
+        this.tiledMapRenderer = new OrthogonalTiledMapRenderer(GameAssetsDB.getInstance().tiledMap_L2);
 
-        this.tileLayer = (TiledMapTileLayer) gameAssetsDB.tiledMap_L2.getLayers().get("BaseLayer");
+        this.tileLayer = (TiledMapTileLayer) GameAssetsDB.getInstance().tiledMap_L2.getLayers().get("BaseLayer");
 
-        this.shouldMove = false;
-        this.shouldFall = false;
-
-        this.collisionMap = new boolean[80][20];
-
-        // real stuff
-        // Create player
-        // player = new Player(128 * 36,128 * 11); // 600
-        this.player = new Player((int)(1500), (int)(600));
-        // player = new Player((int)(128*36), (int)(128*11)); // , y = 1100 (platform 2)
-
-        this.npc = null;
-
+        // Create collision map
+        this.collisionMap = new boolean[MAP_WIDTH][MAP_HEIGHT];
         for (int y = 0; y < this.tileLayer.getHeight(); y++) {
             for (int x = 0; x < this.tileLayer.getWidth(); x ++) {
                 this.collisionMap[x][y] = false;
@@ -88,36 +67,45 @@ public class LevelTwoScreen extends GameScreen
             }
         }
 
+        // real stuff
+        // Create player
+        // player = new Player(128 * 36,128 * 11); // 600
+        this.player = new Player((int)CHECKPOINT_ONE.x, (int)CHECKPOINT_TWO.y);
+        // player = new Player((int)(128*36), (int)(128*11)); // , y = 1100 (platform 2)
+
+        this.npc = null;
+
         //Enemy
         this.enemies = new ArrayList<Enemy>();
 
         this.enemies.add(new NecromancerBoss(
                 this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6));
+        // Set necromancer as final boss
+        Enemy finalBoss = enemies.get(enemies.size() - 1);
+        finalBoss.setFinalBoss(true);
+
+        this.enemies.add(new SkullEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 36,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 50,6, SkullEnemy.Skull_TYPE.Normal));
+
+        this.enemies.add(new SkullEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 55,  this.tileLayer.getTileHeight() * 7), this.tileLayer, 50,3, SkullEnemy.Skull_TYPE.Normal));
+
+        this.enemies.add(new BatEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 70, 30f + this.tileLayer.getTileHeight() * 17), this.tileLayer, 50 ,3));
+
+        this.enemies.add(new BatEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 45, 30f + this.tileLayer.getTileHeight() * 18), this.tileLayer, 50 ,3));
+
+        this.enemies.add(new SkullEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 29,  this.tileLayer.getTileHeight() * 15), this.tileLayer, 50,4, SkullEnemy.Skull_TYPE.BOSS));
     }
 
-    public void newGame(){
-
-        //Translate camera to center of screen
-        //camera.position.x = 16;
-        //camera.position.y = 10;
-        //camera.translate(player.getPosition().x, player.getPosition().y);
-
+    public void newGame()
+    {
         super.newGame();
 
-        this.isAttackHeld = false;
-        this.isJumpHeld = false;
-        this.isRightHeld = false;
-        this.isLeftHeld = false;
-
-        this.respawnTime = 0;
-
-//        if(this.gameAssetsDB.game_over.isPlaying())
-//        {
-//            this.gameAssetsDB.game_over.stop();
-//            this.gameAssetsDB.l1_music.play();
-//        }
-
         create();
+        player.reset();
     }
 
     @Override
@@ -130,7 +118,7 @@ public class LevelTwoScreen extends GameScreen
 
         super.bgBatch.setProjectionMatrix(camera.combined);
         super.bgBatch.begin();
-        super.bgBatch.draw(this.gameAssetsDB.L2_background, 0,0, 80*128, 20*128);
+        super.bgBatch.draw(GameAssetsDB.getInstance().L2_background, 0,0, 80*128, 20*128);
         super.bgBatch.end();
 
         if(super.camera != null){
@@ -168,8 +156,8 @@ public class LevelTwoScreen extends GameScreen
         // Render score
         super.font.draw(uiBatch, "Score: " + super.gameScore, Gdx.graphics.getWidth()/2 - 100f, Gdx.graphics.getHeight() - 60f);
 
-        super.uiBatch.draw(this.gameAssetsDB.lifeTexture, 50, Gdx.graphics.getHeight() - 150f);
-        super.font.draw(super.uiBatch, Integer.toString(health), 200f, Gdx.graphics.getHeight() - 60f);
+        super.uiBatch.draw(GameAssetsDB.getInstance().lifeTexture, 50, Gdx.graphics.getHeight() - 150f);
+        super.font.draw(super.uiBatch, Integer.toString(player.getHealth()), 200f, Gdx.graphics.getHeight() - 60f);
 
         if(super.gameState == GameState.PLAYING){
             super.moveLeftButton.draw(super.uiBatch);
@@ -196,53 +184,59 @@ public class LevelTwoScreen extends GameScreen
     }
 
     @Override
-    public void update()
-    {
-        //Touch Input Info
-        boolean checkTouch = Gdx.input.isTouched();
-        int touchX = Gdx.input.getX();
-        int touchY = Gdx.input.getY();
+    public void update() {
+
+        // Update player regardless the state
+        player.update(stateTime);
+
+        // Remove enemy regardless the state
+        for(int i=this.enemies.size() -1; i>=0; i--){
+            this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
+            if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+            {
+                this.enemies.remove(i);
+            }
+        }
 
         //Update Game State based on input
         switch (gameState) {
 
             case PAUSE:
             {
-                //this.gameAssetsDB.l1_music.pause();
+                GameAssetsDB.getInstance().l2_music.pause();
 
                 // Check if the user press the resume button
                 super.resumeButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.resumeButton.isDown){
                     super.resumePressed = true;
                     super.gameState = GameState.PLAYING;
-                    //this.gameAssetsDB.l1_music.play(); need to change music
+                    GameAssetsDB.getInstance().l2_music.play();
+                    super.resumePressed = false;
                 }
 
                 //else if(resumePressed){
 //                    gameState = GameState.PLAYING;
-//                    this.gameAssetsDB.l1_music.play();
+//                    this.gameAssetsDB.l2_music.play();
 //                    resumePressed = false;
 //                }
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
-                    this.dispose();
+                    dispose();
                     Gdx.app.exit();
                     System.exit(-1);
 
                 }
                 return;
             }
-
             case WIN:
             {
-                for(int i=this.enemies.size() -1; i>=0; i--)
+                super.newLevelButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
+                if(super.newLevelButton.isDown)
                 {
-                    this.enemies.get(i).setState(Enemy.EnemyState.DEAD);
-                    this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
+                    //super.game.currentLevel += 1;
+                    //super.game.setScreen(HalloweenGdxGame.gameLevels.get(super.game.currentLevel));
                 }
-
-                this.player.update(Gdx.graphics.getDeltaTime());
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
@@ -250,27 +244,21 @@ public class LevelTwoScreen extends GameScreen
                     dispose();
                     Gdx.app.exit();
                     System.exit(-1);
-
                 }
 
-                return;
+                break;
 
             }
-
             case FAIL:
             {
-                for(int i=this.enemies.size() -1; i>=0; i--){
-                    this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
-                    if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
-                    {
-                        this.enemies.remove(i);
-                    }
-                }
+
+                GameAssetsDB.getInstance().l2_music.stop();
+                GameAssetsDB.getInstance().game_over.play();
 
                 super.restartButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.restartButton.isDown)
                 {
-                    this.newGame();
+                    newGame();
                 }
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
@@ -279,7 +267,6 @@ public class LevelTwoScreen extends GameScreen
                     dispose();
                     Gdx.app.exit();
                     System.exit(-1);
-
                 }
                 return;
             }
@@ -303,268 +290,207 @@ public class LevelTwoScreen extends GameScreen
                     this.npc.update(Gdx.graphics.getDeltaTime());
                 }
 
-                for(int i=this.enemies.size() -1; i>=0; i--){
-                    this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
-                    if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
+                if(GameAssetsDB.getInstance().danger_zone_music.isPlaying())
+                {
+                    GameAssetsDB.getInstance().l2_music.pause();
+                }
+                else
+                {
+                    if(GameAssetsDB.getInstance().l2_music.isPlaying() == false)
                     {
-                        super.gameScore+=this.enemies.get(i).getScore();
-                        this.enemies.remove(i);
+                        GameAssetsDB.getInstance().l2_music.play();
                     }
                 }
 
-                //Poll user for input
-                super.moveLeftButton.update(checkTouch, touchX, touchY);
-                super.moveRightButton.update(checkTouch, touchX, touchY);
-                super.attackButton.update(checkTouch, touchX, touchY);
-                super.jumpButton.update(checkTouch, touchX, touchY);
+                // Check if the player weapon hit any enemy
+                for(Enemy e:enemies){
+                    for (Weapon w:player.getWeapons()){
+                        if(e.getCollider() != null && (e.getState() != Enemy.EnemyState.DYING || e.getState() != Enemy.EnemyState.DEAD)){
+                            if(w.getState() == Weapon.WeaponState.ACTIVE && w.getCollider().overlaps(e.getCollider())){
+                                gameScore += e.getScore();
+                                //System.out.println("Enemy score:" + e.getScore());
 
-                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || super.moveLeftButton.isDown) {
-
-                    this.isLeftHeld = true;
-
-                    // Prevent player to move out from the tile
-                    if(this.player.getPosition().x <= 0){
-                        this.isLeftHeld = false;
-                    }
-                } else{
-                    this.isLeftHeld = false;
-                }
-
-                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || super.moveRightButton.isDown) {
-
-                    this.isRightHeld = true;
-
-                }else{
-                    this.isRightHeld = false;
-                }
-
-                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN) || super.attackButton.isDown) {
-                    this.isAttackHeld = true;
-                }else{
-                    this.isAttackHeld = false;
-                }
-
-                if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP) || super.jumpButton.isDown) {
-                    if(this.player.getState() != Player.PlayerState.JUMPING && this.player.getState() != Player.PlayerState.JUMP_START){
-                        this.isJumpHeld = true;
-                        this.jumpPressedTime = System.currentTimeMillis();
-                        this.player.setState(Player.PlayerState.JUMP_START);
-                    }else{
-                        if(this.isJumpHeld &&  ((System.currentTimeMillis() - this.jumpPressedTime) >= LONG_JUMP_PRESS)){
-                            this.isJumpHeld = false;
-                            this.jumpPressedTime = 0;
-                        }else{
-                            this.player.setState(Player.PlayerState.JUMP_START);
+                                // If the player kill the final boss, the player win
+                                if(e.isFinalBoss()){
+                                    gameState = GameState.WIN;
+                                }
+                                e.setState(Enemy.EnemyState.DYING);
+                                w.setState(Weapon.WeaponState.DEAD);
+                            }
                         }
                     }
-                }else{
-                    if(this.isJumpHeld){
-                        this.isJumpHeld = false;
-                        this.jumpPressedTime = 0;
-                    }
                 }
+
+                gameController();
 
                 int x = 0, y = 0;
 
+                if(this.player.getState() == Player.PlayerState.HURT_END){
 
-                if (this.player.getState() == Player.PlayerState.ALIVE) {
+                    if(player.getHealth() > 0){
+                        // Reset camera position
+                        super.camera.position.x = (Gdx.graphics.getWidth() / 2) - 100;
+                        super.camera.position.y = player.getPosition().y + 600f;
+                        super.camera.update();
 
-//                    if(isLeftHeld){
-//                        x = Math.round((player.getPosition().x / 128)) + 1;
-//                    }else{
-//                        x = Math.round((player.getPosition().x / 128)) ;
-//                    }
-                    x = Math.round((this.player.getPosition().x)/ 128) + 1;
-
-                    // y = (int)Math.floor(player.getPosition().y / 128f);
-
-                    System.out.println("Here y");
-                    System.out.println(player.getPosition().y);
-                    y = Math.round((this.player.getPosition().y + 90f) / 128) - 1;
-
-
-//                    if(player.getPosition().y < 1000 ){
-//                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-////                    }else if(player.getPosition().y > 1500 && player.getPosition().y < 1700){
-////                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-//                    }else if(player.getPosition().y >= 1700){
-//                        // have to fix
-//                        y = Math.round(((player.getPosition().y + 100) / 128)) - 1;
-//                    }else{
-//                        y = Math.round(player.getPosition().y / 128) - 1;
-//                    }
-
-                    boolean shouldFall = false;
-                    if(x >= 0 && x < 80 &&  y >= 0 && y < 20){
-                        if(this.collisionMap[x][y] == true){
-                            System.out.println("blocked fall");
-                            shouldFall = false;
+                        if(this.player.getPosition().x <= CHECKPOINT_TWO.x){
+                            this.player.setPosition(CHECKPOINT_ONE);
                         }else{
-                            System.out.println("not blocked fall");
-                            shouldFall = true;
+                            this.player.setPosition(CHECKPOINT_TWO);
                         }
+                        this.player.setState(Player.PlayerState.ALIVE);
+                    }else{
+                        player.setState(Player.PlayerState.DYING);
                     }
 
-                    if(this.player.getState() != Player.PlayerState.DEAD || this.player.getState() != Player.PlayerState.DYING && health > 0){
-                        if (shouldFall) {
+                }else if(this.player.getState() == Player.PlayerState.ALIVE) {
+
+                    // Check if the player is walking on a platform
+                    x = Math.round((this.player.getPosition().x)/ 128) + 1;
+                    // System.out.println("ALIVEy: " + (player.getPosition().y));
+                    y = (int)Math.floor((this.player.getPosition().y) / 128);
+                    //y = Math.round((this.player.getPosition().y + 90) / 128) - 1;
+                    //y = Math.round((this.player.getPosition().y) / 128) - 1;
+
+                    boolean bottomBlocked = isBlocked(x, y);
+
+                    System.out.println("AliveX: " + player.getPosition().x);
+
+                    // Check if the left is blocked
+                    x = Math.round((this.player.getPosition().x)/ 128);
+                    y = Math.round((this.player.getPosition().y) / 128);
+                    boolean isLeftBlocked = isBlocked(x, y);
+
+                    // Check if the right is blocked
+                    x = Math.round((this.player.getPosition().x)/ 128) + 1;
+                    y = Math.round((this.player.getPosition().y) / 128);
+                    boolean isRightBlocked = isBlocked(x, y);
+
+                    if(this.player.getState() == Player.PlayerState.ALIVE){
+                        // If the player is not walking on a platform
+                        if (!bottomBlocked) {
                             this.player.setState(Player.PlayerState.FALL_START);
-                            this.player.setIsOnGround(false);
+                            //this.player.setIsOnGround(false);
                         }else{
                             this.player.setState(Player.PlayerState.ALIVE);
-                            this.player.setIsOnGround(true);
+                            //this.player.setIsOnGround(true);
                         }
 
                         if (this.player.getState() == Player.PlayerState.ALIVE){
-                            if(this.isRightHeld){
+                            // If the right button is held
+                            if(this.isRightHeld && !isRightBlocked){
                                 this.player.setState(Player.PlayerState.MOVERIGHT);
-                            }else if(this.isLeftHeld){
-                                this.player.setState(Player.PlayerState.MOVELEFT);
+                                isRightHeld = false;
+                            }else{
+                                isRightHeld = false;
                             }
-//
-//                            if(isJumpHeld){
-//                                player.setIsJumpStart(true);
-//                                player.setState(Player.PlayerState.JUMPING);
-//                            }
+
+                            // If the left button is held
+                            if(this.isLeftHeld && !isLeftBlocked){
+                                this.player.setState(Player.PlayerState.MOVELEFT);
+                                isLeftHeld = false;
+                            }else{
+                                isLeftHeld = false;
+                            }
+
+                            // If the attack button is held
+                            if(this.isAttackHeld){
+                                player.setState(Player.PlayerState.ATTACK);
+                                isAttackHeld = false;
+                            }
                         }
                     }
-                }
-
-                if(this.player.getState() == Player.PlayerState.JUMPING){
+                } else if(this.player.getState() == Player.PlayerState.JUMPING){
                     x = Math.round((this.player.getPosition().x / 128));
                     y = Math.round((this.player.getPosition().y / 128));
 
-//                    x = Math.round((player.getPosition().x + (player.PLAYER_WIDTH * 0.5f)) / 120);
-//                    y = Math.round((player.getPosition().y - (player.PLAYER_HEIGHT * 0.35f) - 10) / 120);
+                    boolean upperBlocked = isBlocked(x, y);
 
-                    boolean stopJump = false;
-                    if(x >= 0 && x < 80 &&  y >= 0 && y < 20){
-                        if(this.collisionMap[x][y] == true){
-                            System.out.println("should stop jump");
-                            stopJump = true;
-                        }else{
-                            stopJump = false;
-                        }
-                    }else{
-                        stopJump = true;
-                    }
-
-                    if (stopJump) {
+                    if (upperBlocked) {
                         this.isJumpHeld = false;
                         this.jumpPressedTime = 0;
                         this.player.setPosition(player.getPosition().x, player.getPosition().y + 25f);
                         this.player.setIsOnGround(true);
                         //player.setState(Player.PlayerState.ALIVE);
                     }else{
-                        this.player.setIsOnGround(false);
+                        //this.player.setIsOnGround(false);
+                        //this.player.setState(Player.PlayerState.FALL_START);
                     }
-                    this.player.setState(Player.PlayerState.ALIVE);
-                }
+                    player.setState(Player.PlayerState.ALIVE);
+                }else if (this.player.getState() == Player.PlayerState.FALLING) {
 
-                if (this.player.getState() == Player.PlayerState.FALLING) {
-
-                    if(this.player.getFacingDirection() == Player.PlayerDirection.LEFT){
-                        x = Math.round(((this.player.getPosition().x) / 128));
-                    }else{
-                        x = Math.round((this.player.getPosition().x / 128)) + 1;
+                    if(player.getPosition().y <= SPIKE_TRAP_Y){
+                        player.setState(Player.PlayerState.HURT);
                     }
 
-                    y = Math.round((this.player.getPosition().y / 128));
+                    if(player.getState() != Player.PlayerState.HURT && player.getState() != Player.PlayerState.HURTING && player.getState() != Player.PlayerState.HURT_END){
 
-                    boolean fall = false;
-                    if(x >= 0 && x < 80 &&  y >= 0 && y < 20){
-                        if(collisionMap[x][y] == true){
-                            System.out.println("should not fall");
-                            fall = false;
+                        if(this.player.getFacingDirection() == Player.PlayerDirection.LEFT){
+                            x = Math.round(((this.player.getPosition().x) / 128));
                         }else{
-                            if(player.getPosition().y <= 15f){
-                                fall = false;
-                            }else{
-                                fall = true;
-                            }
+                            x = Math.round((this.player.getPosition().x / 128)) + 1;
                         }
-                    }
 
-                    if(fall){
-                        this.player.setState(Player.PlayerState.FALL_START);
-                        this.player.setIsOnGround(false);
-                    }else if(!fall){
-                        if(this.player.getPosition().y <= 200){
+                        y = Math.round((this.player.getPosition().y) / 128);
+                        //y = Math.round((this.player.getPosition().y - 90) / 128);
+                        //y = (int)Math.floor((this.player.getPosition().y ) / 128);
+
+                        boolean bottomBlocked = isBlocked(x, y);
+
+//                        if(x >= 0 && x < MAP_WIDTH &&  y >= 0 && y < MAP_HEIGHT){
+//                            if(collisionMap[x][y] == true){
+//                                System.out.println("should not fall");
+//                                normalFall = false;
+//                            }else{
+//                                if(player.getPosition().y <= 15f){
+//                                    normalFall = false;
+//                                }else{
+//                                    normalFall = true;
+//                                }
+//                            }
+//                        }
+
+                        if(!bottomBlocked){
                             this.player.setState(Player.PlayerState.FALL_START);
                             this.player.setIsOnGround(false);
                         }else{
-                            this.player.setPosition(player.getPosition().x, player.getPosition().y + 25f);
-                            this.player.setIsOnGround(true);
-                            this.player.setState(Player.PlayerState.ALIVE);
-                        }
-                    }
-                }
-
-                if(this.player.getState() == Player.PlayerState.HURT){
-
-                    this.gameAssetsDB.player_hurt.play();
-                    if(super.health >= 1){
-                        this.respawnTime += 1;
-
-                        if(this.respawnTime >= RESPAWN_TIME){
-                            super.health -= 1;
-
-                            if(super.health >= 1){
-                                // Reset camera position
-                                super.camera.position.x = (Gdx.graphics.getWidth() / 2) - 100;
-                                super.camera.position.y = player.getPosition().y + 600f;
-                                super.camera.update();
-
-                                if(this.player.getPosition().x <= CHECKPOINT_TWO.x){
-                                    this.player.setPosition(CHECKPOINT_ONE);
-                                }else{
-                                    this.player.setPosition(CHECKPOINT_TWO);
-                                }
-
+                            if(this.player.getPosition().y <= 200){
+                                this.player.setState(Player.PlayerState.FALL_START);
+                                //this.player.setIsOnGround(false);
+                            }else{
+                                this.player.setPosition(player.getPosition().x, player.getPosition().y + 20f);
+                                //this.player.setIsOnGround(true);
                                 this.player.setState(Player.PlayerState.ALIVE);
-                                this.respawnTime = 0;
                             }
                         }
-                    }else{
-                        this.player.setState(Player.PlayerState.DYING);
                     }
-                }
 
-                if(this.player.getState() == Player.PlayerState.DEAD)
-                {
-                    this.gameAssetsDB.satire.play();
+                }else if(this.player.getState() == Player.PlayerState.DEAD) {
+                    GameAssetsDB.getInstance().satire.play();
                     super.gameState = GameState.FAIL;
-
                 }
 
+                // Double check this
                 if(this.player.isRewarded())
                 {
                     Reward tmp_reward = this.player.openReward();
 
                     if(tmp_reward.getRewardType() == Reward.RewardType.SCORE)
                     {
-                        super.gameScore += tmp_reward.getValue();
+                        //super.gameScore += tmp_reward.getValue();
                     }
                     else
                     {
-                        super.health += tmp_reward.getValue();
+                        player.incrementHealth(tmp_reward.getValue());
                     }
-
-                }
-
-                if(super.gameScore >= 50)  //Need to change to higher
-                {
-                    super.gameState = GameState.WIN;
                 }
             }
 
 
-            // Update player
-            this.player.update(stateTime);
-
 
 //            // Move camera with bat
-//            if (this.enemies.get(0).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
-//                super.camera.position.x = this.enemies.get(0).getPosition().x + 600;
+//            if (this.enemies.get(3).getPosition().x > (Gdx.graphics.getWidth() / 2) - 600) {
+//                super.camera.position.x = this.enemies.get(3).getPosition().x + 600;
 //
 //                if(super.camera.position.x >= ((this.tileLayer.getWidth()*128) - Gdx.graphics.getWidth()/2))
 //                {
@@ -575,8 +501,8 @@ public class LevelTwoScreen extends GameScreen
 //                    super.camera.position.x = 0;
 //                }
 //            }
-//            if (this.enemies.get(0).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
-//                super.camera.position.y = this.enemies.get(0).getPosition().y; // can change
+//            if (this.enemies.get(3).getPosition().y > (Gdx.graphics.getHeight() / 2)) {
+//                super.camera.position.y = this.enemies.get(3).getPosition().y; // can change
 //
 //                if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
 //                {
@@ -632,7 +558,7 @@ public class LevelTwoScreen extends GameScreen
             }
 
             if (this.player.getPosition().y > (Gdx.graphics.getHeight() / 2) - 400f) {
-                super.camera.position.y = player.getPosition().y - 100f;
+                super.camera.position.y = player.getPosition().y - 60f;
             }else{
                 if(super.camera.position.y >= ((this.tileLayer.getHeight()*128) - Gdx.graphics.getHeight()/2))
                 {
@@ -652,22 +578,129 @@ public class LevelTwoScreen extends GameScreen
 
             return;
         }
+    }
 
+    /**
+     * Check if the tile in x and y coordinate is blocked and not null
+     * @param x The x coordinate of the tile which require for checking
+     * @param y The y coordinate of the tile which require for checking
+     * @return TRUE if the tile is blocked else false
+     */
+    private boolean isBlocked (int x, int y){
+        if(x >= 0 && x < MAP_WIDTH &&  y >= 0 && y < MAP_HEIGHT){
+            if(this.collisionMap[x][y] == true){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Game controller to detect game play control for playing the game
+     * This function detect the following:
+     * The move left button to control the player left movement
+     * The move right button to control the player right movement
+     * The attack button to control the player attack movement
+     * The jump button to control the player jump movement depend on the player's current facing direction
+     */
+    private void gameController(){
+        // Disable the user to press any during these states
+        if(player.getState() == Player.PlayerState.HURT || player.getState() == Player.PlayerState.HURTING || player.getState() == Player.PlayerState.DYING || player.getState() == Player.PlayerState.DEAD){
+            return;
+        }
+
+        //Touch Input Info
+        boolean checkTouch = Gdx.input.isTouched();
+        int touchX = Gdx.input.getX();
+        int touchY = Gdx.input.getY();
+
+        // Poll user for input
+        super.moveLeftButton.update(checkTouch, touchX, touchY);
+        super.moveRightButton.update(checkTouch, touchX, touchY);
+        super.attackButton.update(checkTouch, touchX, touchY);
+        super.jumpButton.update(checkTouch, touchX, touchY);
+
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || super.moveLeftButton.isDown) {
+
+            this.isLeftHeld = true;
+
+            // Prevent player to move out from the tile
+            if(this.player.getPosition().x <= 0){
+                this.isLeftHeld = false;
+            }
+        } else{
+            this.isLeftHeld = false;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_LEFT) || super.moveRightButton.isDown) {
+
+            // Prevent player to go out from the screen
+            if(player.getPosition().x < ((MAP_WIDTH * 128) - 240) ) this.isRightHeld = true;
+        }else{
+
+            this.isRightHeld = false;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN) || super.attackButton.isDown) {
+            this.isAttackHeld = true;
+        }else{
+            this.isAttackHeld = false;
+        }
+
+        // Double check this // need to fix
+        if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP) || super.jumpButton.isDown) {
+            if(this.player.getState() != Player.PlayerState.JUMPING && this.player.getState() != Player.PlayerState.JUMP_START){
+                this.isJumpHeld = true;
+                this.jumpPressedTime = System.currentTimeMillis();
+                this.player.setState(Player.PlayerState.JUMP_START);
+            }else{
+                if(this.isJumpHeld &&  ((System.currentTimeMillis() - this.jumpPressedTime) >= LONG_JUMP_PRESS)){
+                    this.isJumpHeld = false;
+                    this.jumpPressedTime = 0;
+                }else{
+                    this.player.setState(Player.PlayerState.JUMP_START);
+                }
+            }
+        }else{
+            if(this.isJumpHeld){
+                this.isJumpHeld = false;
+                this.jumpPressedTime = 0;
+            }
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN) ||attackButton.isDown){
+            if(attackPressedTime == 0) {
+                isAttackHeld = true;
+                attackPressedTime += 1;
+            }else{
+                isAttackHeld = false;
+            }
+        }else{
+            isAttackHeld = false;
+        }
+
+        // Cooldown attack
+        if(attackPressedTime > ATTACK_PRESS_COOLDOWN){
+            attackPressedTime = 0;
+        }else if(attackPressedTime >= 1){
+            attackPressedTime += 1;
+        }
     }
 
     @Override
     public void show()
     {
-        this.newGame();
-
+        GameAssetsDB.getInstance().l2_music.play();
+        newGame();
     }
 
 
     @Override
     public void hide()
     {
-        //stop music
-
+        GameAssetsDB.getInstance().l2_music.stop();
     }
 
     @Override
@@ -676,7 +709,8 @@ public class LevelTwoScreen extends GameScreen
     }
 
     @Override
-    public void pause() {
+    public void pause()
+    {
 
     }
 
@@ -687,7 +721,15 @@ public class LevelTwoScreen extends GameScreen
     }
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         super.dispose();
+
+        this.player.dispose();
+
+        for(Enemy e: enemies)
+        {
+            e.dispose();
+        }
     }
 }
