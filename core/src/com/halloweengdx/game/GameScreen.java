@@ -161,8 +161,6 @@ public abstract class GameScreen implements Screen {
 
     public void dispose()
     {
-        this.gameAssetsDB.dispose();
-
         this.batch.dispose();
         this.bgBatch.dispose();
         this.uiBatch.dispose();
@@ -181,7 +179,6 @@ public abstract class GameScreen implements Screen {
 
         this.font.dispose();
 
-        this.game.dispose();
     };
 
     /**

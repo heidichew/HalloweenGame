@@ -234,10 +234,11 @@ public class LevelOneScreen extends GameScreen
     @Override
     public void update() {
 
+        // Update player regardless the state
+        player.update(stateTime);
+
         if(super.gameState == GameState.PLAYING || super.gameState == GameState.WIN)
         {
-            // Update player regardless the state
-            player.update(stateTime);
 
             // Remove enemy regardless the state
             for(int i=this.enemies.size() -1; i>=0; i--)
@@ -314,7 +315,7 @@ public class LevelOneScreen extends GameScreen
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
-                    dispose();
+                    this.game.dispose();
                     Gdx.app.exit();
                     System.exit(-1);
 
@@ -714,7 +715,6 @@ public class LevelOneScreen extends GameScreen
     @Override
     public void dispose()
     {
-        super.dispose();
 
         this.player.dispose();
 

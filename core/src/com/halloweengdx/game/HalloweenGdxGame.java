@@ -60,7 +60,9 @@ public class HalloweenGdxGame extends Game {
 
 
 	@Override
-	public void dispose () {
+	public void dispose ()
+	{
+		System.out.println("Dispose core");
 		super.dispose();
 
 		GameAssetsDB.getInstance().dispose();

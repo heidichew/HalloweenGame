@@ -81,7 +81,7 @@ public class MenuScreen implements Screen {
         this.exitButton.update(checkTouch, touchX, touchY);
 
         if (this.exitButton.isDown){
-            dispose();
+            this.game.dispose();
             Gdx.app.exit();
             System.exit(-1);
         }

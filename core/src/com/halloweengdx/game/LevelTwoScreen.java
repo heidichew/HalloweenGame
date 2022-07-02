@@ -215,12 +215,11 @@ public class LevelTwoScreen extends GameScreen
     @Override
     public void update()
     {
+        // Update player regardless the state
+        player.update(stateTime);
 
         if(super.gameState == GameState.PLAYING || super.gameState == GameState.WIN)
         {
-            // Update player regardless the state
-            player.update(stateTime);
-
             // Remove enemy regardless the state
             for(int i=this.enemies.size() -1; i>=0; i--)
             {
@@ -253,7 +252,7 @@ public class LevelTwoScreen extends GameScreen
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
                 {
-                    dispose();
+                    this.game.dispose();
                     Gdx.app.exit();
                     System.exit(-1);
 
@@ -464,6 +463,7 @@ public class LevelTwoScreen extends GameScreen
                         }
                     }
                 }else if(this.player.getState() == Player.PlayerState.JUMPING){
+
                     // Something wrong
 //                    x = Math.round((this.player.getPosition().x / 128));
 //                    y = Math.round((this.player.getPosition().y / 128));
@@ -477,6 +477,7 @@ public class LevelTwoScreen extends GameScreen
 //                        //this.player.setState(Player.PlayerState.FALL_START);
 //                    }
 //                    player.setState(Player.PlayerState.ALIVE);
+
                     x = Math.round((this.player.getPosition().x / 128));
                     y = Math.round((this.player.getPosition().y / 128));
                     boolean middleBlocked = isBlocked(x, y);
