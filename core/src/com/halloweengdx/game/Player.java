@@ -123,7 +123,6 @@ public class Player implements Actor
         curDirection = PlayerDirection.RIGHT;
 
         isFlipLeft = false;
-        shouldFallStraight = false;
 
         receivedReward = null;
         isRewarded = false;
@@ -179,19 +178,17 @@ public class Player implements Actor
      */
     public void reset()
     {
-        health = MAX_LIFE;
-        position = new Vector2(start_position.x, start_position.y);
-        velocity = new Vector2(0,0);
+        this.health = MAX_LIFE;
+        this.position = new Vector2(start_position.x, start_position.y);
+        this.velocity = new Vector2(0,0);
 
-        prevState = PlayerState.ALIVE;
-        state = PlayerState.ALIVE;
+        this.prevState = PlayerState.ALIVE;
+        this.state = PlayerState.ALIVE;
 
-        curDirection = PlayerDirection.RIGHT;
+        this.curDirection = PlayerDirection.RIGHT;
 
-        isFlipLeft = false;
-
-        receivedReward = null;
-        isRewarded = false;
+        this.receivedReward = null;
+        this.isRewarded = false;
     }
 
     /**
@@ -557,6 +554,8 @@ public class Player implements Actor
 
     public PlayerDirection getFacingDirection(){ return curDirection; }
 
+    public void setFacingDirection(PlayerDirection direction) { curDirection = direction; }
+
     public Vector2 getVelocity() { return velocity; }
 
     public void setVelocity(float x, float y) { this.velocity = new Vector2(x, y); }
@@ -566,4 +565,5 @@ public class Player implements Actor
     public int getHealth() { return health; }
 
     public ArrayList<Weapon> getWeapons(){ return weapons; }
+
 }

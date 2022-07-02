@@ -11,14 +11,17 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This game class handles logics for level two gameplay
+ */
 public class LevelTwoScreen extends GameScreen
 {
 
-    public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 580);
-    public final static Vector2 CHECKPOINT_TWO = new Vector2(9400, 1350);
+    public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 580);      // The first checkpoint to respawn the player if player's health is deducted
+    public final static Vector2 CHECKPOINT_TWO = new Vector2(9400, 1350);   // The first checkpoint to respawn the player if player's health is deducted
 
-    public final static int MAP_WIDTH = 80;
-    public final static int MAP_HEIGHT = 20;
+    public final static int MAP_WIDTH = 80;     // The map width for level 2
+    public final static int MAP_HEIGHT = 20;    // The map height for level 2
 
     // The spike's y position after falling into a pit
     public final static float SPIKE_TRAP_Y = 15;
@@ -38,10 +41,18 @@ public class LevelTwoScreen extends GameScreen
     //Enemy
     private List<Enemy> enemies;
 
+    // Level two is a bit special as the final boss x location is above checkpoint one
+    // Add a boolean variable to respawn the player if the player has passed through checkpoint 2
+    private boolean hasPassedCheckpointTwo = false;
+
     public LevelTwoScreen(HalloweenGdxGame game)
     {
         super(game);
-        newGame();
+
+        this.game = game;
+
+        this.create();
+        this.newGame();
     }
 
     @Override
@@ -76,7 +87,9 @@ public class LevelTwoScreen extends GameScreen
 
         //Enemy
         this.enemies = new ArrayList<Enemy>();
+    }
 
+    private void spawnEnemyInMap(){
         this.enemies.add(new NecromancerBoss(
                 this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6, true));
 
@@ -96,16 +109,32 @@ public class LevelTwoScreen extends GameScreen
                 new Vector2(0f + this.tileLayer.getTileWidth() * 29,  this.tileLayer.getTileHeight() * 15), this.tileLayer, 50,4, true));
     }
 
+    /**
+     * Reset everything for every new game
+     */
     public void newGame()
     {
         super.newGame();
 
-        create();
+        // Set game score to previous level one
+        this.gameScore = this.game.levelScores.get(0);
+        this.hasPassedCheckpointTwo = false;
 
-        // Reset game score to previous level one
-        gameScore = this.game.levelScores.get(0);
+        // Remove the old enemies for every restart
+        this.enemies.clear();
+        // Respawn enemy for every new game
+        spawnEnemyInMap();
 
-        this.player.reset();
+        // Reset NPC
+        if(npc != null) npc.reset();
+
+        // Reset player
+        if(player != null) player.reset();
+
+        // Reset the camera position
+        super.camera.position.x = (Gdx.graphics.getWidth() / 2) - 100;
+        super.camera.position.y = player.getPosition().y + 600f;
+        super.camera.update();
     }
 
     @Override
@@ -201,9 +230,7 @@ public class LevelTwoScreen extends GameScreen
                 {
                     this.enemies.remove(i);
                 }
-
             }
-
         }
 
 
@@ -256,7 +283,6 @@ public class LevelTwoScreen extends GameScreen
             }
             case FAIL:
             {
-
                 GameAssetsDB.getInstance().l2_music.stop();
                 GameAssetsDB.getInstance().game_over.play();
 
@@ -280,7 +306,6 @@ public class LevelTwoScreen extends GameScreen
             case PLAYING:
             {
 
-
                 // Check if the user press the pause button
                 super.pauseButton.update(Gdx.input.isTouched(), Gdx.input.getX(), Gdx.input.getY());
                 if (super.pauseButton.isDown)
@@ -288,10 +313,9 @@ public class LevelTwoScreen extends GameScreen
                     super.gameState = GameState.PAUSE;
                 }
 
-                if(this.npc!=null)
-                {
-                    this.npc.update(Gdx.graphics.getDeltaTime());
-                }
+                // Update NPC
+                if(this.npc!=null) this.npc.update(Gdx.graphics.getDeltaTime());
+
 
                 if(GameAssetsDB.getInstance().danger_zone_music.isPlaying())
                 {
@@ -305,6 +329,10 @@ public class LevelTwoScreen extends GameScreen
                     }
                 }
 
+                // Check if the player has passed through checkpoint two
+                if(this.player.getPosition().x >= CHECKPOINT_TWO.x && this.player.getPosition().y >= CHECKPOINT_TWO.y){
+                    hasPassedCheckpointTwo = true;
+                }
 
                 gameController();
 
@@ -375,11 +403,12 @@ public class LevelTwoScreen extends GameScreen
                         super.camera.position.y = player.getPosition().y + 600f;
                         super.camera.update();
 
-                        if(this.player.getPosition().x <= CHECKPOINT_TWO.x && this.player.getPosition().y < 1200){
+                        if(this.player.getPosition().x <= CHECKPOINT_TWO.x && this.player.getPosition().y < 1200 && !hasPassedCheckpointTwo){
                             this.player.setPosition(CHECKPOINT_ONE);
                         }else{
                             this.player.setPosition(CHECKPOINT_TWO);
                         }
+                        this.player.setFacingDirection(Player.PlayerDirection.RIGHT);
                         this.player.setState(Player.PlayerState.ALIVE);
                     }else{
                         player.setState(Player.PlayerState.DYING);
@@ -632,6 +661,9 @@ public class LevelTwoScreen extends GameScreen
         }
     }
 
+    /**
+     * If this level is shown on screen, play the music that is specific for this level
+     */
     @Override
     public void show()
     {

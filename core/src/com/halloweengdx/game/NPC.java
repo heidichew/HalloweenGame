@@ -70,16 +70,11 @@ public class NPC implements Actor
 
     private final int SCORE_REWARD = 200;
 
-    /**
-     * Heart movement
-     */
-    private float deltaX;
-    private float deltaY;
 
     /**
      * Heart moving speed
      */
-    private float HEART_SPEED = 30f;
+    private float HEART_SPEED = 2f;
 
     /**
      * Appear timer
@@ -135,6 +130,8 @@ public class NPC implements Actor
     private float heartTime = 0f;
     private float drawTime = 0f;
 
+    private static final float PLAYER_DISTANCE_NPC = 300;   // The player distance with NPC (use for how close should the NPC give heart)
+
 
     /**
      * The constructor to create NPC
@@ -155,15 +152,6 @@ public class NPC implements Actor
         //use vector2 variables to calculate the direction the heat forwards
         this.start_heart = new Vector2(x, y + 200f);
         this.target_heart = new Vector2(0, 0);
-//
-//        // heart movement
-//        this.deltaX = this.start_heart.x - this.target_heart.x;
-//        this.deltaY = this.start_heart.y - this.target_heart.y;
-//
-//        double dist = Math.sqrt( deltaX*deltaX + deltaY*deltaY );
-//
-//        this.deltaX = (float) (deltaX / dist * HEART_SPEED);
-//        this.deltaY = (float) (deltaY / dist * HEART_SPEED);
 
         this.npyType = npcType;
 
@@ -193,9 +181,7 @@ public class NPC implements Actor
 
         // state timer for animation
         this.idle_state = 0.0f;
-
         this.give_reward_state = 0.0f;
-
         this.appear_timer = 0.0f;
 
         this.left_turn = true;
@@ -206,6 +192,8 @@ public class NPC implements Actor
         this.hasSetTargetPosition = false;
         this.shouldDraw = false;
 
+        // Time variables to track how long the heart has been spawned
+        // and use for creating blinking effect
         this.heartTime = 0;
         this.drawTime = 0;
     }
@@ -218,6 +206,7 @@ public class NPC implements Actor
     @Override
     public void draw(SpriteBatch batch)
     {
+        // Make the NPC to face the player
         if(this.targetPlayer.getFacingDirection() == Player.PlayerDirection.LEFT){
             left_turn = false;
         }else{
@@ -280,7 +269,7 @@ public class NPC implements Actor
     @Override
     public void update(float delta)
     {
-        if((targetPlayer.getPosition().x < start_heart.x - 8 || targetPlayer.getPosition().x > start_heart.x + 8) && this.targetPlayer.isRewarded()){
+        if((targetPlayer.getPosition().x < start_heart.x - 15 || targetPlayer.getPosition().x > start_heart.x + 15) && this.targetPlayer.isRewarded()){
             this.npcState = NPC_STATE.INACTIVE;
             this.isHeartActive = false;
         }
@@ -293,7 +282,7 @@ public class NPC implements Actor
                 this.npcState = NPC_STATE.INACTIVE;
             }
 
-            if(!hasSetTargetPosition){
+            if(!hasSetTargetPosition ){
                 // The player stand right to the NPC
                 if(this.start_heart.x > targetPlayer.getPosition().x){
                     target_heart.x = start_heart.x - 200;
@@ -306,13 +295,13 @@ public class NPC implements Actor
             }
 
             if(start_heart.x > target_heart.x){
-                start_heart.x -= 2;
+                start_heart.x -= HEART_SPEED;
             }else {
-                start_heart.x += 2;
+                start_heart.x += HEART_SPEED;
             }
 
             if(start_heart.y >target_heart.y){
-                start_heart.y -= 2;
+                start_heart.y -= HEART_SPEED;
             }
         }
 
@@ -336,12 +325,17 @@ public class NPC implements Actor
                 this.idle_state += delta;
 
                 //If player comes close to the npc position
-                if(this.targetPlayer.getPosition().dst(this.current_position) <= 300){
-                    //if there's a reward to give
-                    if(this.reward!=null)
+                if(this.targetPlayer.getPosition().dst(this.current_position) <= PLAYER_DISTANCE_NPC){
+
+                    // Make sure the player is close enough to the NPC
+                    // Prevent accidentally trigger the give heart when jumping or landing
+                    if(targetPlayer.getPosition().y > (current_position.y - 15) && targetPlayer.getPosition().y < (current_position.y + 20)){
+                        //if there's a reward to give
+                        if(this.reward!=null)
                         {
                             this.npcState = NPC_STATE.GIVE_REWARD;
                         }
+                    }
                 }
 
                 break;
@@ -382,8 +376,25 @@ public class NPC implements Actor
     @Override
     public void reset()
     {
-        // nothing to reset
+        this.npcState = NPC_STATE.HIDE;
 
+        this.heartTime = 0;
+        this.drawTime = 0;
+
+        this.current_position = new Vector2(start_position.x, start_position.y);
+        this.start_heart = new Vector2(start_position.x, start_position.y + 200f);
+        this.target_heart = new Vector2(0,0);
+
+        this.give_reward_state = 0;
+        this.idle_state = 0;
+        this.appear_timer = 0;
+
+        this.isHeartActive = false;
+        this.hasSetTargetPosition = false;
+        this.shouldDraw = false;
+
+        // Make the NPC look left at the beginning
+        this.left_turn = true;
     }
 
     // Getter and Setter

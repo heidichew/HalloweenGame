@@ -16,13 +16,16 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This game class handles logics for level one gameplay
+ */
 public class LevelOneScreen extends GameScreen
 {
-    public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 600);
-    public final static Vector2 CHECKPOINT_TWO = new Vector2(3800, 600);
+    public final static Vector2 CHECKPOINT_ONE = new Vector2(20, 600);      // The first checkpoint to respawn the player if player's health is deducted
+    public final static Vector2 CHECKPOINT_TWO = new Vector2(3800, 600);    // The second checkpoint to respawn the player if player's health is deducted
 
-    public final static int MAP_WIDTH = 60;
-    public final static int MAP_HEIGHT = 20;
+    public final static int MAP_WIDTH = 60;     // The map width for level 1
+    public final static int MAP_HEIGHT = 20;    // The map height for level 1
 
     //core Game
     private HalloweenGdxGame game;
@@ -45,12 +48,24 @@ public class LevelOneScreen extends GameScreen
     //Enemy
     private List<Enemy> enemies;
 
+    // A variable to track if the player has passed through checkpoint 2, extra helpers has been spawned or not
+    private boolean hasSpawnedHelper = false;
+
+    /**
+     * Level one constructor
+     */
     public LevelOneScreen(HalloweenGdxGame game){
         super(game);
         this.game = game;
-        newGame();
+
+        // Initialise variables needed
+        this.create();
+        this.newGame();
     }
 
+    /**
+     *
+     */
     public void create(){
 
         super.create();
@@ -82,7 +97,9 @@ public class LevelOneScreen extends GameScreen
 
         // work out tile height
         this.enemies = new ArrayList<Enemy>();
+    }
 
+    private void spawnEnemyInMap(){
         this.enemies.add(new BatEnemy(this.player,
                 new Vector2(0f + this.tileLayer.getTileWidth() * 35, 30f + this.tileLayer.getTileHeight() * 12), this.tileLayer, 50 ,3, false));
 
@@ -94,8 +111,12 @@ public class LevelOneScreen extends GameScreen
 
         this.enemies.add(new SkullEnemy(this.player,
                 new Vector2(0f + this.tileLayer.getTileWidth() * 53,  this.tileLayer.getTileHeight() * 6), this.tileLayer, 100,5, true));
+
     }
 
+    /**
+     * Reset everything for every new game
+     */
     public void newGame()
     {
         super.newGame();
@@ -106,10 +127,28 @@ public class LevelOneScreen extends GameScreen
             GameAssetsDB.getInstance().l1_music.play();
         }
 
-        create();
-        player.reset();
+        hasSpawnedHelper = false;
+
+        // Remove the old enemies for every restart
+        this.enemies.clear();
+        // Respawn enemy every new game
+        spawnEnemyInMap();
+
+        // Reset NPC
+        if(npc != null) npc.reset();
+
+        // Reset player
+        if(player != null) player.reset();
+
+        // Reset the camera position
+        super.camera.position.x = (Gdx.graphics.getWidth() / 2) - 100;
+        super.camera.position.y = player.getPosition().y + 600f;
+        super.camera.update();
     }
 
+    /**
+     * If this level is shown on screen, play the music that is specific for this level
+     */
     @Override
     public void show() {
         GameAssetsDB.getInstance().l1_music.play();
@@ -292,16 +331,12 @@ public class LevelOneScreen extends GameScreen
                     super.gameState = GameState.PAUSE;
                 }
 
-//                if(this.npc!=null && this.npc.getNpcState() == NPC.NPC_STATE.INACTIVE)
-//                {
-//                    this.npc = null;
-//                }
-
                 if(this.npc!=null)
                 {
                     this.npc.update(Gdx.graphics.getDeltaTime());
                 }
 
+                // Play music
                 if(GameAssetsDB.getInstance().danger_zone_music.isPlaying())
                 {
                     GameAssetsDB.getInstance().l1_music.pause();
@@ -312,6 +347,10 @@ public class LevelOneScreen extends GameScreen
                     {
                         GameAssetsDB.getInstance().l1_music.play();
                     }
+                }
+
+                if(player.getPosition().x > CHECKPOINT_TWO.x + 50f){
+                    spawnBossHelperEnemy();
                 }
 
                 gameController();
@@ -386,12 +425,11 @@ public class LevelOneScreen extends GameScreen
                         super.camera.update();
 
                         if(this.player.getPosition().x <= CHECKPOINT_TWO.x){
-
                             this.player.setPosition(CHECKPOINT_ONE);
                         }else{
                             this.player.setPosition(CHECKPOINT_TWO);
                         }
-
+                        this.player.setFacingDirection(Player.PlayerDirection.RIGHT);
                         this.player.setState(Player.PlayerState.ALIVE);
                     }else{
                         player.setState(Player.PlayerState.DYING);
@@ -502,6 +540,24 @@ public class LevelOneScreen extends GameScreen
 
             return;
         }
+    }
+
+    /**
+     * Spawn more licking enemies to increase the difficulty for killing the final boss
+     */
+    private void spawnBossHelperEnemy()
+    {
+        if(hasSpawnedHelper){
+            return;
+        }
+
+        this.enemies.add(new LickingEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 50, (5 * 128f) - 40f), this.tileLayer, 50, 0, false));
+
+        this.enemies.add(new LickingEnemy(this.player,
+                new Vector2(0f + this.tileLayer.getTileWidth() * 56,  (5 * 128f) - 40f), this.tileLayer, 50, 0, false));
+
+        hasSpawnedHelper = true;
     }
 
     /**
