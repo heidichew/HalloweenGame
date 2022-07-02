@@ -27,9 +27,6 @@ public class LevelOneScreen extends GameScreen
     public final static int MAP_WIDTH = 60;     // The map width for level 1
     public final static int MAP_HEIGHT = 20;    // The map height for level 1
 
-    //core Game
-    private HalloweenGdxGame game;
-
     //assets
     private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
 
@@ -80,12 +77,6 @@ public class LevelOneScreen extends GameScreen
 
         // Initialise collision map
         this.collisionMap = new boolean[MAP_WIDTH][MAP_HEIGHT];
-
-        // Create player
-        this.player = new Player((int)CHECKPOINT_ONE.x, (int)CHECKPOINT_ONE.y);
-
-        this.npc = new NPC(this.player, (this.tileLayer.getTileWidth() * 45) - 20f, (this.tileLayer.getTileHeight()*13) + 50f, NPC.NPC_TYPE.Vampire);
-
         for (int y = 0; y < this.tileLayer.getHeight(); y++) {
             for (int x = 0; x < this.tileLayer.getWidth(); x ++) {
                 this.collisionMap[x][y] = false;
@@ -95,10 +86,19 @@ public class LevelOneScreen extends GameScreen
             }
         }
 
-        // work out tile height
+        // Create player
+        this.player = new Player((int)CHECKPOINT_ONE.x, (int)CHECKPOINT_ONE.y);
+
+        // Create NPC
+        this.npc = new NPC(this.player, (this.tileLayer.getTileWidth() * 45) - 20f, (this.tileLayer.getTileHeight()*13) + 50f, NPC.NPC_TYPE.Vampire);
+
+        // Initialise the list to store all created enemy instances
         this.enemies = new ArrayList<Enemy>();
     }
 
+    /**
+     * Create and spawn enemy instances in the game world
+     */
     private void spawnEnemyInMap(){
         this.enemies.add(new BatEnemy(this.player,
                 new Vector2(0f + this.tileLayer.getTileWidth() * 35, 30f + this.tileLayer.getTileHeight() * 12), this.tileLayer, 50 ,3, false));
@@ -178,18 +178,15 @@ public class LevelOneScreen extends GameScreen
         super.stateTime += Gdx.graphics.getDeltaTime();
         update();
 
-
         //Apply camera to spritebatch and draw player
         super.batch.setProjectionMatrix(camera.combined);
         super.batch.begin();
 
-        if(this.npc!=null)
-        {
-            this.npc.draw(batch);
-        }
+        // Draw NPC
+        if(this.npc != null) this.npc.draw(batch);
 
-        for(Enemy e: this.enemies)
-        {
+        // Draw enemies
+        for(Enemy e: this.enemies){
             e.draw(super.batch);
         }
 
@@ -213,17 +210,12 @@ public class LevelOneScreen extends GameScreen
 
             super.pauseButton.draw(super.uiBatch);
         }else if(super.gameState == GameState.PAUSE){
-
             super.resumeButton.draw(super.uiBatch);
             super.exitButton.draw(super.uiBatch);
-        }
-        else if(super.gameState == GameState.FAIL)
-        {
+        }else if(super.gameState == GameState.FAIL){
             super.restartButton.draw(super.uiBatch);
             super.exitButton.draw(super.uiBatch);
-        }
-        else if(super.gameState == GameState.WIN)
-        {
+        }else if(super.gameState == GameState.WIN){
             super.newLevelButton.draw(super.uiBatch);
             super.exitButton.draw(super.uiBatch);
         }
@@ -239,8 +231,7 @@ public class LevelOneScreen extends GameScreen
 
         if(super.gameState == GameState.PLAYING || super.gameState == GameState.WIN)
         {
-
-            // Remove enemy regardless the state
+            // Remove enemy
             for(int i=this.enemies.size() -1; i>=0; i--)
             {
                 this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
@@ -248,6 +239,7 @@ public class LevelOneScreen extends GameScreen
                 if(this.enemies.get(i).getState() == Enemy.EnemyState.DEAD)
                 {
                     // Add score if the enemy is killed
+                    // Special for the licking enemy type (as it can be killed by jumping over it)
                     super.gameScore += this.enemies.get(i).getScore();
                     this.enemies.remove(i);
                 }
@@ -261,7 +253,7 @@ public class LevelOneScreen extends GameScreen
             {
                 GameAssetsDB.getInstance().l1_music.pause();
 
-                // Check if the user press the resume button
+                // Check if the user presses the resume button
                 super.resumeButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.resumeButton.isDown){
                     super.resumePressed = true;
@@ -270,9 +262,9 @@ public class LevelOneScreen extends GameScreen
                     super.resumePressed = false;
                 }
 
+                // If the player presses the exit button
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
-                if(super.exitButton.isDown)
-                {
+                if(super.exitButton.isDown){
                     dispose();
                     Gdx.app.exit();
                     System.exit(-1);
@@ -282,16 +274,15 @@ public class LevelOneScreen extends GameScreen
             case WIN:
             {
                 super.newLevelButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
-                if(super.newLevelButton.isDown)
-                {
+                if(super.newLevelButton.isDown){
+                    // Save the game score to retrieve again for next level
                     this.game.levelScores.set(this.game.currentLevel, this.gameScore);
                     this.game.currentLevel += 1;
                     this.game.setScreen(this.game.gameLevels.get(game.currentLevel));
                 }
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
-                if(super.exitButton.isDown)
-                {
+                if(super.exitButton.isDown){
                     dispose();
                     Gdx.app.exit();
                     System.exit(-1);
@@ -302,23 +293,20 @@ public class LevelOneScreen extends GameScreen
             }
             case FAIL:
             {
-
                 GameAssetsDB.getInstance().l1_music.stop();
                 GameAssetsDB.getInstance().game_over.play();
 
+                // If the player press restart
                 super.restartButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
-                if(super.restartButton.isDown)
-                {
+                if(super.restartButton.isDown){
                     newGame();
                 }
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
-                if(super.exitButton.isDown)
-                {
+                if(super.exitButton.isDown){
                     this.game.dispose();
                     Gdx.app.exit();
                     System.exit(-1);
-
                 }
                 return;
             }
@@ -332,28 +320,24 @@ public class LevelOneScreen extends GameScreen
                     super.gameState = GameState.PAUSE;
                 }
 
-                if(this.npc!=null)
-                {
-                    this.npc.update(Gdx.graphics.getDeltaTime());
-                }
+                // Update NPC state
+                if(this.npc!=null) this.npc.update(Gdx.graphics.getDeltaTime());
 
                 // Play music
-                if(GameAssetsDB.getInstance().danger_zone_music.isPlaying())
-                {
+                if(GameAssetsDB.getInstance().danger_zone_music.isPlaying()){
                     GameAssetsDB.getInstance().l1_music.pause();
-                }
-                else
-                {
-                    if(GameAssetsDB.getInstance().l1_music.isPlaying() == false)
-                    {
+                }else{
+                    if(GameAssetsDB.getInstance().l1_music.isPlaying() == false){
                         GameAssetsDB.getInstance().l1_music.play();
                     }
                 }
 
-                if(player.getPosition().x > CHECKPOINT_TWO.x + 50f){
+                // Spawn more licking enemies to increase difficulty when the player is close to the final boss
+                if(player.getPosition().x > ((mapWidth - 17) * 128f)){
                     spawnBossHelperEnemy();
                 }
 
+                // Detect if the player press any game buttons that control the player movement
                 gameController();
 
                 int x = 0, y = 0;
@@ -545,6 +529,7 @@ public class LevelOneScreen extends GameScreen
 
     /**
      * Spawn more licking enemies to increase the difficulty for killing the final boss
+     * Spawn only once
      */
     private void spawnBossHelperEnemy()
     {
@@ -606,6 +591,7 @@ public class LevelOneScreen extends GameScreen
      * The move right button to control the player right movement
      * The attack button to control the player attack movement
      * The jump button to control the player jump movement depend on the player's current facing direction
+     * All buttons to control the player's movement will be frozen if the player is hurting, dying or dead
      */
     private void gameController(){
         // Disable the user to press any during these states
@@ -715,7 +701,6 @@ public class LevelOneScreen extends GameScreen
     @Override
     public void dispose()
     {
-
         this.player.dispose();
 
         for(Enemy e: enemies)

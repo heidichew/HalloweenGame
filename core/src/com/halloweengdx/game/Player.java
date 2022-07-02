@@ -66,9 +66,7 @@ public class Player implements Actor
     private Texture playerTexture;
     private Sprite playerSprite;
 
-    private Texture currentFrame;
-
-    float tmp = 0.0f;
+    private Texture currentFrame;                       // The current frame to show on screen
 
     // Animation
     private Animation idleAnimation = null;
@@ -143,9 +141,6 @@ public class Player implements Actor
         createAnimation();
 
         weapons = new ArrayList<Weapon>();
-
-        // Collider
-        collider = new Rectangle(position.x, position.y, playerSprite.getWidth(), playerSprite.getHeight());
     }
 
     /**
@@ -281,6 +276,11 @@ public class Player implements Actor
                 velocity.x = JUMP_X_SPEED;
             }
 
+            // Make a smooth curve when the delta value is too small
+            if(delta < 5){
+                velocity.x = velocity.x/2;
+            }
+
             if(jumpStartAnimation != null)  currentFrame = (Texture) jumpStartAnimation.getKeyFrame(jumpStartTime);
             jumpStartTime += 0.03f;
 
@@ -377,9 +377,6 @@ public class Player implements Actor
         // Update the sprite
         playerSprite.setX(position.x);
         playerSprite.setY(position.y);
-
-        // Update the player collider position to follow the player instance
-        collider.setPosition(position);
     }
 
     /**
@@ -433,6 +430,7 @@ public class Player implements Actor
         }
 
         // Make a smooth fall based on how much previously the player has jumped
+        // (how much y the player has jumped)
         float y = 0;
         if(jumpYForce <= 0){
             y = position.y - GRAVITY;
@@ -458,15 +456,16 @@ public class Player implements Actor
      * @param delta
      */
     private void jump(float delta){
-        tmp += delta;
         if (state == PlayerState.DEAD || state == PlayerState.DYING){
             return;
         }
 
         float y = velocity.y * delta;
+        // Prevent the player to jump too high
         if(y > MAX_JUMP_SPEED){
             y = MAX_JUMP_SPEED;
         }
+        // Set how much y the player has jumped and used for ensure smooth failing
         jumpYForce = y;
         y += position.y;
 
@@ -505,6 +504,11 @@ public class Player implements Actor
         }
     }
 
+    /**
+     * Function to enable the player to receive a health reward
+     * @param reward
+     * @return
+     */
     public boolean receiveReward(Reward reward)
     {
         this.receivedReward = reward;
@@ -512,20 +516,21 @@ public class Player implements Actor
         if(!this.isRewarded) {
             // Prevent the health go over maximum health
             if(health < MAX_LIFE) health += 1;
+            // Record that the player has received a health reward
             this.isRewarded = true;
         }
         return true;
     }
 
+    public void dispose(){
+        playerTexture.dispose();
+    }
+
+    // Getters and Setters
     public boolean isRewarded()
     {
         return this.isRewarded;
     }
-
-    public void dispose(){
-    }
-
-    // Getters and Setters
 
     public Vector2 getStartPosition() { return this.start_position; }
 
@@ -548,21 +553,19 @@ public class Player implements Actor
         this.state = state;
     }
 
-    public Rectangle getCollider() { return collider; }
+    public Sprite getSprite() { return this.playerSprite; }
 
-    public Sprite getSprite() { return playerSprite; }
+    public PlayerDirection getFacingDirection(){ return this.curDirection; }
 
-    public PlayerDirection getFacingDirection(){ return curDirection; }
+    public void setFacingDirection(PlayerDirection direction) { this.curDirection = direction; }
 
-    public void setFacingDirection(PlayerDirection direction) { curDirection = direction; }
-
-    public Vector2 getVelocity() { return velocity; }
+    public Vector2 getVelocity() { return this.velocity; }
 
     public void setVelocity(float x, float y) { this.velocity = new Vector2(x, y); }
 
-    public PlayerState getPreviousState(){ return prevState; }
+    public PlayerState getPreviousState(){ return this.prevState; }
 
-    public int getHealth() { return health; }
+    public int getHealth() { return this.health; }
 
     public ArrayList<Weapon> getWeapons(){ return weapons; }
 

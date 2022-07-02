@@ -89,6 +89,9 @@ public class LevelTwoScreen extends GameScreen
         this.enemies = new ArrayList<Enemy>();
     }
 
+    /**
+     * Create and spawn enemy instances in the game world
+     */
     private void spawnEnemyInMap(){
         this.enemies.add(new NecromancerBoss(
                 this.player, new Vector2(this.tileLayer.getTileWidth(), (this.tileLayer.getTileHeight()*18) - 25f), this.tileLayer, 200, 6, true));
@@ -160,23 +163,19 @@ public class LevelTwoScreen extends GameScreen
         super.stateTime += Gdx.graphics.getDeltaTime();
         update();
 
-
         //Apply camera to spritebatch and draw player
         super.batch.setProjectionMatrix(camera.combined);
         super.batch.begin();
 
-
-        if(this.npc!=null)
-        {
-            this.npc.draw(batch);
-        }
+        // Draw NPC on the screen
+        if(this.npc != null) this.npc.draw(batch);
 
         for(Enemy e: this.enemies)
         {
             e.draw(super.batch);
         }
 
-        this.player.draw(batch);
+        this.player.draw(super.batch);
 
         super.batch.end();
 
@@ -189,29 +188,33 @@ public class LevelTwoScreen extends GameScreen
         super.font.draw(super.uiBatch, Integer.toString(player.getHealth()), 200f, Gdx.graphics.getHeight() - 60f);
 
         if(super.gameState == GameState.PLAYING){
+            // Draw the buttons to control the player's movement on screen
             super.moveLeftButton.draw(super.uiBatch);
             super.moveRightButton.draw(super.uiBatch);
             super.jumpButton.draw(super.uiBatch);
             super.attackButton.draw(super.uiBatch);
 
+            // Draw the pause button
             super.pauseButton.draw(super.uiBatch);
-        } else if(super.gameState == GameState.PAUSE) {
+        }else if(super.gameState == GameState.PAUSE){
             super.resumeButton.draw(super.uiBatch);
             super.exitButton.draw(super.uiBatch);
         }
-        else if(super.gameState == GameState.FAIL)
-        {
+        else if(super.gameState == GameState.FAIL){
             super.restartButton.draw(super.uiBatch);
             super.exitButton.draw(super.uiBatch);
         }
-        else if(super.gameState == GameState.WIN)
-        {
+        else if(super.gameState == GameState.WIN){
+            super.largeFont.draw(uiBatch, "You Win!!", Gdx.graphics.getWidth()/2 - 400f, Gdx.graphics.getHeight() - 300f);
             super.exitButton.draw(super.uiBatch);
         }
 
         super.uiBatch.end();
     }
 
+    /**
+     * Update every instances in the game world
+     */
     @Override
     public void update()
     {
@@ -220,7 +223,7 @@ public class LevelTwoScreen extends GameScreen
 
         if(super.gameState == GameState.PLAYING || super.gameState == GameState.WIN)
         {
-            // Remove enemy regardless the state
+            // Remove enemy
             for(int i=this.enemies.size() -1; i>=0; i--)
             {
                 this.enemies.get(i).update(Gdx.graphics.getDeltaTime());
@@ -261,13 +264,9 @@ public class LevelTwoScreen extends GameScreen
             }
             case WIN:
             {
-                super.newLevelButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
-                if(super.newLevelButton.isDown)
-                {
-                    this.game.levelScores.set(this.game.currentLevel, this.gameScore);
-                    //super.game.currentLevel += 1;
-                    //super.game.setScreen(HalloweenGdxGame.gameLevels.get(super.game.currentLevel));
-                }
+                // Save this level score
+                int prevLevelScore = this.game.levelScores.get(0);
+                this.game.levelScores.set(this.game.currentLevel, (this.gameScore - prevLevelScore));
 
                 super.exitButton.update(Gdx.input.isTouched(),Gdx.input.getX(),Gdx.input.getY());
                 if(super.exitButton.isDown)
@@ -304,7 +303,6 @@ public class LevelTwoScreen extends GameScreen
 
             case PLAYING:
             {
-
                 // Check if the user press the pause button
                 super.pauseButton.update(Gdx.input.isTouched(), Gdx.input.getX(), Gdx.input.getY());
                 if (super.pauseButton.isDown)
@@ -315,24 +313,22 @@ public class LevelTwoScreen extends GameScreen
                 // Update NPC
                 if(this.npc!=null) this.npc.update(Gdx.graphics.getDeltaTime());
 
-
-                if(GameAssetsDB.getInstance().danger_zone_music.isPlaying())
-                {
+                // Play music
+                if(GameAssetsDB.getInstance().danger_zone_music.isPlaying()){
                     GameAssetsDB.getInstance().l2_music.pause();
-                }
-                else
-                {
-                    if(GameAssetsDB.getInstance().l2_music.isPlaying() == false)
-                    {
+                }else{
+                    if(GameAssetsDB.getInstance().l2_music.isPlaying() == false) {
                         GameAssetsDB.getInstance().l2_music.play();
                     }
                 }
 
                 // Check if the player has passed through checkpoint two
+                // Respawn the player at checkpoint two after the player has passed through checkpoint two
                 if(this.player.getPosition().x >= CHECKPOINT_TWO.x && this.player.getPosition().y >= CHECKPOINT_TWO.y){
                     hasPassedCheckpointTwo = true;
                 }
 
+                // Detect if the player press any game buttons that control the player movement
                 gameController();
 
                 int x = 0, y = 0;
@@ -386,7 +382,7 @@ public class LevelTwoScreen extends GameScreen
                         player.setState(Player.PlayerState.JUMP_START);
                     }
 
-                    // If the player somewhat jump out from the tilemap
+                    // If the player somewhat jump out from the tile map
                     // Reset the position
                     if(player.getPosition().x <= 0){
                         player.setPosition(0, player.getPosition().y);
@@ -463,20 +459,6 @@ public class LevelTwoScreen extends GameScreen
                         }
                     }
                 }else if(this.player.getState() == Player.PlayerState.JUMPING){
-
-                    // Something wrong
-//                    x = Math.round((this.player.getPosition().x / 128));
-//                    y = Math.round((this.player.getPosition().y / 128));
-//
-//                    boolean upperBlocked = isBlocked(x, y);
-//
-//                    if (upperBlocked) {
-//                        this.player.setPosition(player.getPosition().x, player.getPosition().y + 25f);
-//                        player.setState(Player.PlayerState.ALIVE);
-//                    }else{
-//                        //this.player.setState(Player.PlayerState.FALL_START);
-//                    }
-//                    player.setState(Player.PlayerState.ALIVE);
 
                     x = Math.round((this.player.getPosition().x / 128));
                     y = Math.round((this.player.getPosition().y / 128));
@@ -573,7 +555,6 @@ public class LevelTwoScreen extends GameScreen
         super.camera.update();
     }
 
-
     /**
      * Game controller to detect game play control for playing the game
      * This function detect the following:
@@ -581,6 +562,7 @@ public class LevelTwoScreen extends GameScreen
      * The move right button to control the player right movement
      * The attack button to control the player attack movement
      * The jump button to control the player jump movement depend on the player's current facing direction
+     * All buttons to control the player's movement will be frozen if the player is hurting, dying or dead
      */
     private void gameController(){
         // Disable the user to press any during these states
@@ -622,10 +604,11 @@ public class LevelTwoScreen extends GameScreen
 
         // Detect if the the jump button is pressed
         if (Gdx.input.isKeyPressed(Input.Keys.DPAD_UP) || super.jumpButton.isDown) {
+            // If the player have not pressed jump button for a while
             if(this.jumpPressedTime == 0){
                 this.isJumpHeld = true;
                 this.jumpPressedTime += 1f;
-            }else if(this.jumpPressedTime < (JUMP_PRESS_COOLDOWN/5.5)){
+            }else if(this.jumpPressedTime < (JUMP_PRESS_COOLDOWN/5.5f)){ // If the player has pressed but allow second short jump
                 this.isJumpHeld = true;
             }else{
                 this.isJumpHeld = false;
@@ -644,21 +627,21 @@ public class LevelTwoScreen extends GameScreen
 
         // Detect if the the attack button is pressed
         if(Gdx.input.isKeyPressed(Input.Keys.DPAD_DOWN) ||attackButton.isDown){
-            if(attackPressedTime == 0) {
+            if(this.attackPressedTime == 0) {
                 this.isAttackHeld = true;
                 this.attackPressedTime += 1;
             }else{
                 this.isAttackHeld = false;
             }
         }else{
-            isAttackHeld = false;
+            this.isAttackHeld = false;
         }
 
         // Cool down attack press
-        if(attackPressedTime > ATTACK_PRESS_COOLDOWN){
-            attackPressedTime = 0;
+        if(this.attackPressedTime > ATTACK_PRESS_COOLDOWN){
+            this.attackPressedTime = 0;
         }else if(attackPressedTime >= 1){
-            attackPressedTime += 1;
+            this.attackPressedTime += 1;
         }
     }
 

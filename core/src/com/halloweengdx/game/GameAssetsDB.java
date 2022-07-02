@@ -263,6 +263,7 @@ public class GameAssetsDB
         this.l1_music.setLooping(true);
 
         this.l2_music = Gdx.audio.newMusic(Gdx.files.internal("music/Haunted_Carnival_by_Steve_Oxen.mp3"));
+        this.l2_music.setVolume(0.8f);
         this.l2_music.setLooping(true);
 
         this.danger_zone_music = Gdx.audio.newMusic(Gdx.files.internal("music/Danger-Zone_SIPML_J.mp3"));

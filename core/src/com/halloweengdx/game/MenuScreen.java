@@ -16,28 +16,34 @@ public class MenuScreen implements Screen {
 
     private HalloweenGdxGame game;
 
-    private SpriteBatch uiBatch;    // Sprite batch to render objects on the screen
-    private BitmapFont font;
+    private SpriteBatch uiBatch;        // Sprite batch to render objects on the screen
+    private BitmapFont font;            // The font object to draw texts on the screen
 
     // UI Buttons
-    private Button playButton = null;
-    private Button exitButton = null;
+    private Button playButton = null;   // The play button
+    private Button exitButton = null;   // The exit button
 
-    // Music
-    private Music bgMusic = GameAssetsDB.getInstance().menu_music;
+    // Looping music
+    private Music bgMusic = null;
 
     public MenuScreen(HalloweenGdxGame game) {
         this.game = game;
     }
 
     public void create(){
+        // Initialise batch and font
         this.uiBatch = new SpriteBatch();
         this.font = new BitmapFont();
         this.font.setColor(Color.RED);
         this.font.getData().setScale(10, 10);
 
+        // Set the buttons' texture
         Texture playTexture = GameAssetsDB.getInstance().menu_play;
         Texture exitTexture = GameAssetsDB.getInstance().menu_exit;
+
+        // Set the music
+        bgMusic = GameAssetsDB.getInstance().menu_music;
+        bgMusic.setVolume(3f);
         
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
@@ -114,7 +120,6 @@ public class MenuScreen implements Screen {
 
     @Override
     public void dispose() {
-        
         uiBatch.dispose();
         font.dispose();
         playButton.dispose();

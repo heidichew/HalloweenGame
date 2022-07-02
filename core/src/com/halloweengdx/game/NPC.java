@@ -329,7 +329,7 @@ public class NPC implements Actor
 
                     // Make sure the player is close enough to the NPC
                     // Prevent accidentally trigger the give heart when jumping or landing
-                    if(targetPlayer.getPosition().y > (current_position.y - 15) && targetPlayer.getPosition().y < (current_position.y + 20)){
+                    if(targetPlayer.getPosition().y > (current_position.y - 20) && targetPlayer.getPosition().y < (current_position.y + 30)){
                         //if there's a reward to give
                         if(this.reward!=null)
                         {

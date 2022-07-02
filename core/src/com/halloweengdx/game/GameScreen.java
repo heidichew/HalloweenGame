@@ -17,13 +17,12 @@ public abstract class GameScreen implements Screen {
 
     public enum GameState { PLAYING, PAUSE, WIN, FAIL}
 
-    protected OrthographicCamera camera;
+    protected OrthographicCamera camera;    // The camera in the game world
 
     protected SpriteBatch batch;            // batch to draw the enemy instances, NPC and player
     protected SpriteBatch levelBatch;       // batch to draw instances in a level (e.g., Tilemap)
     protected SpriteBatch bgBatch;          // batch to draw background only
     protected SpriteBatch uiBatch;          // batch to draw buttons or UI related
-    protected SpriteBatch enemyBatch;
 
     // Game clock
     protected float stateTime;
@@ -43,33 +42,35 @@ public abstract class GameScreen implements Screen {
     protected Button newLevelButton;
     protected Button exitButton;
 
-    protected BitmapFont font;
+    protected BitmapFont font;              // Font object to draw smaller text
+    protected BitmapFont largeFont;         // Font object to draw a larger text
 
     protected boolean resumePressed;
 
     private GameAssetsDB gameAssetsDB = GameAssetsDB.getInstance();
-    protected HalloweenGdxGame game;
 
-    private float targetScreenHeight = 1920;
-    private float targetScreenWidth;
+    protected HalloweenGdxGame game;            // A reference to the core Game
+
+    private float targetScreenHeight = 1920;    // The target screen height
+    private float targetScreenWidth;            // The target screen width
 
     // Detect if the user press the gameplay controls
     protected boolean isJumpHeld, isRightHeld, isLeftHeld, isAttackHeld;
 
-    protected long jumpPressedTime = 0;
-    protected float attackPressedTime = 0;
-    protected int jumpPressed = 0;
+    // Float variables
+    protected long jumpPressedTime = 0;         // To track how long the user has pressed the jump button
+    protected float attackPressedTime = 0;      // To track how long the user has pressed the attack button
 
     public static final float ATTACK_PRESS_COOLDOWN = 40;   // Cool down time for pressing the attack button (prevent the player to throw multiple weapons at a time)
     public static final float JUMP_PRESS_COOLDOWN = 120;    // Cool down time for jumping, prevent the player jump too high at a time
 
-    protected boolean[][] collisionMap;
+    protected boolean[][] collisionMap;                     // The collision map to store the tiles information for a map (use for detecting collision)
 
-    protected int aliveFall;
-    protected boolean skipCheckState = false;
+    protected int aliveFall;                                // A variable to track how many times the state constantly switch between alive and fall
+    protected boolean skipCheckState = false;               // If true, skip checking the state and make the player to fall immediately
 
-    protected int mapWidth = 0;     // The width of a map in a game level
-    protected int mapHeight = 0;    // The height of a map in a game level
+    protected int mapWidth = 0;                             // The width of a map in a game level
+    protected int mapHeight = 0;                            // The height of a map in a game level
 
     public GameScreen(HalloweenGdxGame game) {
 
@@ -93,7 +94,6 @@ public abstract class GameScreen implements Screen {
         batch = new SpriteBatch();
         levelBatch = new SpriteBatch();
         bgBatch = new SpriteBatch();
-        enemyBatch = new SpriteBatch();
 
         // Load button texture
         Texture buttonSquareTexture = this.gameAssetsDB.buttonSquareTexture;
@@ -121,14 +121,24 @@ public abstract class GameScreen implements Screen {
         exitButton = new Button((w/2) - (buttonSize*3f)/2, h/2 - (buttonSize * 0.5f) - 360f, buttonSize*3f, buttonSize, "Exit");
 
         //New Level
-        this.newLevelButton = new Button((w/2) - (buttonSize*3f)/2, h/2 - (buttonSize * 0.5f) - 60f, buttonSize*3f, buttonSize, "Next Level ->");
+        newLevelButton = new Button((w/2) - (buttonSize*3f)/2, h/2 - (buttonSize * 0.5f) - 60f, buttonSize*3f, buttonSize, "Next Level ->");
 
         // Font
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(5, 5);
+
+        // Large Font
+        largeFont = new BitmapFont();
+        largeFont.setColor(Color.WHITE);
+        largeFont.getData().setScale(12, 12);
+        // Set filter to make the text look sharper
+        largeFont.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 
+    /**
+     * Reset all variables for each new game
+     */
     public void newGame(){
         gameState = GameState.PLAYING;
         stateTime = 0;
@@ -136,7 +146,6 @@ public abstract class GameScreen implements Screen {
 
         attackPressedTime = 0;
         jumpPressedTime = 0;
-        jumpPressed = 0;
 
         isAttackHeld = false;
         isJumpHeld = false;
@@ -165,7 +174,6 @@ public abstract class GameScreen implements Screen {
         this.bgBatch.dispose();
         this.uiBatch.dispose();
         this.levelBatch.dispose();
-        this.enemyBatch.dispose();
 
         this.moveLeftButton.dispose();
         this.moveRightButton.dispose();
@@ -178,7 +186,6 @@ public abstract class GameScreen implements Screen {
         this.exitButton.dispose();
 
         this.font.dispose();
-
     };
 
     /**
@@ -197,6 +204,8 @@ public abstract class GameScreen implements Screen {
         }
         return false;
     }
+
+
 
 
 }

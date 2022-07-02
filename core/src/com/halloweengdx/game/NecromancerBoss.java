@@ -139,7 +139,7 @@ public class NecromancerBoss extends Enemy
         this.shortRange = false;
 
         // collider initialise
-        collider = new Rectangle(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f), this.necromancerWidth * this.scale, this.necromancerHeight * this.scale);
+        collider = new Rectangle(super.getPosition().x - (necromancerWidth / 2.0f) + 40, super.getPosition().y - (necromancerHeight / 2.0f), this.necromancerWidth * this.scale, this.necromancerHeight * this.scale);
     }
 
     @Override
@@ -197,7 +197,7 @@ public class NecromancerBoss extends Enemy
                     dying_texture = (Texture) this.hurtAnimation.getKeyFrame(this.hurt_state, false);
                 }
 
-                batch.draw(dying_texture, super.getPosition().x - this.necromancerWidth/2, super.getPosition().y - this.necromancerHeight/2, this.necromancerWidth, this.necromancerHeight);
+                batch.draw(dying_texture, super.getPosition().x - (this.necromancerWidth/2), super.getPosition().y - (this.necromancerHeight/2), this.necromancerWidth * this.scale, this.necromancerHeight * this.scale);
 
                 break;
 
@@ -341,7 +341,7 @@ public class NecromancerBoss extends Enemy
         }
 
         // Update the collider
-        this.collider.setPosition(new Vector2(super.getPosition().x - (necromancerWidth / 2.0f), super.getPosition().y - (necromancerHeight / 2.0f)));
+        this.collider.setPosition(new Vector2(super.getPosition().x - (necromancerWidth / 2.0f) + 40f, super.getPosition().y - (necromancerHeight / 2.0f)));
     }
 
     @Override
